@@ -1,0 +1,103 @@
+################################################################################
+#
+# this script demonstrates how to use functions and calling conventions.
+#
+################################################################################
+
+@!
+@c
+
+echo \12
+echo "A code block is a part of YOS script delimited with curly braces."
+echo "Unlike regular command, the commands contained in code block are"
+echo "not executed immediately but parsed into the device's volatile memory."
+echo
+echo "A code block without name gets executed  immediately after "
+echo "it's parsing is done and if its execution was not disabled "
+echo "by a preceeding conditional execution command."
+echo
+echo "A code block with a name is not executed immediatelly. "
+echo "Such a code block is abbreviated function."
+echo "All functions must be parsed before any execution of any code block"
+echo "takes place."
+
+echo _______
+delay 3000
+echo
+
+echo "YOS functions don't support an implicit mechanism for parameters"
+echo "or return values. It is up to the user to define the calling convention. "
+echo
+echo "A function has access to all variables of its callers."
+echo "If multiple variables with the same name were created previously"
+echo "(global or local), the dereferencing mechanism will pick the latest one."
+echo
+echo "A calling convention of a function with single argument"
+echo "and single return value can be defined just as two variables,"
+echo "e.g. 'input' and 'output', where 'input' holds the input argument"
+echo "and 'output' holds the result. Or, eventually, as a single variable,"
+echo "which is echo altered by the function (pass-through).""
+
+echo _______
+delay 3000
+echo
+
+echo call ...
+echo call ... ! will pause the execution (breakpoint)
+echo call ... > will continue the paused execution (breakpoint)
+echo call ... & will detach the block execution
+echo
+echo where ... is a function name.
+echo If ommited, last parsed function gets executed.
+
+echo _______
+delay 3000
+echo
+
+
+.foo {
+	echo I am foo
+	var i #local variable, exists until the function returns
+	set i input*input
+	set output i
+	#In this case, the i variable is optional. Alternatively:
+	#set output input*input
+}
+
+.bar {
+	echo I am bar
+	var i
+	set i input+input
+	set output i
+	#In this case, the i variable is optional. Alternatively:
+	#set output input+input
+}
+
+.main {
+	var input output int32  #local variables for our calling convention
+	if input<5 {
+		call foo
+		echo foo returned $output
+		call bar
+		echo bar returned $output
+		set input input+1
+ 		branch s-
+	}
+}
+
+echo !dne ehT
+call main
+echo The end!
+
+echo
+echo Since the 'output' and 'input' variables don't exist now,
+echo calling the foo here will result to errors:
+echo
+call foo
+
+
+echo
+echo
+echo
+echo Thanks for your attn.
+echo (c) 2019 siliXcon

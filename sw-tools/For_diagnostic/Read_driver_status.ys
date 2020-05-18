@@ -1,0 +1,134 @@
+@c #send interrupt in a case other script is running
+@! #machine log-in as guest
+
+set debuglevel 255 #prevent bullshitting
+echo \12 #clear screen
+echo
+echo Read_driver_status
+echo =============================================================
+echo
+
+
+var stat limit int32
+set stat /driver/stat
+set limit /driver/limit
+
+if /driver/error<0 {
+echo
+echo DRIVER IS NOT INITIALIZED!!!
+echo /driver/error = $/driver/error 
+echo
+echo
+}
+if /driver/error>0 {
+echo
+echo DRIVER IS IN ERROR!!!
+echo /driver/error = $/driver/error 
+echo
+echo
+}
+
+echo High priority limiters: /driver/stat
+echo _____________________________________________________________   
+ if (stat)&1 {
+    echo + Overcurrent detected
+    } 
+ if (stat)&2 {
+    echo + Undervoltage detected
+    echo | - Battery voltage: $/driver/supply/voltage [V]
+    }   
+ if (stat)&4 {
+    echo + Overtemperature detected
+    echo | - CPU_temp (max 90): $/driver/temp [°C]
+    echo | - PTC_value (max 200): $/driver/ptctemp [-]
+    }   
+ if (stat)&8 {
+    echo + Overvoltage detected
+    echo | - Battery voltage: $/driver/supply/voltage [V]
+    }   
+ if (stat)&16 {
+    echo + Rotor angle sensor error / not ready
+    }   
+ if (stat)&32 {
+    echo + Internal temperature sensor malfunction
+    echo | - CPU_temp (max 90): $/driver/temp  [°C]
+    echo | - PTC_value (max 200): $/driver/ptctemp [-]
+    } 
+ if (stat)&64 {
+    echo + reserved
+    } 
+ if (stat)&128 {
+    echo + Motor working over its nominal speed
+    echo | - RPM: $/driver/motor/rpmf [el-rpm]
+    
+    }           
+echo _____________________________________________________________
+
+echo
+echo
+echo
+echo Low priority limiters: /driver/limit
+echo _____________________________________________________________   
+ if (limit)&1 {
+    echo + Battery positive current higher than ibpos
+    echo | - Current: $/driver/supply/currentf [A]
+    } 
+ if (limit)&2 {
+    echo + Battery negative current higher than ibneg
+    echo | - Current: $/driver/supply/currentf [A]
+    }   
+ if (limit)&4 {
+    echo + Battery voltage lower than ubmin
+    echo | - Battery voltage: $/driver/supply/voltage [V]
+    }   
+ if (limit)&8 {
+    echo + Battery voltage higher than ubmax
+    echo | - Battery voltage: $/driver/supply/voltage [V]
+    }   
+ if (limit)&16 {
+    echo + Positive power higher than ppos
+    echo | - Power: $/driver/power [W]
+    }   
+ if (limit)&32 {
+    echo + Negative power higher than pneg
+    echo | - Power: $/driver/power [W]
+    } 
+ if (limit)&64 {
+    echo + Positive RPM higher than rpos-rdec/2
+    echo | - RPM: $/driver/motor/rpmf [el-rpm]
+    } 
+ if (limit)&128 {
+    echo + Negative RPM higher than rneg-rdec/2
+    echo | - RPM: $/driver/motor/rpmf [el-rpm]
+    }     
+if (limit)&256 {
+    echo + Measured motor temperature higher than mtemplo
+    echo | - Sensor resistance: $/common/Rthermistor [ohm]
+    } 
+if (limit)&512 {
+    echo + Estimated motor temperature higher than mreslo
+    echo | - Estimated motor resistance: $/driver/motor/mres [ohm]
+    } 
+if (limit)&1024 {
+    echo + Battery temperature higher than btempmaxlo or lower than btempminlo
+    } 
+if (limit)&2048 {
+    echo + Cell voltage higher than bcellmax or lower than bcellmin
+    } 
+if (limit)&4096 {
+    echo + Sweep rate limiter active
+    } 
+if (limit)&8192 {
+    echo + External (application) limiter active
+    } 
+if (limit)&16384 {
+    echo + imult is not equal to 1
+    echo | - Imult: $/driver/imult [-]
+    } 
+if (limit)&32768 {
+    echo + umult is not equal to 1
+    echo | - Umult: $/driver/umult [-]
+    }                                           
+echo _____________________________________________________________
+
+

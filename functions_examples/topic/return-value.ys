@@ -1,0 +1,25 @@
+################################################################################
+#
+# this script presents how to return a value which will be passed
+# as a return value to term.exe
+#
+################################################################################
+
+@!
+@c
+
+# variable value will be returned as return value of program (term.exe)
+var value
+set value 10
+
+# ASCII character 12 tells term.exe to clear screen
+echo \12
+
+#just print it on the screen
+echo Value = $value
+
+# ASCII character 26 tells term.exe to start parsing the consequent
+# numeric variable
+# ASCII character 27 (ESCAPE) ends term.exe
+
+echo  \26 $value \27

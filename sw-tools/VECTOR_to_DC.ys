@@ -1,0 +1,27 @@
+# This convert VECTOR driver to DC
+# Connect motor between phase A - B
+
+
+@! 
+
+{
+ echo \12 #clear screen
+
+ restore -y /driver/motor
+ restore -y /driver/dac
+ restore -y /driver/rest
+ 
+ set /driver/prest 0
+ set /driver/rest/omega 0
+ set /driver/pid_id/i 0
+ set /driver/pid_id/p 0
+ 
+ save -y
+ 
+ echo ==================================================
+ echo Driver was configured for controll DC motor
+ echo Connect motor between phase A and B
+ echo
+ echo ===Do NOT run identrun, or identlin!!===
+ echo ===Do NOT run 2-Motor_identification!===
+}

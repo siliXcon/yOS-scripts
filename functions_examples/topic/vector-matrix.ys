@@ -1,0 +1,90 @@
+################################################################################
+#
+# this script demonstrates how to use arrays as vectors and matrices
+#
+################################################################################
+
+@!
+@c
+echo \12
+
+#make our array/vector.
+#note that if the variable already exists, upon re-creation, the value is not altered.
+#if the variable does not exist, it is set to zero upon creation.
+
+var v.4 float
+echo "Initialize our vector"
+echo set v xp(0)
+set v xp(0)
+echo v = $v
+
+echo
+echo "Fill-in something"
+echo set v 1,2,3,4
+set v 1,2,3,4
+echo v = $v
+
+echo
+echo "Scaled vector"
+echo v*xp(3) = $v*xp(3)
+
+echo
+echo "Sum-up our vector"
+echo sum.4(v) = $sum.4(v)
+
+echo
+echo "Find a minimum member"
+echo min.4(v) = $min.4(v)
+
+echo
+echo "Find a maximum member"
+echo max.4(v) = $max.4(v)
+
+echo
+echo "Vector multiply"
+echo sum.4(v*1,2,3,4) = $sum.4(v*1,2,3,4)
+
+echo
+echo "Compute magnitude"
+echo sqrt(sum.4(v*v)) = $sqrt(sum.4(v*v))
+
+echo
+echo "Square-root our vector"
+echo set v sqrt(v)
+set v sqrt(v)
+echo v = $v
+
+echo
+echo "Make a sub-vector"
+echo v.1.2 = $v.1.2
+
+echo
+echo ______
+echo
+
+echo "Create a 4x4 matrix"
+var A.16 float
+set A 1,2,3,4;5,6,7,8;9,10,11,12;13,14,15,16
+
+echo Our matrix is:
+echo $A.0.4 \10 $A.4.4 \10 $A.8.4 \10 $A.12.4 \10
+
+echo
+echo "Transform our vector with this matrix"
+set v sum.4(A*xp.4(v))
+echo set v sum.4(A*xp.4(v))
+echo v = $v
+
+# TODO implement tp.N(...) function to allow easy matrix transposition
+# (for matrix-matrix multiply)
+#echo
+#echo "Square the matrix"
+#set v A*tp.4(A)
+#echo set v A*tp.4(A)
+#echo $A.0.4 \10 $A.4.4 \10 $A.8.4 \10 $A.12.4 \10
+
+echo
+echo
+echo
+echo Thanks for your attn.
+echo (c) 2019 siliXcon

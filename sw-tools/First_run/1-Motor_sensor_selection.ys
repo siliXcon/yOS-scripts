@@ -1,0 +1,85 @@
+@w 3
+@c #send interrupt in a case other script is running
+@! #machine log-in as guest
+
+
+set debuglevel 255 #prevent bullshitting
+var s int32
+set s 0
+
+# Overide motor control
+stop
+
+{
+ echo \12 #clear screen
+ 
+ 
+  echo ==============================
+  echo Motor sensor selection
+  echo ==============================
+  echo All sensors are never supported together
+  echo Please read datasheet to know,
+  echo which sensor support your controller. 
+  echo
+  echo For information about each sensor,
+  echo read /manuals_core/manual_driver.pdf 
+  echo
+  echo ==============================
+  echo 0 - asynchronous mode
+  echo 1 - sensoreless mode 
+  echo 2 - three Hall sensors 
+  echo 3 - Sin/Cos sensor    
+  echo 4 - resolver sensor 
+  echo ==============================
+  echo 
+  echo Enter number of motor sensor:
+  set s $?
+  echo
+  
+  set /driver/prest s
+  echo
+  echo You set:
+  echo ==============================
+  if s==0 {
+  echo asynchronous mode
+  }
+  elif s==1 {
+  echo sensoreless mode 
+  }
+  elif s==2 {
+  echo three Hall sensors 
+  }
+  elif s==3 {
+  echo analog Sin/Cos sensor  
+  }
+  elif s==4 {
+  echo resolver sensor 
+  }
+  elif s==5 {
+  echo digital sensor, SSI 16-bit 
+  }
+  elif s==6 {
+  echo digital sensor, BSSI protocol 
+  }
+  elif s==10 {
+  echo Encoder 
+  }
+  else {
+  echo $s
+  echo Are you sure?
+  echo This is not standard mode.
+  }
+  echo ==============================
+  echo 
+
+
+
+
+ echo Saving parameter
+ save -y
+ echo Hit enter to quit and reboot!
+ echo $?
+ echo \27
+ delay 1000
+ reboot
+}

@@ -1,0 +1,14 @@
+
+@!
+@c
+echo \12
+var i
+var hwid.32 string
+version -h hwid
+echo Moje revize je $hwid.8.1
+set i 0
+{
+    echo znak $i je '$hwid.$i~.1~'
+    set i i+1
+    if  hwid.$i~.1!="" branch s
+}

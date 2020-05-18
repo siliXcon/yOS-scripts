@@ -1,0 +1,38 @@
+################################################################################
+#
+# this script presents how to work with internal script.
+#
+################################################################################
+
+
+@!
+@c
+
+echo \12
+echo Functionality:
+echo
+echo "to print actually saved script"
+echo script p
+echo "to start/restart internal script"
+echo script s
+echo "to quit currently running internal script"
+echo script q
+echo "to erase internal script"
+echo script e
+echo "to compute hash of currently stored internal script"
+echo script h
+
+echo
+echo I am external script !
+
+script
+#internal script code
+#...
+echo Hello, world !
+#...
+quit
+
+#external script code
+echo I am external script !
+echo Internal script is:
+script p

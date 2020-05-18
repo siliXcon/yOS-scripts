@@ -1,0 +1,303 @@
+################################################################################
+#
+# expression demonstration script
+# written as an example on how to use expressions in YOS
+#
+################################################################################
+
+@!
+@c
+echo \12
+echo YOS shell interpretter offers an expression evaluating mechanism.
+echo An expression is a special string, containing \
+echo constants, variables, operators and functions.
+echo
+echo Constants:
+echo (*) Scalar or vector numbers (array members delimited with comma).
+echo (*) Fixed point with arbitrary base.
+echo (*) Floating point with standard or scientific notation.
+echo (*) Constant can be explicitly delimited with quotes.
+echo
+echo Variables:
+echo (*) A read-accessible YOS filesystem variable entry.
+echo (*) Exists in current working directory.
+echo (*) Specified with full path, relative or absolute.
+echo (*) A global or local variable from /vars directory.
+echo
+echo Operators:
+echo (*) Arithmetic: +,-,*,:,%
+echo (*) Boolean: !,||,&&
+echo (*) Comparison: ==,!=,<,>
+echo (*) Bitwise: &,|,^
+echo (*) Concatenate: ;
+echo
+echo Functions:
+echo (*) Array expansion: xp #,tp TODO implement 'tp' function
+echo (*) Arithmetics: sum,min,max,sat,sgn,abs
+echo (*) Math: sin,cos,sqrt,atan2,pow
+
+delay 2000
+echo _____________
+echo
+
+echo The expression is not converted to a string, \
+echo but always evaluated in certain datatype.
+echo 'set' function uses datatype of the target.
+echo
+var f float
+set f 1+1
+echo 1+1 in float yields $f
+
+var i int32
+set i 1+1
+echo 1+1 in int32 yields $i
+
+var j int8
+set j 100+100
+echo 100+100 in int8 yields $j (overflowed)
+
+var k uint8
+set k 100+200
+echo 100+200 in uint8 yields $k (overflowed)
+
+delay 2000
+echo _____________
+echo
+
+echo Less-known operators:
+
+set i 5%2
+echo 5%2 (modulo) yields $i
+
+set i 8:2
+echo 8:2 (divide) yields $i
+
+echo
+echo For floats, modulo operator is defined as a symmetric
+echo saw function, where right operand defines its half-period.
+set f 5.0%2.0
+echo 5.0%2.0 (float modulo) yields $f
+
+delay 2000
+echo _____________
+echo
+
+echo All expressions work with arrays, member-wise.
+echo 'set' returns no of elements processed.
+echo
+var v.2 float
+set v 1,2+3,4
+echo 1,2+3,4 yields $v and $retval elements processed
+set v 1,2*-2,-3
+echo 1,2*-2,-3 yields $v and $retval elements processed
+
+echo
+echo Evaluation size is trimmed according to the operand \
+echo with smallest size.
+set v 1,2+3
+echo 1,2+3 yields $v and $retval elements processed \
+echo ($v.1~ remains intact)
+
+echo
+echo Concatenate two tokens into an array.
+set v i;(i+1)
+echo i;(i+1) yields $v
+
+echo
+echo An array variable in expression can be indexed \
+echo and sub-array can be extracted.
+echo v.0 yields $v.0
+echo v.1 yields $v.1
+echo v.0.2 yields $v.0.2
+
+delay 2000
+echo _____________
+echo
+
+echo The operators can be prioritized with braces.
+set f 2*(1+1)
+echo 2*(1+1) yields $f
+set f (2*1)+1
+echo (2*1)+1 yields $f
+echo
+
+echo The braces can be nested.
+set f 2*(75.0-367*(0.003-0.02))
+echo 2*(75.0-367*(0.003-0.02)) yields $f
+
+delay 2000
+echo _____________
+echo
+
+echo Comparison operators results nonzero in case of true.
+echo 1>2 yields $(1>2)
+echo 1<2 yields $(1<2)
+echo 1==1 yields $(1==1)
+
+echo
+echo Comparison of arrays is done element-by-element.
+echo All elements must meet the condition.
+var aa.4
+#TODO there's a bug! does not work!
+set aa 1,2,3,4==1,2,3,4
+echo 1,2,3,4==1,2,3,4 yields $aa
+set aa 1,2,3,4==1,2,4,4
+echo 1,2,3,4==1,2,4,4 yields $aa
+set aa 1,2,4,4>1,2,3,4
+echo 1,2,4,4>1,2,3,4 yields $aa
+set aa 1,2,3,4>0,1,2,3
+echo 1,2,3,4>0,1,2,3 yields $aa
+
+echo
+echo Boolean operators results nonzero in case of true.
+echo 1&&1 yields $(1&&1)
+echo 2&&3 yields $(2&&3)
+echo 0||4 yields $(0||4)
+echo 0&&4 yields $(0&&4)
+
+delay 2000
+echo _____________
+echo
+
+echo For floats, use scientific notation.
+set f 3e-5:3e5
+echo 3e-5:3e5 yields $f
+
+echo
+echo For fixed point, use an arbitrary base.
+set i 0x05^(0b0101*45)
+echo 0x05^(0b0101*45) yields $i
+
+echo
+echo For strings, use + to concatenate.
+var str1.20 string
+set str1 "Hello, "+"world !"
+echo "Hello, "+"world !" yields $str1 with $retval chars
+
+delay 2000
+echo _____________
+echo
+
+echo Expression can be a part of a stringify token.
+echo In this case, the evaluation type is automatically \
+echo guessed (from the first variable found).
+echo Default data type for stringify is int32.
+echo Default no of elements for stringify is 1.
+echo Functions which explicit data type delimits \
+echo the evaluation type as well.
+echo (e.g. math functions defaults to float).
+
+echo 1+1 = $(1+1)
+
+echo
+echo A first variable found in the expression \
+echo is used to determine the evaluation type.
+
+set f 1
+echo f+1 = $(f+1)
+
+delay 2000
+echo _____________
+echo
+
+echo Arithmetic functions.
+echo sum(1,2) yields $sum(1,2)
+echo min(1,2) yields $min(1,2)
+echo max(1,2) yields $max(1,2)
+echo sat(1,2,3) yields $sat(1,2,3) (1 saturated between 2 and 3)
+echo sgn(-1) yields $sgn(-1)
+echo abs(-1) yields $abs(-1)
+
+echo
+echo Arithmeic functions accepts different types.
+set f sum(1.2,3.4)
+echo sum(1.2,3.4) evaluated in float yields $f
+
+delay 2000
+echo _____________
+echo
+
+echo Array expansion.
+echo Array expansion accepts different types.
+set aa xp(0)
+echo xp(0) evaluated in 4-dimensional int32 yields $aa
+set v xp(0.3)
+echo xp(0.3) evaluated in 2-dimensional float yields $v
+echo
+echo Array expansion can be specified e.g. as xp.N(...), \
+echo where N defines no of input arguments per iteration.
+set aa xp.2(1,2)
+echo xp.2(1,2) yields $aa
+
+delay 2000
+echo _____________
+echo
+
+echo Arithmetic functions on arrays.
+echo Functions can be optionally specified e.g. as sin.N(...), \
+echo where N defines no of input arguments per iteration.
+echo sum.3(1,2,3) yields $sum.3(1,2,3)
+echo sum.4(1,2,3,4) yields $sum.4(1,2,3,4)
+echo max.4(1,2,3,4) yields $max.4(1,2,3,4)
+echo min.4(1,2,3,4) yields $min.4(1,2,3,4)
+echo
+echo Example: 3-dimensional vector magnitude.
+echo sqrt(sum.3(1,2,3*1,2,3)) yields $sqrt(sum.3(1,2,3*1,2,3))
+echo
+echo Since stringify defaults to a scalar result, \
+echo use 'set' to get an array output.
+var ii.4
+set ii abs(-3,4,-5,6)
+echo abs(-3,4,-5,6) yields $ii
+set ii sgn(-3,4,-5,6)
+echo sgn(-3,4,-5,6) yields $ii
+echo
+echo If more than N arguments are presented, multiple \
+echo function iterations are performed.
+set ii sum.3(1,2,3,4,5,6,7,8,9,10,11,12)
+echo sum.3(1,2,3,4,5,6,7,8,9,10,11,12) yields $ii (1+2+3;4+5+6;7+8+9;10+11+12)
+set ii sat(1,9,3,4,5,6)
+echo sat(1,9,3,4,5,6) yields $ii.0.2 (1,9 saturated between 3,4 and 5,6)
+
+delay 2000
+echo _____________
+echo
+
+echo Trigonometrics.
+echo sin(1) yields $sin(1)
+echo cos(1) yields $cos(1)
+echo sin(3.141592654) yields $sin(3.141592654)
+echo cos(3.141592654) yields $cos(3.141592654)
+echo sqrt(2) yields $sqrt(2)
+echo sqrt(sum(4,4)) yields $sqrt(sum(4,4))
+echo atan2(1,1) yields $atan2(1,1)
+echo atan2(1,1):3.141592654 yields $atan2(1,1):3.141592654
+
+delay 2000
+echo _____________
+echo
+
+var ff.4 float
+echo Trigonometrics on arrays.
+echo Since stringify defaults to a scalar result, \
+echo use 'set' to get an array output.
+set ff sin(1,2,3,4)
+echo sin(1,2,3,4) yields $ff
+set ff cos(1,2,3,4)
+echo cos(1,2,3,4) yields $ff
+set ff sqrt(1,2,3,4)
+echo sqrt(1,2,3,4) yields $ff
+echo
+echo A function may require N arguments.
+echo If more than N arguments are presented, multiple \
+echo function iterations are performed.
+set ff.0.2 atan2(1,1,1,0)
+echo atan2(1,1,1,0) yields $ff.0.2 (like atan2(1,1);atan2(1,0))
+
+delay 2000
+echo _____________
+echo
+echo
+echo
+echo Thanks for your attn.
+echo (c) 2019 siliXcon

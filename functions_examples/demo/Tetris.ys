@@ -1,0 +1,261 @@
+################################################################################
+#
+# YOS tetris
+# ==========
+#
+# written by Jaromir Dvorak to demonstrate capabilities
+# of the YOS/shell interpreter
+#
+# How to Control:
+# * Left and right arrow to steer the brick.
+# * Up arrow to rotate the brick.
+# * Down arrow to accelerate the brick fall down.
+#
+# Hint:
+# * due to the input buffer fifo, do not hold the arrows, but just tap them
+# repeatedly, to prevent character build-up in the fifo and lagging in game control.
+#
+#
+# --
+# Challenge me and make at least a score of 100 pts. :-) Have fun!
+#
+################################################################################
+
+@!
+@c
+
+#our frame buffer
+var str0.22 str1.22 str2.22 str3.22 string
+var str4.22 str5.22 str6.22 str7.22 string
+var str8.22 str9.22 str10.22 str11.22 string
+var str12.22 str13.22 str14.22 str15.22 string
+set str0 "|"
+set str15 "|~~~~~~~~~~~~~~~~~~~|"
+
+#L
+var brick00.8 brick01.8 brick02.8 brick03.8 int8
+set brick00 0,-1,0,0,0,1,1,1
+set brick01 -1,0,0,0,1,0,1,-1
+set brick02 0,-1,0,0,0,1,-1,-1
+set brick03 -1,0,0,0,1,0,-1,1
+#|
+var brick10.8 brick11.8 brick12.8 brick13.8 int8
+set brick10 0,-1,0,0,0,1,0,2
+set brick11 -1,0,0,0,1,0,2,0
+set brick12 0,-1,0,0,0,1,0,2
+set brick13 -1,0,0,0,1,0,2,0
+#L
+var brick20.8 brick21.8 brick22.8 brick23.8 int8
+set brick20 0,-1,0,0,0,1,-1,1
+set brick21 -1,0,0,0,1,0,1,1
+set brick22 0,-1,0,0,0,1,1,-1
+set brick23 -1,0,0,0,1,0,-1,-1
+#[]
+var brick30.8 brick31.8 brick32.8 brick33.8 int8
+set brick30 0,0,0,1,1,0,1,1
+set brick31 0,0,0,1,1,0,1,1
+set brick32 0,0,0,1,1,0,1,1
+set brick33 0,0,0,1,1,0,1,1
+#T
+var brick40.8 brick41.8 brick42.8 brick43.8 int8
+set brick40 0,-1,0,0,0,1,1,0
+set brick41 -1,0,0,0,1,0,0,-1
+set brick42 0,-1,0,0,0,1,-1,0
+set brick43 -1,0,0,0,1,0,0,1
+
+#draw or retrieve no of collisions of the pixel at xx coords on the screen
+.putpixel {
+	if pix>=" " set str$xx.1~.$xx.0~.20 pix+str$xx.1~.$(xx.0+1)~.20
+ 	elif str$xx.1~.$xx.0~.1>" " set out out+1
+}
+
+#puts a brick on the screen
+.putbrick {
+	var xx.2 int8
+	set xx x+brick.0.2
+	call putpixel
+	set xx x+brick.2.2
+	call putpixel
+	set xx x+brick.4.2
+	call putpixel
+	set xx x+brick.6.2
+	call putpixel
+}
+
+#clears previous frame and draw new one
+.draw {
+	var y
+	echo \11 **** YOS TETRIS ****
+	echo
+	echo
+	if y<16 {
+		echo $str$y
+		set y y+1
+		branch s-
+	}
+	echo
+	echo SCORE : $score
+	echo
+    echo Hint: don't hold arrows. Just tap them.
+}
+
+#clears our frame buffer
+.cls {
+	var xx.2 int8
+	set xx.0 1
+	set pix " "
+	#fill-up with spaces
+	if xx.0<20 {
+		call putpixel
+		set xx.0 xx.0+1
+		branch s-
+	}
+    set str0.20.2 "|"
+	set str1 str2 str3 str4 str5 str6 str7 str0
+	set str8 str9 str10 str11 str12 str13 str14 str0
+}
+
+#steer and rotate the brick according to user's input
+.steer {
+	var r dx input int8
+	#we do twice the same code to skip the zero
+	set input $*
+	if input==77 set dx 1
+	elif input==75 set dx -1
+	elif input==80 set i 0
+	elif input==72 set r 1
+	set input $*
+	if input==77 set dx 1
+	elif input==75 set dx -1
+	elif input==80 set i 0
+	elif input==72 set r 1
+
+
+	#user hit rotate button
+	if r {
+		set brick brick$bn~$(rot+1)%4
+    	var out int8
+        set pix ""
+        call putbrick
+		#if collision occured, roll back
+		if out {
+			set brick brick$bn~$rot
+            beep 40 10 0
+		}
+		else {
+			set rot (rot+1)%4
+			beep 60 40 128
+		}
+	}
+
+	#user hit left or right arrow
+	elif dx {
+    	set x.0 x.0+dx
+		var out int8
+        set pix ""
+        call putbrick
+		#if collision occured, roll back
+		if out {
+			set x.0 x.0-dx
+            beep 40 10 0
+		}
+		else beep 60 10 0
+	}
+}
+
+.collapse {
+	if x.1==1 {
+		echo GAME OVER
+		set quit 1
+		branch q
+	}
+	set bn (bn+1)%5
+	set i 0
+	set rot 0
+	set brick brick$bn~$rot
+	set x 9,1
+
+    beep 50 10 0
+
+	var y i int8
+	if y<16 {
+        if str$y~=="|ooooooooooooooooooo|" {
+            beep 50 80 64
+			set i y
+			set score score+1
+			if i>1 {
+				set str$i~ str$i-1~
+				set i i-1
+				branch s-
+			}
+		}
+		set y y+1
+		branch s-
+	}
+}
+
+.fall {
+	#fall down
+	set x.1 x.1+1
+	#check for collision
+ 	var out int8
+    set pix ""
+  	call putbrick
+	#collision occured, roll back
+	if out {
+		set x.1 x.1-1
+        set pix "o"
+		call putbrick
+		call collapse
+	}
+}
+
+.tetris {
+	#brick position & counter
+	var x.2 i int8
+	#holds the pixel value
+	var pix.2 string
+	#holds our current brick
+    var rot bn brick.8 int8
+	#program control
+	var quit score int16
+
+	#stop the driver to gain FPS
+	reinit -1
+
+	echo \12
+	call cls
+	call collapse
+
+	#music
+	#play 2
+
+	#main game loop
+	{
+		#draw brick and draw screen
+		set pix "x"
+		call putbrick
+
+		#draw our frame buffer
+		call draw
+
+		#remove brick from the screen
+		set pix " "
+  		call putbrick
+
+		#steer the brick
+		call steer
+
+		#fall every 4th cycle
+		if !i call fall
+		set i (i+1)%4
+
+		if !quit branch s
+	}
+	echo
+	echo Thanks for playing!
+	echo (c) 2019 siliXcon team
+}
+
+#go
+call

@@ -1,0 +1,55 @@
+# This script will run motor for set TIME
+# From CMDSTART to CMDSTOP
+# In motor MODE
+# CTRL+C do abort - go to freewheeling
+
+# Usefull modes: 
+#           - 17 - speed PID
+#           - 8  - brake
+#           - 2  - current
+#           - 1  - voltage
+
+
+var time mode int32
+var cmd step cmdstart cmdstop float
+set cmd 0
+
+# EDIT THIS:
+#====================================================================
+# Time from start to end, in ms
+set time 10000
+
+# driver mode
+set mode 1
+
+# start command (if you want start from high to low)
+set cmdstart 0
+
+# end command
+set cmdstop 0.9
+
+#====================================================================
+
+
+set debuglevel 255 #prevent bullshitting
+echo \12 #clear screen
+{
+ 
+ if /driver/error!=0 echo Driver_error $/driver/error !
+ else
+ {
+ set ticks 0
+ {
+  set cmd cmdstart+cmdstop*(ticks:time)
+  run $cmd $mode                                                                                                 
+  if ticks<time branch s 
+  run 0 0
+  echo end
+ }
+ }
+}
+{
+echo =================================
+echo STOP
+run 0 0
+}

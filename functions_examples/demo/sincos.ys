@@ -1,0 +1,15 @@
+@!
+@c
+@s
+var a.2 theta gamma omega float
+set omega 0.001
+set theta 0
+plot -c a gamma theta
+{
+	set a sin(theta);cos(theta)
+	#set gamma atan2(a)
+	set gamma sqrt(sum(a*a))
+	set theta (theta+omega)%(2*3.141592654)
+	delay 1
+	branch s
+} &

@@ -1,0 +1,164 @@
+################################################################################
+#
+# YOS Snake
+# ================
+#
+# written by Jaromir Dvorak to demonstrate capabilities
+# of the YOS/shell interpreter
+#
+################################################################################
+
+@!
+@c
+#our screen
+var str0.32 str1.32 str2.32 str3.32 string
+var str4.32 str5.32 str6.32 str7.32 string
+var str8.32 str9.32 str10.32 str11.32 string
+var str12.32 str13.32 str14.32 str15.32 string
+var str16.32 str17.32 str18.32 str19.32 string
+var str20.32 str21.32 str22.32 string
+set str0 str22 "0-----------------------------0"
+
+#draw or retrieve a collision of the pixel at xx coords on the screen
+.putpixel {
+	if pix>=" " set str$xx.1~.$xx.0~.32 pix+str$xx.1~.$(xx.0+1)~.32
+ 	elif str$xx.1~.$xx.0~.1=="*" set food food+1
+ 	elif str$xx.1~.$xx.0~.1>" " set col col+1
+}
+
+#clears previous frame and draw new one
+.draw {
+	var y
+	echo \11 YOS Snake
+	echo
+	echo
+	if y<=22 {
+		echo $str$y
+		set y y+1
+		branch s-
+	}
+	echo
+	echo SCORE : $score
+}
+
+#clears our screen buffer
+.cls {
+	var xx.2 int8
+	set xx 1,1
+	set pix " "
+    set str1 "|"
+	#fill-up with spaces
+	if xx.0<30 {
+		call putpixel
+		set xx.0 xx.0+1
+		branch s-
+	}
+    set str1.30.2 "|"
+	set str2 str3 str4 str5 str6 str7 str8 str1
+	set str9 str10 str11 str12 str13 str14 str15 str1
+	set str16 str17 str18 str19 str20 str21 str1
+}
+
+.steer {
+	var input newdx.2 int8
+	#we do twice the same code to skip the zero
+	set input $*
+	if input==77 set newdx 1,0
+	elif input==75 set newdx -1,0
+	elif input==80 set newdx 0,1
+	elif input==72 set newdx 0,-1
+	set input $*
+	if input==77 set newdx 1,0
+	elif input==75 set newdx -1,0
+	elif input==80 set newdx 0,1
+	elif input==72 set newdx 0,-1
+	#in case direction was altered
+	if newdx&&(newdx!=(-dx)) set dx newdx
+}
+
+.putfood {
+	#now randomize the coords using tick variable
+	set xx (1+(ticks%29));(1+(ticks%19))
+    set pix ""
+	set col 0
+	call putpixel
+	#in case we are in a collision, try again
+	if col branch s
+	set pix "*"
+	call putpixel
+}
+
+.snake {
+	#holds the pixel value
+	var pix.2 string
+	#program control
+	var score int16
+    var xx.2 x.2 uint8
+	var dx.2 int8
+	var xfifo.256 int8
+	var col food i j uint8
+
+	#start position
+	set x 4,5
+	set dx 1,0
+
+	#stop the driver to gain FPS
+	reinit -1
+
+	echo \12
+	call cls
+	call putfood
+
+
+	#main game loop
+	{
+		#fetch the tail coords from the fifo and clear tail
+		set xx xfifo.$j~.2
+		set pix " "
+		if xx.0&&xx.1 call putpixel
+
+		#draw head
+		set xx x
+		set pix "o"
+		call putpixel
+
+		call draw
+
+		# move the fifo
+		set i i+2
+		set j j+2
+
+		#save the head coords to the fifo
+		set xfifo.$i~.2 x
+
+		#move the head
+		call steer
+		set x x+dx
+
+		#check for collisions
+        set xx x
+		set col food 0
+        set pix ""
+		call putpixel
+		if food {
+			beep 60 100 64
+			#extend snake's length
+			set j j-2
+			set score score+1
+			call putfood
+   			branch ps
+		}
+        beep 50 3
+
+		if !col branch s
+
+		beep 40 200 128
+		echo Game over!
+		echo
+		echo Thanks for playing!
+		echo (c) 2019 siliXcon team
+	}
+}
+
+#go
+call

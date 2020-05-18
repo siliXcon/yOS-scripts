@@ -1,0 +1,98 @@
+@w 3
+@c #send interrupt in a case other script is running
+@! #machine log-in as guest
+
+var err
+set err 0
+
+set debuglevel 255 #prevent bullshitting
+
+{
+ echo \12 #clear screen
+ echo ==============================
+ echo Automatic motor identification
+ echo ==============================
+ echo 
+ 
+ 
+ if (/driver/error==(-12)) {
+ echo
+ echo ===========ERROR==============
+ echo 
+ echo Driver_error $/driver/error !
+ echo
+ echo Controller is probably powered throught USB.
+ echo Disconnect USB, and power off controller
+ echo Than power on controller
+ echo Than connect USB again
+ echo
+ }
+ elif /driver/error!=0 {
+ echo
+ echo ===========ERROR==============
+ echo
+ echo Driver_error $/driver/error !
+ }
+ else
+ {
+  stop
+  
+  echo 
+  echo !!!Motor will start spining!!!
+  echo Press Ctrl+x any time to STOP!
+  echo 
+  
+  echo Hit enter to start..
+  echo $?
+  echo
+  echo Step 1:
+  echo Identlin:
+  identlin
+  set err err+retval
+  
+  echo
+  echo Step 2:
+  stop
+  delay 1000
+  reinit
+  stop
+  delay 1000
+  echo Identrun:
+  echo CAUTION! Spin-up!
+  identrun
+  set err err+retval
+  
+  if /driver/prest==3
+   {
+   echo For Sin/Cos run identrun 3x
+   delay 1000
+   identrun
+   set err err+retval
+   delay 1000
+   identrun
+   set err err+retval
+   }
+  
+  
+  if err==0
+  {
+   echo
+   echo =============================
+   echo Identification was uccessful!
+   echo Saving parameters
+   save -y
+  }
+  else {
+  echo Identification failed!
+  echo Is controller powered?
+  } 
+  
+ }
+ stop   
+ echo _____________________________
+ echo Hit enter to quit and reboot!
+ echo $?
+ echo \27
+ delay 1000
+ reboot
+}

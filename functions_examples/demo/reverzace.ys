@@ -1,0 +1,25 @@
+@!
+@c
+
+#zahajit interni skript
+#script
+var last_gdin1 #vytvor promennou pro zapamatovani posledniho stavu gdinu
+{
+ #vlastni reverzace
+ if /common/gdin1 set /driver/ipeak -75
+ else set /driver/ipeak 75
+
+ #pipani na zaklade zmeny vstupu
+ if /common/gdin1!=last_gdin1 {
+  if /common/gdin1 beep 50
+  else beep 52
+ }
+ #zapamatuj si stav pro detekci zmeny
+ set last_gdin1 /common/gdin1
+
+ #skoc na zacatek tohoto bloku kodu
+ branch s
+}
+#ukoncit interni skript
+#quit
+

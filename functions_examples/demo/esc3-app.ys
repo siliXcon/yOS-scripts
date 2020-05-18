@@ -1,0 +1,22 @@
+@!
+@c
+{
+	var index int16
+	var mult min max level float
+	echo $?
+
+	echo Zadejte cislo GPIO:
+	set index $?
+	echo Zadejte min napeti GPIO [V]:
+	set min 1000*$?
+	echo Zadejte max napeti GPIO [V]:
+	set max 1000*$?
+	echo Zadejte max napeti motoru [%]:
+	set mult $?~:100
+
+	if (index<0)||(index>4) echo Spatne zadani!
+	else {
+	    run $mult*(/common/gpio$index~-min):(max-min)
+	    branch s
+	}
+}

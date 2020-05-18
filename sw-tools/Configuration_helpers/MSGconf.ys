@@ -1,0 +1,83 @@
+@c #send interrupt in a case other script is running
+@! #machine log-in as guest
+
+
+var i o int8
+
+
+set debuglevel 255 #prevent bullshitting
+echo \12 #clear screen
+echo
+echo MSGconf
+echo =============================================================
+echo Using this script, you can set interaces configuration.
+echo 
+echo
+echo Enter number of interface you wan to change:
+echo _______________________________
+echo 1 - UARTcom
+echo 2 - UARText
+echo 3 - CAN
+echo _______________________________
+echo
+{
+set i $?
+echo
+echo \12 #clear screen
+echo
+
+
+
+
+if (i==1)||(i==2) {
+echo UART setting
+echo ============
+echo Enter number of comunication speed you want:
+echo ________________________________________________
+echo -1 - restore release-specific default option
+echo 0 - DISABLE interface - carefully
+echo  
+echo UART baudrate:
+echo 8  - 1200 bps
+echo 9  - 2400 bps
+echo 10 - 4800 bps
+echo 11 - 9600 bps
+echo 12 - 19200 bps
+echo 13 - 38400 bps
+echo 14 - 57600 bps
+echo 15 - 115200 bps
+echo 16 - 230400 bps
+echo 17 - 460800 bps
+echo 18 - 921600 bps
+}
+if i==3 {
+echo CAN bus settings
+echo ================
+echo Enter number of comunication speed you want:
+echo ________________________________________________
+echo -1 - restore release-specific default option
+echo 0 - DISABLE interface - carefully
+echo  
+echo CAN speed:
+echo 1 - 2000 kbit/s
+echo 2 - 1000 kbit/s
+echo 4 - 500 kbit/s
+echo 5 - 400 kbit/s
+echo 8 - 250 kbit/s
+echo 10 - 200 kbit/s
+echo 16 - 125 kbit/s
+echo 20 - 100 kbit/s
+}
+echo ________________________________________________
+set o $?
+echo
+echo
+echo ================================================
+echo msgconf $i $o
+msgconf $i $o
+
+
+echo DONE, reboot!
+reboot
+
+}

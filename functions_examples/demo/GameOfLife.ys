@@ -1,0 +1,138 @@
+################################################################################
+#
+# YOS Game of Life
+# ================
+#
+# written by Jaromir Dvorak to demonstrate capabilities
+# of the YOS/shell interpreter
+#
+################################################################################
+
+@!
+@c
+#our screen
+var str0.17 str1.17 str2.17 str3.17 string
+var str4.17 str5.17 str6.17 str7.17 string
+var str8.17 str9.17 str10.17 string
+
+var ntr0.17 ntr1.17 ntr2.17 ntr3.17 string
+var ntr4.17 ntr5.17 ntr6.17 ntr7.17 string
+var ntr8.17 ntr9.17 ntr10.17 string
+set ntr0 ntr10 "*--------------*"
+
+#draw or retrieve a collision of the pixel at xx coords on the screen
+.putpixel {
+	set ntr$xx.1~.$xx.0~.16 pix+ntr$xx.1~.$(xx.0+1)~.16
+}
+
+.getpixel {
+	if str$xx.1~.$xx.0~.1>" " set out out+1
+}
+
+#clears previous frame and draw new one
+.draw {
+	var y
+	echo \11 Conway's Game of Life
+	echo
+	echo
+	if y<11 {
+		set str$y ntr$y
+		echo $str$y
+		set y y+1
+		branch s-
+	}
+	echo
+	echo generation $g
+}
+
+#clears our screen buffer
+.cls {
+	var xx.2 int8
+	set xx 1,1
+	set pix " "
+    set ntr1 "|"
+	#fill-up with spaces
+	if xx.0<15 {
+		call putpixel
+		set xx.0 xx.0+1
+		branch s-
+	}
+    set ntr1.15.2 "|"
+	set ntr2 ntr3 ntr4 ntr5 ntr6 ntr7 ntr8 ntr9 ntr1
+}
+
+.gameoflife {
+	#brick position & counter
+	var x.2 i int8
+	#holds the pixel value
+	var pix.2 string
+	#program control
+	var quit score int16
+	var g
+
+	#stop the driver to gain FPS
+	reinit -1
+
+	echo \12
+	call cls
+
+	var out xx.2 int8
+	#main game loop
+	{
+		call draw
+
+		set xx.1 1 {
+			set xx.0 1 {
+				set out 0
+				set xx xx+1,0
+				call getpixel
+				set xx xx+0,1
+				call getpixel
+				set xx xx-1,0
+				call getpixel
+				set xx xx-1,0
+				call getpixel
+				set xx xx-0,1
+				call getpixel
+				set xx xx-0,1
+				call getpixel
+				set xx xx+1,0
+				call getpixel
+				set xx xx+1,0
+				call getpixel
+				set xx xx-1,-1
+
+				#this cell dies
+				if (out<2)||(out>3) {
+					set pix " "
+					call putpixel
+				}
+				#this cell comes alive
+				elif out==3 {
+					set pix "o"
+                    call putpixel
+				}
+				set xx.0 xx.0+1
+                if xx.0<15 branch s
+			}
+			set xx.1 xx.1+1
+			if xx.1<10 branch s
+		}
+
+
+#		if (g%10)==0 {
+#			set pix "o"
+#			set xx 3,3
+#			call putpixel
+#			set xx 4,3
+#			call putpixel
+#			set xx 5,3
+#			call putpixel
+#		}
+		set g g+1
+		branch s
+	}
+}
+
+#go
+call

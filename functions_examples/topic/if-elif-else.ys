@@ -1,0 +1,241 @@
+################################################################################
+#
+# this script presents how to use conditioinal execution commands.
+#
+################################################################################
+
+@!
+@c
+
+echo \12
+echo "if-elif-else is a set of YOS commands offesring  conditional execution"
+echo "of a nested command or a code block, based on the result"
+echo "of a given expression."
+echo
+echo if <expression> (command or code block) :
+echo "The nested command or code block gets executed only if"
+echo "the result of the given expression is nonzero."
+echo
+echo elif <expression> (command or code block) :
+echo "The nested command or code block gets executed only if the result of"
+echo "the given expression is nonzero and the latest if or elif did not"
+echo "result into execution."
+echo
+echo else :
+echo "The nested command or code block gets executed only if the latest if"
+echo "or elif did not result into execution."
+
+echo ________
+delay 3000
+echo
+
+echo "Note that the if-elif-else can be executed outside a code block."
+echo "Note that a consecutive branching, i.e. to perform the conditional"
+echo "test again might not be working, since branch command operates only"
+echo "within a code block."
+
+echo ________
+delay 3000
+echo
+
+echo "Note that since expressions in YOS are always evaluated in certain"
+echo "datatype, which is, on the contrary to 'set' command, not explicitly"
+echo "known in the case of conditional execution commands,"
+echo "the if and elif tries to guess the evaluation type,"
+echo "similarly like 'stringify'.
+echo
+echo "Constants can't be used to guess the data type, thus, e.g:"
+echo if (1,2>2,3)
+echo "will not compare the whole array constant 1,2 against 2,3"
+echo "but only it's first member, because the default datatype"
+echo "for conditional execution commands is int32."
+
+echo ________
+delay 3000
+echo
+
+echo "On the contrary, this sequence:"
+echo var x.2
+echo set x 1,2
+echo if (x>2,3)
+echo "can sucessssfuly determine the evaluation datatype from x"
+echo "variable, thus, the entire array will be compared. Similarly :"
+echo if (1.5 > 1.4)
+echo "will not recognize the floating point type,""
+echo "since there is no variable present in the expression. But :"
+echo var f float
+echo set f 1.5
+echo if (f>1.4)
+echo "can sucessssfuly determine the evaluation datatype from v variable,"
+echo "thus, it will be evaluated in float and work as expected."
+
+echo _________
+delay 3000
+echo
+
+echo Example: does the if-elif-else construct work?
+echo (*) outside a code block
+
+if 1 echo yes
+elif 1 echo no
+else echo no
+
+if 0 echo no
+elif 0 echo no
+else echo yes
+
+if 1 { echo yes }
+elif 1 { echo no }
+else { echo no }
+
+if 0 { echo no }
+elif 0 { echo no }
+else { echo yes }
+
+echo (*) combined inside-outside code block
+
+if 0 {
+	if 1 {
+		echo no
+	}
+	else {
+		echo hell no
+	}
+}
+elif 0 {
+	if 0 {
+		echo hell no
+	}
+	else {
+		echo no
+		{
+			echo hell no
+		}
+	}
+}
+else echo yes
+
+if 0 {
+	if 1 {
+		echo no
+	}
+	else {
+		echo hell no
+	}
+}
+elif 1 {
+	if 0 {
+		echo no
+	}
+	else {
+		echo yes
+	}
+}
+else echo no
+
+if 1 {
+	if 1 {
+		echo yes
+	}
+	else {
+		echo no
+	}
+}
+elif 1 {
+	if 0 {
+		echo no
+	}
+	else {
+		echo hell no
+	}
+}
+else echo no
+
+if 0 {
+}
+elif 1 {
+	if 0 {
+		echo no
+		{
+			echo hell no
+		}
+	}
+	else {
+		echo yes
+	}
+}
+else echo no
+
+
+echo (*) inside code block
+
+{
+	if 0 echo no
+	else echo yes
+}
+{
+	if 1 {
+		{
+			{
+				echo yes
+			}
+		}
+
+	}
+	else echo no
+}
+{
+	if 0 {
+		if 0
+		{
+			{
+				echo hell no
+			}
+		}
+		else echo no
+
+	}
+	else {
+		if 0 echo no
+		else
+		{
+			echo yes
+		}
+	}
+}
+{
+	if 0 {
+		if 1
+		{
+			{
+				echo hell no
+			}
+		}
+		else echo no
+
+	}
+	elif 1 {
+		if 0 echo no
+		else
+		{
+			echo yes
+		}
+	}
+	else echo no
+}
+
+echo You should now see 12* yes.
+echo
+echo "Conditional execution commands will return nonzero if the"
+echo "corresponding nested command or code block gets executed."
+echo
+if 1 echo true
+echo if 1 returns $retval
+if 0 echo false
+echo if 0 returns $retval
+
+echo
+echo
+echo
+echo Thanks for your attn.
+echo (c) 2019 siliXcon

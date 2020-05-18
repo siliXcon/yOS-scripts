@@ -1,0 +1,32 @@
+################################################################################
+#
+# this script presents how to use user storage to save arbitrary
+# variable.
+#
+################################################################################
+
+@!
+@c
+
+echo \12
+save -ey #erase userstorage, no prompt
+
+var a int8
+var b int16
+var c int32
+var s.10 string
+set a 1
+set b 2
+set c 3
+set s "cau"
+save -y /vars/a /vars/b /vars/c /vars/s #save all these variables, no prompt
+
+echo
+echo Resetting variables
+set a b c 0
+set s ""
+
+echo
+echo Loading variables back
+load -y /vars/a /vars/s #load two of the variables, no prompt
+echo $a $s

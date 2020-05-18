@@ -1,0 +1,65 @@
+
+
+@c #send interrupt in a case other script is running
+@! #machine log-in as guest
+
+
+set debuglevel 255 #prevent bullshitting
+reinit -1            # disable driver
+
+var temp_hi temp_lo a temp_idnt result_lo result_hi float
+set temp_hi 90
+set temp_lo 80
+set temp_idnt 20
+# Copper constant
+set a 0.0068
+
+{
+ echo \12 #clear screen
+echo
+echo __________________________________________________________________________________________
+echo
+version -n
+echo
+echo __________________________________________________________________________________________
+echo Setup motor temperature estimator for copper winding:
+echo 
+echo Enter temperature of winding, when was done identlin:
+echo Usually 20°C
+echo
+set temp_idnt $?
+echo
+echo
+
+echo Enter temp_lo:
+echo
+set temp_lo $?
+echo
+echo
+
+echo Enter temp_hi:
+echo
+set temp_hi $?
+echo
+echo
+
+
+  set result_lo (1+((temp_lo-temp_idnt)*a))
+  set /driver/limiter/mreslo  (/driver/motor/Rt * result_lo)*2
+
+  set result_hi  (1+ ((temp_hi-temp_idnt)*a))
+  set /driver/limiter/mreshi  (/driver/motor/Rt * result_hi)*2
+  echo DONE
+  echo ______________________________________________________________________________________________________________________
+  cd
+  cd /driver/limiter
+  pr mreshi
+  pr mreslo
+  echo ______________________________________________________________________________________________________________________
+  cd
+  echo
+
+  echo DONE
+  save -y
+  echo Saved!
+}

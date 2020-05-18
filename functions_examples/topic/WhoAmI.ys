@@ -1,0 +1,28 @@
+@!
+@c
+echo \12
+echo ==========================
+echo Who am i:
+version
+echo ==========================
+echo My basename is:
+version -n
+echo ==========================
+echo My HWID is:
+version -h
+echo ==========================
+echo My SWID is:
+version -s
+echo ==========================
+echo My adress is:
+version -a
+var i
+echo ==========================
+echo Firmware was compiled for:
+version -d
+set i retval
+echo tedy
+if i==10 echo Hi, i am AM!
+else if i==11 echo Hi, i am SC!
+else if i==12 echo Hi, i am SL!
+else echo $i Some different product.

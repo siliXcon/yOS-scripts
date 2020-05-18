@@ -1,0 +1,10 @@
+# If interface during indentrun is not stable
+# this read identrun data from controller memory after 
+
+cd
+cd driver
+cd debug
+plot data1 data2 data3 -a
+cd
+
+@s

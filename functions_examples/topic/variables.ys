@@ -1,0 +1,149 @@
+################################################################################
+#
+# this script demonstrates how to use dynamic variables
+#
+################################################################################
+
+@!
+@c
+echo \12
+echo "YOS variable is represented by a filesystem entry that holds"
+echo "data and metadata encoded according to 'variable management' module."
+echo
+echo "Depending on access properties and their automatic management,"
+echo "variables can be one of the following:"
+echo "Parameter, state variable, permanent variable or dynamic variable."
+
+echo
+echo "Dynamic variables can be created in run-time using 'var' command."
+echo "Dynamic variables are located in /vars/ directory."
+echo "Dynamic variables are created with rights of the current user."
+echo
+
+echo "Dynamic variables can be local or global."
+echo " (*) A global dynamic variable exists until device reset."
+echo " (*) A local dynamic variable exists until function return."
+
+echo ____________________________________________
+delay 3000
+echo
+echo Example: create a global variable.
+echo if single argument is given, the type \
+echo defaults to int32.
+echo The variable is set to zero, upon it's allocation.
+var i
+vr i
+
+echo ____________________________________________
+delay 3000
+echo
+echo Example: if a variable already exists, \
+echo it's content is not altered.
+var i
+vr i
+
+echo ____________________________________________
+delay 3000
+echo
+echo Example: if the user attempts to re-create \
+echo a variable with same name
+echo but different type/size, an error is reported.
+echo
+var i int8
+
+echo ____________________________________________
+delay 3000
+echo
+echo Example: multiple variables can be created at once.
+var a b c float
+vr a b c
+
+echo ____________________________________________
+delay 3000
+echo
+echo Example: arrays.
+var d.10 e.5 f.3 int16
+vr d e f
+
+echo ____________________________________________
+delay 3000
+echo
+echo Example: create multiple global variables in a loop:
+set i 0
+{
+	var variable$i
+	set i i+1
+	if i<3 branch s
+}
+vr variable0 variable1 variable2
+
+.foo {
+	var loc_variable
+	echo loc_variable is $loc_variable
+}
+
+echo ____________________________________________
+delay 3000
+echo
+echo Example: A local variable.
+call
+echo Upon function return, variable is lost.
+vr loc_variable
+
+.bar {
+	set a 5
+}
+
+.foo {
+	var a
+ 	call bar
+	echo in foo, a is $a
+}
+
+echo ____________________________________________
+delay 3000
+echo
+echo Example: Access to caller's local variables.
+call
+
+.foo {
+	echo global i is $i
+	echo Create a local variable with same name.
+	var i
+	echo local i is $i
+	echo
+}
+
+echo ____________________________________________
+delay 3000
+echo
+echo Example: A local variable with same name \
+echo as global variable.
+set i 5
+call
+
+.bar {
+	set a 5
+	echo in bar: a is $a
+	var a
+	echo in bar, local a is $a
+}
+
+.foo {
+	var a
+ 	call bar
+	echo in foo, a is $a
+}
+
+echo ____________________________________________
+delay 3000
+echo
+echo Example: A local variable with same name as \
+echo previous local variable.
+call
+
+echo
+echo
+echo
+echo Thanks for your attn.
+echo (c) 2019 siliXcon

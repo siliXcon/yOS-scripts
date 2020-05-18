@@ -1,0 +1,111 @@
+################################################################################
+#
+# a simple dialog example. Allows user to select between several
+# variants. As a bonus, each variant has a distinctive help string.
+#
+################################################################################
+
+@!
+@c
+
+.select_vert {
+	var i int8
+	{
+		#home the cursor without erasing the page
+		echo \11
+  		echo
+		set i 0
+		{
+	  		if sel==i echo (*) $variant$i
+	  		else echo ( ) $variant$i
+			set i i+1
+	  		if i<no branch s
+	 	}
+		echo
+		#used to erase the previous line
+		#TODO add corresponding functionality to term.exe !
+		echo ~~~~~~~~~~~~~~~~~~~~~~~~~~ \13
+		echo $hlp$sel
+
+		set i $%
+  		if i==80 set sel min(sel+1;(no-1))
+  		elif i==72 set sel max(sel-1;0)
+		elif i==13 branch q
+		branch s
+	}
+}
+
+.select_horiz {
+	var i uint8
+	{
+		#home the cursor without erasing the page
+		echo \11
+  		echo
+		set i 0
+		{
+	  		if sel==i echo (*) $variant$i \
+	  		else echo ( ) $variant$i \
+			set i i+1
+	  		if i<no branch s
+	 	}
+		echo
+		echo
+		echo Your selection: $sel
+
+		set i $%
+  		if i==77 set sel sel+1
+  		elif i==75 set sel sel-1
+		elif i==13 branch q
+		if sel<0 set sel no-1
+		if sel>=no set sel 0
+		branch s
+	}
+}
+
+
+
+{
+	#clear screen
+	var sel no int32
+	var variant0.10 variant1.10 variant2.10 variant3.10 string
+	set variant0 "apples"
+	set variant1 "pears"
+	set variant2 "peaches"
+	set variant3 "plums"
+	var hlp0.32 hlp1.32 hlp2.32 hlp3.32 string
+	set hlp0 "green juicy sour fruit"
+	set hlp1 "mild yellow fruit"
+	set hlp2 "orange fruit with big seed"
+	set hlp3 "blue fruit with big seed"
+
+	set sel 0
+	set no 4
+
+	echo \12
+	echo Select something with arrows :
+	call select_vert
+	echo
+	echo You have selected variant $sel : $variant$sel
+	echo You will enjoy $hlp$sel
+	delay 3000
+
+
+
+	#clear screen
+	set variant0 "controller"
+	set variant1 "display"
+	set variant2 "bms"
+	set sel 0
+	set no 3
+
+	echo \12
+    echo Select your beloved silixcon product :
+	call select_horiz
+	echo
+	echo You have selected variant $sel : $variant$sel
+	delay 3000
+
+	reboot
+}
+
+

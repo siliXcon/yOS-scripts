@@ -1,0 +1,27 @@
+@!
+@c
+echo \12
+echo YOS calculator
+echo ~~~~~~~~~~~~~~
+echo Enter expression, press enter to evaluate.
+echo (*) Refer to previous result as 'ans'.
+echo (*) Use braces to associate operands.
+echo (*) Use functions such as sin,cos,atan2,min,max,sat,sqrt,...
+echo (*) Example: 1+2
+echo (*) Example: ans+3
+echo (*) Example: 45*(sqrt(sin(5)+1))
+echo (*) Example: pow(2,3)
+echo (*) Example: max(4,5)
+echo ________________
+echo
+{
+	var ans float
+	var exp.64 string
+	set exp ""
+	set exp "$?~"
+	if exp=="" branch s
+	set ans ($exp~)
+	if retval<0 branch s
+	echo $exp = $ans
+	branch s
+}

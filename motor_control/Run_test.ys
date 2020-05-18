@@ -1,0 +1,30 @@
+# For controll 2 motors
+# Run from "testbench" controller (address other than 0)
+# This controller will run Run_0-1.ys script
+# Remote controller with address 0 connected with CAN will run in current mode
+
+clear all
+@s
+delay 1000
+plot speedf
+plot torquef
+plot power
+
+
+echo START"
+
+# First block testbench motor
+run 0 17
+
+# remote run second motor
+term 0 3 run 1 2
+@i Run_0-1.ys
+term 0 3 run 0 0
+run 0 0
+term 0 3 run 0 0
+
+{
+echo =================================
+echo STOP
+run 0 0
+}

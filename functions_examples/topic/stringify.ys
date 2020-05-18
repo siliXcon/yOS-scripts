@@ -1,0 +1,173 @@
+################################################################################
+#
+# this script presents how to use 'stringify' mechanism.
+#
+################################################################################
+
+@!
+@c
+
+echo \12
+echo "'stringify' is a mechanism in YOS offering conversion of:"
+echo (*) an expression
+echo (*) ASCII character code
+echo (*) a string stream input
+echo (*) a character stream input
+echo (*) a non-blocking charecter stream input
+echo to a string, as part of the shell token.
+echo
+echo "Stringification is evaluated inside each token independently"
+echo "(including the command name token)."
+echo "Maximum total length of stringified token is 32 characters."
+
+echo ________
+delay 3000
+echo
+
+echo "All YOS commands accept arguments as token strings."
+echo "Thus, with 'stringify', content of an arbitrary variable"
+echo "can be passed as an argument to an arbitrary command."
+
+echo
+echo "'stringify' is delimited with '$' character and ends with token"
+echo "end or, with '~' character. If the shell finds '$' in the token, it tries"
+echo "to interpret the consequent characters as 'stringify' command."
+
+echo
+echo "If the stringification fails, the content of the string token"
+echo "remains unchanged"
+
+echo ________
+delay 3000
+echo
+
+echo "Stringification can be nested and composite."
+echo "e.g. for $name$i, system will first stringify the content of i."
+echo "If the content of i is, e.g. 1, the second expansion will look for"
+echo "the variable named 'name1' and try to stringify its contents."
+echo "In this way, stringify offers powerful mechanism for indirect"
+echo "variable/command/function operations."
+
+echo ________
+delay 3000
+echo
+
+echo "Special stringify characters :"
+echo
+echo number : ASCII numeric-to-character conversion
+echo "If the first character after the stringify operator $ is a number"
+echo "the integer to ASCII conversion takes place and single character"
+echo "is generated".
+echo
+echo % : blocking stream character input
+echo "A stream input is redirected to the stringify and characters are converted"
+echo "to their ASCII codes. If no character is pedning in the stream input FIFO"
+echo "the command is blocked until a character arrives."
+echo
+echo * : non-blocking stream character input
+echo "A stream input is redirected to the stringify and characters are converted"
+echo "to their ASCII codes. If no character is pedning in the stream input FIFO"
+echo "the resulted string is 0"
+echo
+echo ? : stream string input
+echo "A stream input is redirected to the stringify and characters are directly"
+echo "stacked to the stringification token. The command is blocked until enter"
+echo "arrives or until the stringification token is full."
+echo
+echo "Note that all characters present after the code block"
+echo "which contains stream input (*, ?, %) will be sent"
+echo "to the input of stringification."
+
+echo ________
+delay 3000
+echo
+
+echo
+echo Example - an array indexing
+
+var a.3 int8
+var i int8
+set a 10,20,30
+set i 0
+echo a.$i is $a.$i
+set i 1
+echo a.$i is $a.$i
+set i 2
+echo a.$i is $a.$i
+
+
+echo
+echo Example - an array indexing with indirect variable name
+
+var a0.3 a1.3 a2.3 int8
+var i j int8
+set a0 a1 a2 10,20,30
+set a1 a1+a0
+set a2 a2+a1
+set i j 0
+
+{
+	{
+		echo $a$i~.$j \
+		set j j+1
+		if j<3 branch s
+	}
+	echo
+	set j 0
+	set i i+1
+	if i<3 branch s
+}
+
+
+echo
+echo Example - indirect command call
+
+var cmdname.10 string
+set cmdname "echo"
+$cmdname ahoj!
+
+echo
+echo Example - indirect function call
+
+.func1 { echo I am func1 }
+.func2 { echo I am func2 }
+var funcname.10 string
+var i int8
+set i 1
+call func$i
+set i 2
+call func$i
+
+echo
+echo Example - indirect expression evaluation
+var expression.10 string
+var i int8
+set expression "1+1"
+set i $expression
+echo $expression is $i
+#or nested evaluation
+echo $expression is $($expression~)
+
+echo
+echo Example - ASCII to character
+
+echo few characters: $48~$49~$50~
+set i 65
+echo ascii $i is '$$i~~'
+
+echo
+echo Bonus example - non-blocking stream character input
+echo hint: press arrows, enter to quit
+{
+	set i $*
+	if i echo you pressed $i
+	echo \13 $j
+	set j j+1
+	if i!=13 branch s
+
+	echo
+	echo
+	echo
+	echo Thanks for your attn.
+	echo (c) 2019 siliXcon
+}

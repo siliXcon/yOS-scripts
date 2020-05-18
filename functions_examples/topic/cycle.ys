@@ -1,0 +1,62 @@
+################################################################################
+#
+# example sript how to do a simple cycle
+# first, let user to input desired length of array then, create array of variables
+# finally, variables in array are initialized one by one, from beginning to end.
+# User is prompted to input each variable in array
+#
+################################################################################
+
+@c #send interrupt in a case other script is running
+@! #machine log-in as guest
+
+echo \12 #clear term window
+
+{ #begin of code block
+
+	#dummy input
+	echo $?
+    #create variable  that holds number of variables in array and let the user to 
+    #input the number of variables
+    var i uint8
+    echo input length of an array:
+    set i $?
+    echo 			#print newline
+    
+    #create array of floats, number of floats are equal to i    
+    var my_array.$i float    
+    
+    #create auxiliary variable for cycle control and initialize it to 0    
+    var j int8
+    set j 0
+
+    #block2 is the of code that runs repeatly in cycle, until all variables in
+    #array are initialized:
+    { #begin of block 2
+
+        #let user to input value of variable in array
+        echo input value for element on position $j :
+        set my_array.$j $?
+    	echo 		#print newline
+
+        #add 1 to auxiliary variable which is used for indexing the array
+        set j j+1
+
+        #check if the indexing variable is still smaller than length of the array
+        #if it is, jump to begin of this block and repeat whole procedure for next
+        #variable in array
+        #if the auxiliary variable rechad end of the array, no jump occurs and
+        #script continues with commands following the block 2
+        if i>j branch b
+    } #end of block 2 
+  
+	#next commands could be placed here to run after a cycle, for example, array
+	#content could be printed:
+    echo The array content is:
+	echo $my_array
+	echo Press enter to close&reboot
+	echo $?			#wait for user input
+	echo \27		#close term window
+	reboot			#reboot the device
+
+}

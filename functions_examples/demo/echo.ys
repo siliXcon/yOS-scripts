@@ -1,0 +1,269 @@
+@!
+@c
+
+echo \12
+echo "         ________    _________                      __        __    "
+echo "  ___ __ \_____  \  /   _____/   ______ ___________|__|______/  |_  "
+echo " <   |  | /   |   \ \_____  \   /  ___// ___\_  __ \  \____ \   __\ "
+echo "  \___  |/    |    \/        \  \___ \\  \___|  | \/  |  |_> >  |   "
+echo "  / ____|\_______  /_______  / /____  >\___  >__|  |__|   __/|__|   "
+echo "  \/             \/        \/       \/     \/         |__|          "
+
+echo
+echo I am echo!
+delay 1000
+echo I look simple.
+delay 1000
+echo But ...
+delay 500
+echo I \
+delay 500
+echo can \
+delay 500
+echo do \
+delay 500
+echo some \
+delay 500
+echo MAGIC !
+echo
+delay 2000
+echo You \13
+delay 500
+echo wouldn't \13
+delay 500
+echo believe me!
+delay 1000
+echo
+echo I can do escape sequences.
+echo
+delay 500
+echo \13 "I can clear the screen!"
+delay 500
+echo \13 "I can       the screen!"
+delay 500
+echo \13 "I can clear the screen!"
+delay 500
+echo \13 "I can       the screen!"
+delay 500
+echo \13 "I can clear the screen!"
+delay 500
+echo \13 "I can       the screen!"
+delay 500
+echo \13 "I can clear the screen!"
+delay 500
+echo \12
+
+echo "        .__.__  .______  ___                     "
+echo "   _____|__|  | |__\   \/  /____  ____   ____    "
+echo "  /  ___/  |  | |  |\     // ___\/  _ \ /    \   "
+echo "  \___ \|  |  |_|  |/     \  \__(  <_> )   |  \  "
+echo " /____  >__|____/__/___/\  \___  >____/|___|  /  "
+echo "      \/                 \_/   \/           \/   "
+
+echo
+echo I can return a value
+echo \26 123
+echo Now the term.exe will return 123 !
+delay 1000
+echo
+echo I can \10 do \10 multiline ! \10
+
+delay 1000
+echo
+echo I can animate ...
+echo
+.work {
+	var i
+	echo \13 Working: \92 \32 $i~0%
+	delay 50
+	echo \13 Working: | $i~0%
+	delay 50
+	echo \13 Working: / $i~0%
+	delay 50
+	echo \13 Working: - $i~0%
+	delay 50
+	set i i+1
+	if i<=10 branch s
+}
+
+call
+echo done !
+echo
+
+echo \13 "         <"
+delay 50
+echo \13 "        <("
+delay 50
+echo \13 "       <('"
+delay 50
+echo \13 "      <(')"
+delay 50
+echo \13 "     <('))"
+delay 50
+echo \13 "    <(')))"
+delay 50
+echo \13 "   <('))))"
+delay 50
+echo \13 "  <('))))>"
+delay 50
+echo \13 " <('))))><"
+delay 50
+echo \13 "<('))))>< "
+delay 50
+echo \13 "('))))><  "
+delay 50
+echo \13 "'))))><   "
+delay 50
+echo \13 "))))><    "
+delay 50
+echo \13 ")))><     "
+delay 50
+echo \13 "))><      "
+delay 50
+echo \13 ")><       "
+delay 50
+echo \13 "><        "
+delay 50
+echo \13 "<         "
+delay 50
+
+echo \13 "         <"
+delay 50
+echo \13 "        <("
+delay 50
+echo \13 "       <('"
+delay 50
+echo \13 "      <(')"
+delay 50
+echo \13 "     <('))"
+delay 50
+echo \13 "    <(')))"
+delay 50
+echo \13 "   <('))))"
+delay 50
+echo \13 "  <('))))>"
+delay 50
+echo \13 " <('))))><"
+delay 50
+echo \13 "<('))))>< "
+delay 50
+echo \13 "('))))><  "
+delay 50
+echo \13 "'))))><   "
+delay 50
+echo \13 "))))><    "
+delay 50
+echo \13 ")))><     "
+delay 50
+echo \13 "))><      "
+delay 50
+echo \13 ")><       "
+delay 50
+echo \13 "><        "
+delay 50
+echo \13 "<         "
+delay 50
+
+delay 1000
+
+.thanks {
+	var str.300 string
+	var i
+	set str "A long, long time ago ...      "
+	set str str+"in a galaxy far away, "
+	set str str+"naboo was under attack. "
+	set str str+"And I thought me and Qui-Gon Jin, "
+	set str str+"could talk the Federation into maybe cutting them a little slack."
+
+
+	{
+		echo \13 -------------> $str.$i~.20 <-------------
+		delay 100
+		set i i+1
+		if i<180 branch s
+	}
+}
+
+echo \12
+echo
+echo "               ____==========_______           "
+echo "    _--____   |    | ..  . .|       \          "
+echo "   /  )8}  ^^^| 0  |  =     |  o  0  |         "
+echo " </_ +-==B vvv|..  |  =     | '  .. .|         "
+echo "    \_____/   |____|________|________|         "
+echo "             (_(  )\________/___(  )__)        "
+echo "               |\  \            /  /\          "
+echo "               | \  \          /  /\ \         "
+echo "               | |\  \        /  /  \ \        "
+echo "               (  )(  )       (  \   (  )      "
+echo "                \  / /        \  \   \  \      "
+echo "                 \|  |\        \  \  |  |      "
+echo "                  |  | )____    \  \ \  )___   "
+echo "                  (  )  /  /    (  )  (/  /    "
+echo "                  /___\ /__/     /___\ /__/    "
+echo
+echo
+echo
+
+call
+echo
+echo
+
+
+
+.credits {
+
+	var str0.20 str1.20 str2.20 str3.20 str4.20 str5.20 string
+	var str6.20 str7.20 str8.20 str9.20 str10.20 str11.20 string
+	var str12.20 str13.20 string
+	set str0 ""
+	set str1 ""
+	set str2 ""
+	set str3  "  Jiri Lambor  "
+    set str4  "      ~~       "
+	set str5  " Martin Plasek "
+    set str6  "      ~~       "
+	set str7  " Matous Cmelik "
+    set str8  "      ~~       "
+	set str9  "  Jan Hladik   "
+    set str10 "      ~~       "
+	set str11 " Zbynek Chupik "
+    set str12 "      ~~       "
+	set str13 "Jaromir Dvorak "
+
+	var i
+	{
+		echo \12
+		echo Thanks for Watching !
+		echo the best siliXcon team
+		echo _________________
+		echo
+		echo
+		if i<14 echo $str$i+0
+		if i<13 echo $str$i+1
+		if i<12 echo $str$i+2
+		if i<11 echo $str$i+3
+		echo
+		echo _________________
+
+		delay 300
+		set i i+1
+		if i<15 branch s
+	}
+}
+
+call
+
+echo
+delay 1000
+echo \13 terminal will die in 5s
+delay 1000
+echo \13 terminal will die in 4s
+delay 1000
+echo \13 terminal will die in 3s
+delay 1000
+echo \13 terminal will die in 2s
+delay 1000
+echo \13 terminal will die in 1s
+delay 1000
+echo \27

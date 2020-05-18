@@ -1,0 +1,42 @@
+################################################################################
+#
+# this script demonstrates blocking string user input using stringify
+#
+################################################################################
+
+@!
+@c
+
+set /debuglevel 255
+echo \12
+echo Example of blocking user input
+echo ==============================
+
+{
+	var a b c int32
+
+	echo input first value:
+	set a $?
+	echo
+	echo input second value:
+	set b $?
+	echo
+	echo input third value:
+	set c $?
+	echo
+
+	echo first input $a
+	echo second input $b
+	echo third input $c
+
+	set a a*b*c
+
+	echo multiply a by b by c is $a
+
+	echo Press enter for reboot!
+	echo $?
+
+	echo \27 #shut down term.exe
+	reboot
+	#no new line at the end !
+}

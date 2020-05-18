@@ -1,0 +1,132 @@
+################################################################################
+#
+# YOS spectrum analyzer
+#
+# written by Jaromir Dvorak to demonstrate capabilities
+# of the YOS/shell interpreter. (c) siliXcon 2019
+#
+# performs an 8-th order harmonic analysis on a preset function,
+# shows the resulting spectrum of the function,
+# then makes the synthesis and plots both synthesized and original data.
+#
+################################################################################
+
+@!
+@c
+@s
+
+.saw {
+	set output theta%(2*3.141592654)
+}
+
+.triangle {
+	set output abs(theta%(2*3.141592654))-(3.141592654:2)
+}
+
+.square {
+	set output sgn(cos(theta))
+}
+
+.dirac {
+	if theta.0>6 set output 1
+	else set output -1
+}
+
+.select {
+	var func0.10 func1.10 func2.10 func3.10 string
+	set func0 "triangle"
+	set func1 "square"
+	set func2 "saw"
+	set func3 "dirac"
+
+	var c i sel int8
+	{
+		echo \11
+		echo Select a mathematical function to analyze:
+		set i 0
+		{
+	  		if sel==i echo (*) $func$i
+	  		else echo ( ) $func$i
+			set i i+1
+	  		if i<=3 branch s
+	 	}
+
+		set c $%
+  		if c==80 set sel min(sel+1;3)
+  		elif c==72 set sel max(sel-1;0)
+		elif c==13 {
+			set func func$sel
+			branch q
+		}
+		branch s
+	}
+}
+
+{
+	var X1.16 theta.8 spectrum.8 freq.8 float
+	var XX.2 output f1 float
+	var func.10 string
+	var i
+
+	echo \12
+	call select
+
+	#harmonics
+	set freq 1,2,3,4,5,6,7,8
+	set i X1 theta xp(0)
+
+	echo
+	echo Analyzing "$func~" ...
+	{
+		call $func
+		set X1 xp(output)*(sin(theta);cos(theta))+X1
+
+		set theta freq*xp(0.01)+theta
+		set i i+1
+		if theta.0<(2*3.141592654) branch s
+	}
+	set X1 X1:xp(i:2)
+	set spectrum sqrt((X1.0.8*X1.0.8) + (X1.8.8*X1.8.8))
+	echo pocet iteraci je $i
+	echo spektrum je $spectrum
+	#show our spectrum.
+	# -p0 sets the actual plot to plot0
+	# -c clears the plot
+	# -a sets the plot to array mode
+	# -o sets the one shot mode (we don't want to refresh the array)
+	plot -p0 -cao spectrum
+	# -p1 sets the actual plot to plot1
+	# -d0 sets the sampling period to zero (fastest possible)
+	# -c clears the plot
+	# -a sets the plot to array mode
+	# -o sets the one shot mode (we don't want to refresh the array)
+	# This is only a dummy plot to display the f1 and output in the legend.
+	plot -p1 -d0 -cao f1 output
+
+	echo
+	set theta xp(0)
+	echo Synthesizing back ...
+	{
+		call $func
+		#synthesize f1 from our coefficients
+		set f1 sum.16(X1*(sin(theta);cos(theta)))
+		#advance the bases
+		set theta freq*xp(0.01)+theta
+		#show the result
+ 		set XX f1;output
+		#plot a single sample.
+		# -w waits for the previous sample to be sent.
+		# -q makes the plot command silent.
+		# -o tells we want one-shot only (single sample)
+        plot -wqo XX
+
+		#repeat
+		if theta.0<(2*3.141592654) branch s
+	}
+	#echo breakpoint1
+	#call !
+
+	echo done, hit enter to run again!
+	if $%~==13 branch s
+	echo Thanks for evaluating.
+}

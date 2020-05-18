@@ -1,0 +1,44 @@
+################################################################################
+#
+# compute fibonacci's sequence using recursion.
+#
+# https://medium.com/launch-school/recursive-fibonnaci-method-explained-d82215c5498e
+
+
+@!
+@c
+
+.fib {
+	#if the input parameter is lower than 2, return
+	if number<2 branch q
+
+	#if not, compute the fib(number-1) + fib(number-2)
+	#declare some local, temporary variables
+	var input output int32
+	set input number number-1
+	#compute fib(number-1)
+	call fib
+	set output number
+	set number input-1
+	#compute fib(number-2)
+	call fib
+	set number output+number
+}
+
+.showfib {
+	var number i int32
+  	set number i
+	call fib
+	echo fibonacci's sequence of $i is $number
+	set i i+1
+	#repeat
+	if i<=12 branch s
+}
+
+echo \12
+echo recursion demonstration in YOS
+echo ______________________________
+echo
+call
+echo done!
+
