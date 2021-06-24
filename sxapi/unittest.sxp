@@ -69,7 +69,7 @@ sxapi.print("--- Getting variables for a node ---")
 # Named parameters don't work here, i.e "v = n1.variable(path = "/driver/error")" failed.
 try:
 	var_swdt = n1.variable("/driver/debug/swdt")
-	var_errlevel = n1("/vars/errlevel")
+	var_ticks = n1("/vars/ticks")
 	var_maxtemp = n1("/permanents/total/maxtemp")
 	var_kr = n1("/driver/kr")
 	var_unexpected = n1("/unexpected/name")
@@ -78,9 +78,13 @@ except sxapi.error as e:
 
 # These show the path of a variable (the path is a String)
 sxapi.print(var_swdt.path)
-sxapi.print(var_errlevel.path)
+sxapi.print(var_ticks.path)
 sxapi.print(var_maxtemp.path)
 sxapi.print(var_kr.path)
+
+sxapi.print(" ")
+sxapi.print("--- Executing a command on the node ---")
+n1.executeSimple("set", "ticks", "0")
 
 # This will cause script to fail
 #sxapi.print(unexpected.path)
@@ -89,7 +93,7 @@ sxapi.print(var_kr.path)
 # The result is a tuple (type_code, type_name)
 # The type_code is an Integer, the type_name is a Bytes object
 sxapi.print(str(var_swdt.cls()))
-sxapi.print(str(var_errlevel.cls()))
+sxapi.print(str(var_ticks.cls()))
 sxapi.print(str(var_maxtemp.cls()))
 sxapi.print(str(var_kr.cls()))
 
@@ -97,20 +101,20 @@ sxapi.print(" ")
 sxapi.print("--- Getting values of variables ---")
 # These show the path and the value of a variable as a String
 sxapi.print(str(var_swdt))
-sxapi.print(str(var_errlevel))
+sxapi.print(str(var_ticks))
 sxapi.print(str(var_maxtemp))
 sxapi.print(str(var_kr))
 
 # These are the two ways to get the value of a variable.
 # The value is taken directly from the target
 v1 = var_swdt.get()
-v2 = var_errlevel()
+v2 = var_ticks()
 v3 = var_maxtemp()
 v4 = var_kr()
 
 # The type of a value can be Integer, String, Float, or List of one of the listed types
 sxapi.print("/driver/debug/swdt =", str(v1).strip('[]'), "Type:", str(type(v1)))
-sxapi.print("/vars/errlevel =", v2, "Type:", str(type(v2)))
+sxapi.print("/vars/ticks =", v2, "Type:", str(type(v2)))
 sxapi.print("/permanents/total/maxtemp =", v3, "Type:", str(type(v3)))
 sxapi.print("driver/kr =", v4, "Type:", str(type(v4)))
 
@@ -140,26 +144,26 @@ if var_kr.set(random.random()):
 	sxapi.print("The value was succefully set")
 sxapi.print(var_kr.path, "(float) =", var_kr.get(), "(after)")
 
-sxapi.print(var_errlevel.path, "(uint8) =", var_errlevel.get(), "(before)")
-if var_errlevel.set(random.randint(0, 255)):
+sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(before)")
+if var_ticks.set(random.randint(0, 255)):
 	sxapi.print("The value was succefully set")
-sxapi.print(var_errlevel.path, "(uint8) =", var_errlevel.get(), "(after)")
+sxapi.print(var_tick.path, "(uint8) =", var_ticks.get(), "(after)")
 
 # If you try to set the value that is out of range, script will not fail
 try:
-	sxapi.print(var_errlevel.path, "(uint8) =", var_errlevel.get(), "(before)")
-	if var_errlevel.set(400000000):
+	sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(before)")
+	if var_ticks.set(400000000):
 		sxapi.print("The value was succefully set")
-	sxapi.print(var_errlevel.path, "(uint8) =", var_errlevel.get(), "(after)")
+	sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(after)")
 except sxapi.error as e:
 	sxapi.print(str(e))
 
 # If you try to set the value of unrelated type (i.e. String -> uint8), script will fail
 #try:
-#	sxapi.print(var_errlevel.path, "(uint8) =", var_errlevel.get(), "(before)")
-#	if var_errlevel.set("value"):
+#	sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(before)")
+#	if var_ticks.set("value"):
 #		sxapi.print("The value was succefully set")
-#	sxapi.print(var_errlevel.path, "(uint8) =", var_errlevel.get(), "(after)")
+#	sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(after)")
 #except sxapi.error as e:
 #	sxapi.print(str(e))
 
