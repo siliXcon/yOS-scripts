@@ -106,7 +106,8 @@ sxapi.print(str(var_maxtemp))
 sxapi.print(str(var_kr))
 
 # These are the two ways to get the value of a variable.
-# The value is taken directly from the target
+# The value is processed according to the variable's IOMode property  when .get() is issued,
+# otherwise the value from emGUI database is presented.
 v1 = var_swdt.get()
 v2 = var_ticks()
 v3 = var_maxtemp()
@@ -138,7 +139,7 @@ sxapi.print("--- Setting the value of a variable ---")
 import random
 
 # You can set the value of a Parameter or Dynamic variable only
-# The value is set directly in the target
+# The value is processed according to the IOMode property of the given variable
 sxapi.print(var_kr.path, "(float) =", var_kr.get(), "(before)")
 if var_kr.set(random.random()):	
 	sxapi.print("The value was succefully set")
