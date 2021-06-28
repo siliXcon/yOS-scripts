@@ -106,8 +106,8 @@ sxapi.print(str(var_maxtemp))
 sxapi.print(str(var_kr))
 
 # These are the two ways to get the value of a variable.
-# The value is processed according to the variable's IOMode property  when .get() is issued,
-# otherwise the value from emGUI database is presented.
+# The value is processed according to the variable's IOMode property when .get() is issued,
+# otherwise, the value from emGUI database is presented.
 v1 = var_swdt.get()
 v2 = var_ticks()
 v3 = var_maxtemp()
@@ -138,8 +138,10 @@ sxapi.print("--- Setting the value of a variable ---")
 # random library is used for demonstration purpose only
 import random
 
-# You can set the value of a Parameter or Dynamic variable only
-# The value is processed according to the IOMode property of the given variable
+# You can set the value of a Parameter or Dynamic variable only.
+# When .set(...) is issued, the value is processed according to the IOMode property
+# of the given variable. If you wish to set the value to the emGUI's database only,
+# use name_of_variable(value_to_set) construct.
 sxapi.print(var_kr.path, "(float) =", var_kr.get(), "(before)")
 if var_kr.set(random.random()):	
 	sxapi.print("The value was succefully set")
