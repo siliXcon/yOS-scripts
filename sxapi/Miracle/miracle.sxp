@@ -65,7 +65,7 @@ class Toplevel1:
         self.style.map('.',background=
             [('selected', _compcolor), ('active',_ana2color)])
 
-        top.geometry("236x211+691+-907")
+        top.geometry("236x211+0+0")
         top.minsize(120, 1)
         top.maxsize(3204, 2261)
         top.resizable(1,  1)
