@@ -1,0 +1,9 @@
+import subprocess
+subprocess.run("scope.cmd")
+sxapi.search()
+kontroler = sxapi.node(4)
+kontroler.open()
+kontroler.open("/driver/debug_adc/CHRG_CURR")
+kontroler.open("/driver/debug_adc/CHRG_VOLT")
+kontroler.executeSimple("clear", "all")
+kontroler.executeSimple("plot", "/driver/debug_adc/CHRG_CURR")
