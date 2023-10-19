@@ -215,7 +215,7 @@ class App(customtkinter.CTk):
 
         self.pwrlabel = customtkinter.CTkLabel(
             self.drv_frame,
-            text="35\n{DEGREE SIGN}C",
+            text="35\N{DEGREE SIGN}C",
             font=customtkinter.CTkFont(size=20, weight="bold"),
             image=tkinter.PhotoImage(file="./temp.png"),
             compound="left",
