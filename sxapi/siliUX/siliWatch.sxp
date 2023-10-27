@@ -1,10 +1,10 @@
 import tkinter
 import tkinter.messagebox
 import customtkinter
+import codetostr
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 # customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
-
 
 def MessageBox(message):
     app = customtkinter.CTk()
@@ -26,45 +26,257 @@ try:
             raise ValueError()  # no other way to kill the script without exitting emgui
         nodeCount = nodeCount2
 
-
 except sxapi.error as e:
     # tkinter.messagebox.showerror("Error", "Failed to connect to the device")
     exit()
-
 
 nodes = []
 nodenames = []
 
 for i in range(nodeCount):
     newNode = sxapi.node(i)
-    # TODO check their family, only work with ESCxs !
-    nodes.append(newNode)
-    nodenames.append(newNode.name)
-    sxapi.print(str(newNode.info()))
-    print(str(i))
-    print(str(newNode.name))
+    if newNode.hwid().decode()[:3] == "esc":
+        nodes.append(newNode)
+        nodenames.append(newNode.name.decode() + " (" + newNode.address.decode() + ")")
 
+if len(nodes) < 1:
+    MessageBox("None of the nodes is an ESCx member!")
+    raise ValueError()  # no other way to kill the script without exitting emgui
 
 nodenames.append("STOP")
 
+update_driver_id = None
+update_limiter_id = None
+update_cmd_id = None
 
-class App(customtkinter.CTk):
-    def __init__(self):
-        super().__init__()
 
-        # configure window
-        self.title("siliWatch (ESCx)")
-        self.attributes("-topmost", 1)
+def update_driver():
+    try:
+        app.templabel.configure(text=str(round(drivertemp.get(),1))+"\N{DEGREE SIGN}C")
+        app.ptctemplabel.configure(text=str(int(ptctemp.get())))
+        app.pwrlabel.configure(text=str(int(driverpower.get()))+"W")
+        app.energylabel.configure(text=str(driverenergy.get())+"J")
+        if driverenable.get():
+           app.enablebar.configure(fg_color="grey", progress_color="yellow")
+        else:
+           app.enablebar.configure(fg_color="grey", progress_color="grey")
+        global update_driver_id
+        update_driver_id = app.after(234, update_driver)
 
-        self.geometry(f"{1024}x{800}")
+    except sxapi.error as e:
+         app.nodeselect_button.configure(selected_color="red")
+         app.enablebar.configure(fg_color="black", progress_color="black")
 
-        # configure grid layout (4x4)
-        # https://www.pythontutorial.net/tkinter/tkinter-grid/
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure((2, 3), weight=0)
-        self.grid_rowconfigure(3, weight=1)
 
-        group0 = [
+def update_limiter():
+    status_value = driverstat.get()
+    app.stattext.delete("0.0", "end")  # delete all text
+    app.stattext.insert("0.0", codetostr.stat2string(status_value))
+    app.statlabel.configure(text="stat\n" + str(status_value))
+
+    limit_value = driverlimit.get()
+    app.limittext.delete("0.0", "end")  # delete all text
+    app.limittext.insert("0.0", codetostr.limit2string(limit_value))
+    app.limitlabel.configure(text="limit\n" + str(limit_value))
+
+    error_value = drivererror.get()
+    app.errortext.delete("0.0", "end")  # delete all text
+    app.errortext.insert("0.0", codetostr.error2string(error_value))
+    app.errorlabel.configure(text="error\n" + str(error_value))
+
+    if error_value:
+       app.totallimitbar.configure(progress_color="red")
+    elif status_value:
+       app.totallimitbar.configure(progress_color="yellow")
+    else:
+       app.totallimitbar.configure(progress_color="green")
+
+    app.totallimitbar.set(drivertotallimit.get())
+
+    global update_limiter_id
+    update_limiter_id = app.after(345, update_limiter)
+
+modes = [   "FRW",
+            "VLT",
+            "CRT",
+            "VLF",
+            "VLB",
+            "SCR",
+            "TRQ",
+            "BCR",
+            "SBR",
+            "TBR",
+            "ABR",
+            "RES",
+            "RES",
+            "RES",
+            "SVC",
+            "SHR"  ]
+
+def update_cmd():
+
+    app.imultbar.set(driverimult.get())
+    app.umultbar.set(driverumult.get())
+
+    cmd = drivercmd.get()
+    app.cmdbar.set(cmd)
+    mode = drivermode.get()
+
+    app.modelabel.configure(text=" " + modes[mode&15] + " " + str(round(cmd, 2)))
+
+    app.checkbox_pos.configure(state="enabled")
+    app.checkbox_spd.configure(state="enabled")
+
+    if mode&0x10:
+       app.checkbox_spd.select()
+    else:
+       app.checkbox_spd.deselect()
+
+    if mode&0x20:
+       app.checkbox_pos.select()
+    else:
+       app.checkbox_pos.deselect()
+
+    app.checkbox_pos.configure(state="disabled")
+    app.checkbox_spd.configure(state="disabled")
+
+    global update_cmd_id
+    update_cmd_id = app.after(456, update_cmd)
+
+
+# configure grid layout (4x4)
+# https://www.pythontutorial.net/tkinter/tkinter-grid/
+app = customtkinter.CTk()
+app.title("siliWatch (ESCx)")
+app.attributes("-topmost", 1)
+app.geometry(f"{900}x{700}")
+app.grid_columnconfigure(1, weight=1)
+app.grid_columnconfigure((2, 3), weight=0)
+app.grid_rowconfigure(3, weight=1)
+
+app.attributes("-topmost", 0)
+
+def node_select_callback(value):
+    if update_driver_id:
+        app.after_cancel(update_driver_id)
+    if update_limiter_id:
+        app.after_cancel(update_limiter_id)
+    if update_cmd_id:
+        app.after_cancel(update_cmd_id)
+
+    app.enablebar.configure(fg_color="black", progress_color="black")
+    app.totallimitbar.configure(progress_color="black")
+    app.nodeselect_button.configure(selected_color="red")
+    app.modelabel.configure(text=" UNK")
+
+    #app.term_button.configure(state="disabled")
+    #app.scope_button.configure(state="disabled")
+
+    if value != "STOP":
+        global my_node
+        my_node = nodes[nodenames.index(value)]
+        #app.term_button.configure(state="enabled")
+        #app.scope_button.configure(state="enabled")
+
+        try:
+            global drivertemp
+            drivertemp = my_node.variable("/driver/temp")
+            global ptctemp
+            ptctemp = my_node.variable("/driver/ptctemp")
+            global driverpower
+            driverpower = my_node.variable("/driver/power")
+            global driverenergy
+            driverenergy = my_node.variable("/driver/energy")
+            global driverenable
+            driverenable = my_node.variable("/driver/enable")
+
+            update_driver()
+
+            global drivererror
+            drivererror = my_node.variable("/driver/error")
+            global driverstat
+            driverstat = my_node.variable("/driver/stat")
+            global driverlimit
+            driverlimit = my_node.variable("/driver/limit")
+            global drivertotallimit
+            drivertotallimit = my_node.variable("/driver/totallimit")
+
+            update_limiter()
+
+            global drivercmd
+            drivercmd = my_node.variable("/driver/cmd")
+            global drivermode
+            drivermode = my_node.variable("/driver/mode")
+            global driverimult
+            driverimult = my_node.variable("/driver/iqmult")
+            global driverumult
+            driverumult = my_node.variable("/driver/uqmult")
+
+            update_cmd()
+
+            app.nodeselect_button.configure(selected_color="green")
+
+        except sxapi.error as e:
+            MessageBox("Could not bind to the controller states!")
+
+
+app.nodeselect_button = customtkinter.CTkSegmentedButton(app, command=node_select_callback)
+app.nodeselect_button.configure(values=nodenames, selected_color="red")
+app.nodeselect_button.set("STOP")
+
+app.nodeselect_button.grid(row=0, column=1, pady=5)
+
+# create scope and term launchers
+
+def show_emgui():
+    sxapi.show()
+
+app.emgui_switch = customtkinter.CTkButton(app, text=f"", command=show_emgui, image=tkinter.PhotoImage(file="./main.png"), width=5)
+app.emgui_switch.grid(row=0, column=0, padx=(10,0), pady=10, sticky="w")
+
+def open_scope():
+    my_node.open("{scope}")
+
+app.scope_button = customtkinter.CTkButton(app, text="", command=open_scope, image=tkinter.PhotoImage(file="./scope.png"), width=5)
+app.scope_button.grid(row=0, column=0, padx=(70,0), pady=10, sticky="w")
+
+def open_term():
+    my_node.open("{term}")
+
+app.term_button = customtkinter.CTkButton(app, text="", command=open_term, image=tkinter.PhotoImage(file="./term.png"), width=5)
+app.term_button.grid(row=0, column=0, padx=(130,0), pady=10, sticky="w")
+
+
+def change_appearance_mode_event(new_appearance_mode: str):
+    customtkinter.set_appearance_mode(new_appearance_mode)
+
+def change_scaling_event(app, new_scaling: str):
+    new_scaling_float = int(new_scaling.replace("%", "")) / 100
+    customtkinter.set_widget_scaling(new_scaling_float)
+
+app.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(app, values=["Dark", "Light", "System"], command=change_appearance_mode_event)
+app.appearance_mode_optionemenu.grid(row=0, column=2, padx=10, pady=5, sticky="e")
+
+# create sidebar frame with widgets
+app.sidebar_frame = customtkinter.CTkFrame(app, fg_color="transparent")
+app.sidebar_frame.grid(row=1, column=0, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.sidebar_frame.grid_rowconfigure(1, weight=1)
+
+
+# create scrollable frame
+app.scrollable_frame = customtkinter.CTkScrollableFrame(app.sidebar_frame, label_text="Data logging")
+app.scrollable_frame.grid(row=1, column=0, columnspan=2, pady=5, sticky="nsew")
+app.scrollable_frame.grid_columnconfigure(0, weight=1)
+
+app.logctl_button = customtkinter.CTkSegmentedButton(app.scrollable_frame)
+app.logctl_button.configure(values=["Stop", "Record", "Show"],  state="disabled")
+app.logctl_button.set("Stop")
+app.logctl_button.grid(row=0, column=0)
+
+app.entry = customtkinter.CTkEntry(app.scrollable_frame, placeholder_text="my_log.csv", state="disabled")
+app.entry.grid(row=1, column=0, pady=5)
+
+group0 = [
             "battery current",
             "motor currents",
             "unfiltered motor currents",
@@ -83,486 +295,290 @@ class App(customtkinter.CTk):
             "command multipliers",
         ]
 
-        # nodenames=["SL-internal@0", "SL-internal@1", "SL-internal@2"]
-
-        self.nodeselect_button = customtkinter.CTkSegmentedButton(self)
-        self.nodeselect_button.configure(values=nodenames, selected_color="red")
-        self.nodeselect_button.set("STOP")
-        self.nodeselect_button.grid(row=0, column=1, pady=5)
-
-        self.emgui_switch = customtkinter.CTkButton(
-            self,
-            text=f"",
-            command=self.change_emgui,
-            image=tkinter.PhotoImage(file="./main.png"),
-        )
-        self.emgui_switch.grid(row=0, column=0, padx=10, pady=5, sticky="w")
-
-        # self.update_switch = customtkinter.CTkSwitch(self, text=f"update")
-        # self.update_switch.grid(row=0, column=2, padx=20, sticky="e")
-
-        # self.appearance_mode_label.grid(row=10, column=0, columnspan=2, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(
-            self,
-            values=["Dark", "Light", "System"],
-            command=self.change_appearance_mode_event,
-        )
-        self.appearance_mode_optionemenu.grid(
-            row=0, column=2, padx=10, pady=5, sticky="e"
-        )
-
-        # create sidebar frame with widgets
-        self.sidebar_frame = customtkinter.CTkFrame(
-            self, width=140, fg_color="transparent"
-        )
-        self.sidebar_frame.grid(
-            row=1, column=0, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="nsew"
-        )
-        self.sidebar_frame.grid_rowconfigure(1, weight=1)
-
-        # create scrollable frame
-        self.scrollable_frame = customtkinter.CTkScrollableFrame(
-            self.sidebar_frame, label_text="Data logging"
-        )
-        self.scrollable_frame.grid(row=1, column=0, columnspan=2, pady=5, sticky="nsew")
-        self.scrollable_frame.grid_columnconfigure(0, weight=1)
-
-        self.nodeselect_button = customtkinter.CTkSegmentedButton(self.scrollable_frame)
-        self.nodeselect_button.configure(values=["Stop", "Record", "Show"],  state="disabled")
-        self.nodeselect_button.set("Stop")
-        self.nodeselect_button.grid(row=0, column=0)
-
-        self.entry = customtkinter.CTkEntry(
-            self.scrollable_frame, placeholder_text="my_log.csv", state="disabled"
-        )
-        self.entry.grid(row=1, column=0, pady=5)
-
-        self.scrollable_frame_switches = []
-        for i in range(len(group0)):
-            switch = customtkinter.CTkCheckBox(
-                master=self.scrollable_frame, text=group0[i], state="disabled"
-            )
-            switch.grid(row=i + 2, column=0, pady=5, sticky="w")
-            self.scrollable_frame_switches.append(switch)
-
-        # create tabview
-        self.tabview = customtkinter.CTkTabview(self.sidebar_frame, width=250)
-        self.tabview.grid(row=3, column=0, columnspan=2, pady=5, sticky="nsew")
-
-        self.tabview.add("plot0")
-        self.tabview.tab("plot0").grid_columnconfigure(0, weight=1)
-        self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("plot0"), dynamic_resizing=False,
-            values=[
-                "battery current",
-                "motor currents",
-                "unfiltered motor currents",
-                "motor current references",
-            ],
-        )
-        self.optionmenu_1.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.combobox_1 = customtkinter.CTkComboBox(self.tabview.tab("plot0"), values=["1ms", "2ms", "5ms", "10ms", "20ms", "50ms", "100ms"])
-        self.combobox_1.set("10ms")
-        self.combobox_1.grid(row=1, column=0, padx=20, pady=(10, 10))
-        self.string_input_button = customtkinter.CTkButton(self.tabview.tab("plot0"), text="Clear", command=self.open_input_dialog_event)
-        self.string_input_button.grid(row=2, column=0, padx=20, pady=(10, 10))
-
-
-        self.tabview.add("plot1")
-        self.tabview.tab("plot1").grid_columnconfigure(0, weight=1)
-        self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("plot1"), dynamic_resizing=False,
-            values=[
-                "battery voltage",
-                "motor voltages",
-                "unfiltered motor voltages",
-            ],
-        )
-        self.optionmenu_1.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.combobox_1 = customtkinter.CTkComboBox(self.tabview.tab("plot1"), values=["1ms", "2ms", "5ms", "10ms", "20ms", "50ms", "100ms"])
-        self.combobox_1.set("10ms")
-        self.combobox_1.grid(row=1, column=0, padx=20, pady=(10, 10))
-        self.string_input_button = customtkinter.CTkButton(self.tabview.tab("plot1"), text="Clear", command=self.open_input_dialog_event)
-        self.string_input_button.grid(row=2, column=0, padx=20, pady=(10, 10))
-
-
+app.scrollable_frame_switches = []
+for i in range(len(group0)):
+    switch = customtkinter.CTkCheckBox(master=app.scrollable_frame, text=group0[i], state="disabled")
+    switch.grid(row=i + 2, column=0, pady=5, sticky="w")
+    app.scrollable_frame_switches.append(switch)
+
+
+
+# create scope control tabview
+# TODO get rid of duplicit code blocks !
+app.tabview = customtkinter.CTkTabview(app.sidebar_frame, width=200, height=200)
+app.tabview.grid(row=3, column=0, columnspan=2, pady=5, sticky="nsew")
+
+def erase_event0():
+    my_node.executeSimple("legend", "-c16", "282", "282", "99", "99")
+
+def autoset_event0():
+    my_node.executeSimple("legend", "-c16", "282", "282", "13", "13")
+
+def clear_event0():
+    my_node.executeSimple("plot", "-p0", "-c")
+
+def period_event0(val):
+    my_node.executeSimple("period", "-p0", val.split(" ", 1)[0])
+
+def plot_event0(val):
+    if val=="battery current":
+        my_node.executeSimple("plot", "-p0", "/driver/supply/currentf")
+    if val=="motor currents":
+        my_node.executeSimple("plot", "-p0", "/driver/motor/currentqf", "/driver/motor/currentdf")
+    if val=="unfiltered motor currents":
+        my_node.executeSimple("plot", "-p0", "/driver/motor/currentq", "/driver/motor/currentd")
+    if val=="motor current references":
+        my_node.executeSimple("plot", "-p0", "/driver/debug_core/Iqref", "/driver/debug_core/Idref")
+
+app.tabview.add("plot0")
+app.tabview.tab("plot0").grid_columnconfigure((0,1,2), weight=1)
+app.optionmenu_1 = customtkinter.CTkOptionMenu(app.tabview.tab("plot0"), dynamic_resizing=False, values=["battery current", "motor currents", "unfiltered motor currents", "motor current references"], command=plot_event0)
+app.optionmenu_1.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
+app.combobox_1 = customtkinter.CTkComboBox(app.tabview.tab("plot0"), values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"], command=period_event0)
+app.combobox_1.set("10ms")
+app.combobox_1.grid(row=1, column=0, columnspan=3, padx=10, pady=(10, 10))
+
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot0"), text="Erase", command=erase_event0, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=0, padx=5, pady=(10, 10))
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot0"), text="Autoset", command=autoset_event0, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=1, padx=5, pady=(10, 10))
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot0"), text="Clear", command=clear_event0, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=2, padx=5, pady=(10, 10))
+
+def erase_event1():
+    my_node.executeSimple("legend", "-c16", "283", "283", "99", "99")
+
+def autoset_event1():
+    my_node.executeSimple("legend", "-c16", "283", "283", "13", "13")
+
+def clear_event1():
+    my_node.executeSimple("plot", "-p1", "-c")
+
+def period_event1(val):
+    my_node.executeSimple("period", "-p1 ", val.split(" ", 1)[0])
+
+def plot_event1(val):
+    if val=="battery voltage":
+        my_node.executeSimple("plot", "-p1", "/driver/supply/voltage")
+    if val=="motor voltages":
+        my_node.executeSimple("plot", "-p1", "/driver/motor/voltageq", "/driver/motor/voltaged")
+    if val=="motor voltage references":
+        my_node.executeSimple("plot", "-p1", "/driver/debug_core/Uqref", "/driver/debug_core/Udref")
+
+app.tabview.add("plot1")
+app.tabview.tab("plot1").grid_columnconfigure((0,1,2), weight=1)
+app.optionmenu_1 = customtkinter.CTkOptionMenu(app.tabview.tab("plot1"), dynamic_resizing=False, values=["battery voltage", "motor voltages", "motor voltage references"], command=plot_event1)
+app.optionmenu_1.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
+app.combobox_1 = customtkinter.CTkComboBox(app.tabview.tab("plot1"), values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"], command=period_event1)
+app.combobox_1.set("10ms")
+app.combobox_1.grid(row=1, column=0, columnspan=3, padx=10, pady=(10, 10))
+
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot1"), text="Erase", command=erase_event1, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=0, padx=5, pady=(10, 10))
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot1"), text="Autoset", command=autoset_event1, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=1, padx=5, pady=(10, 10))
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot1"), text="Clear", command=clear_event1, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=2, padx=5, pady=(10, 10))
+
+def erase_event2():
+    my_node.executeSimple("legend", "-c16", "284", "284", "99", "99")
+
+def autoset_event2():
+    my_node.executeSimple("legend", "-c16", "284", "284", "13", "13")
+
+def clear_event2():
+    my_node.executeSimple("plot", "-p2", "-c")
+
+def period_event2(val):
+    my_node.executeSimple("period", "-p2", val.split(" ", 1)[0])
+
+def plot_event2(val):
+    if val=="power":
+        my_node.executeSimple("plot", "-p2", "/driver/power")
+    if val=="motor speed":
+        my_node.executeSimple("plot", "-p2", "/driver/motor/rpmf")
+    if val=="tempreatures":
+        my_node.executeSimple("plot", "-p2", "/driver/temp", "/driver/ptctemp")
+    if val=="motor temperature (resistance)":
+        my_node.executeSimple("plot", "-p2", "/driver/motor/rthermistor")
+
+app.tabview.add("plot2")
+app.tabview.tab("plot2").grid_columnconfigure((0,1,2), weight=1)
+app.optionmenu_1 = customtkinter.CTkOptionMenu(app.tabview.tab("plot2"), dynamic_resizing=False, values=["power", "motor speed", "tempreatures", "motor temperature (resistance)"], command=plot_event2)
+app.optionmenu_1.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
+app.combobox_1 = customtkinter.CTkComboBox(app.tabview.tab("plot2"), values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"], command=period_event2)
+app.combobox_1.set("10ms")
+app.combobox_1.grid(row=1, column=0, columnspan=3, padx=10, pady=(10, 10))
+
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot2"), text="Erase", command=erase_event2, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=0, padx=5, pady=(10, 10))
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot2"), text="Autoset", command=autoset_event2, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=1, padx=5, pady=(10, 10))
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot2"), text="Clear", command=clear_event2, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=2, padx=5, pady=(10, 10))
+
+
+def erase_event3():
+    my_node.executeSimple("legend", "-c16", "285", "285", "99", "99")
+
+def autoset_event3():
+    my_node.executeSimple("legend", "-c16", "285", "285", "13", "13")
+
+def clear_event3():
+    my_node.executeSimple("plot", "-p3", "-c")
+
+def period_event3(val):
+    my_node.executeSimple("period", "-p3", val.split(" ", 1)[0])
+
+def plot_event3(val):
+    if val=="stat and limit":
+        my_node.executeSimple("plot", "-p3", "/driver/stat", "/driver/limit")
+    if val=="totallimit":
+        my_node.executeSimple("plot", "-p3", "/driver/totallimit")
+    if val=="command and mode":
+        my_node.executeSimple("plot", "-p3", "/driver/cmd", "/driver/mode")
+    if val=="command multipliers":
+        my_node.executeSimple("plot", "-p3", "/driver/imult", "/driver/umult")
+
+app.tabview.add("plot3")
+app.tabview.tab("plot3").grid_columnconfigure((0,1,2), weight=1)
+app.optionmenu_1 = customtkinter.CTkOptionMenu(app.tabview.tab("plot3"), dynamic_resizing=False, values=["stat and limit", "totallimit", "command and mode", "command multipliers"], command=plot_event3)
+app.optionmenu_1.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
+app.combobox_1 = customtkinter.CTkComboBox(app.tabview.tab("plot3"), values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"], command=period_event3)
+app.combobox_1.set("10ms")
+app.combobox_1.grid(row=1, column=0, columnspan=3, padx=10, pady=(10, 10))
+
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot3"), text="Erase", command=erase_event3, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=0, padx=5, pady=(10, 10))
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot3"), text="Autoset", command=autoset_event3, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=1, padx=5, pady=(10, 10))
+app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot3"), text="Clear", command=clear_event3, border_width=2, width=5)
+app.string_input_button.grid(row=2, column=2, padx=5, pady=(10, 10))
+
+
+
+app.drv_frame = customtkinter.CTkFrame(app)
+app.drv_frame.grid(row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.drv_frame.grid_columnconfigure(1, weight=1)
+app.drv_frame.grid_rowconfigure(0, weight=1)
+
+app.templabel = customtkinter.CTkLabel(app.drv_frame, text="0\N{DEGREE SIGN}C", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./temp.png"), compound="left", padx=5)
+app.templabel.grid(row=0, column=0, rowspan=3)
+
+app.pwrlabel = customtkinter.CTkLabel(app.drv_frame, text="0W", pady=5, font=customtkinter.CTkFont(size=40, weight="bold"), image=tkinter.PhotoImage(file="./transistor.png"), compound="left")
+app.pwrlabel.grid(row=0, column=1)
+
+app.energylabel = customtkinter.CTkLabel(app.drv_frame, text="0J", image=tkinter.PhotoImage(file="./counter.png"), compound="left")
+app.energylabel.grid(row=1, column=1)
+
+app.ptctemplabel = customtkinter.CTkLabel(app.drv_frame, text="0", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./templimit.png"), compound="left", padx=10)
+app.ptctemplabel.grid(row=0, column=2, rowspan=3)
+
+app.enablebar = customtkinter.CTkProgressBar(app.drv_frame, orientation="horizontal", progress_color="yellow")
+app.enablebar.grid(row=2, column=1, padx=(10, 10), pady=(10, 10), sticky="ns")
+app.enablebar.configure(progress_color="black", fg_color="black", mode="indeterminate")
+app.enablebar.set(1)
+app.enablebar.start()
 
-        self.tabview.add("plot2")
-        self.tabview.tab("plot2").grid_columnconfigure(0, weight=1)
-        self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("plot2"), dynamic_resizing=False,
-            values=[
-                "motor RPM",
-                "power",
-                "tempreatures",
-                "motor temperature",
-            ],
-        )
-        self.optionmenu_1.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.combobox_1 = customtkinter.CTkComboBox(self.tabview.tab("plot2"), values=["1ms", "2ms", "5ms", "10ms", "20ms", "50ms", "100ms"])
-        self.combobox_1.set("10ms")
-        self.combobox_1.grid(row=1, column=0, padx=20, pady=(10, 10))
-        self.string_input_button = customtkinter.CTkButton(self.tabview.tab("plot2"), text="Clear", command=self.open_input_dialog_event)
-        self.string_input_button.grid(row=2, column=0, padx=20, pady=(10, 10))
-
-
-
-        self.tabview.add("plot3")
-        self.tabview.tab("plot3").grid_columnconfigure(0, weight=1)
-        self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("plot3"), dynamic_resizing=False,
-            values=[
-                "command and mode",
-                "command multipliers",
-                "stat and limit",
-                "totallimit",
-            ],
-        )
-        self.optionmenu_1.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.combobox_1 = customtkinter.CTkComboBox(self.tabview.tab("plot3"), values=["1ms", "2ms", "5ms", "10ms", "20ms", "50ms", "100ms"])
-        self.combobox_1.set("10ms")
-        self.combobox_1.grid(row=1, column=0, padx=20, pady=(10, 10))
-        self.string_input_button = customtkinter.CTkButton(self.tabview.tab("plot3"), text="Clear", command=self.open_input_dialog_event)
-        self.string_input_button.grid(row=2, column=0, padx=20, pady=(10, 10))
-
-
-
-        self.sidebar_button_1 = customtkinter.CTkButton(
-            self.sidebar_frame,
-            text="",
-            command=self.open_scope,
-            image=tkinter.PhotoImage(file="./scope.png"),
-            compound="left",
-        )
-        self.sidebar_button_1.grid(row=9, column=0, padx=5, pady=5)
-
-        self.sidebar_button_1 = customtkinter.CTkButton(
-            self.sidebar_frame,
-            text="",
-            command=self.open_term,
-            image=tkinter.PhotoImage(file="./term.png"),
-            compound="left",
-        )
-        self.sidebar_button_1.grid(row=9, column=1, padx=5, pady=5)
-
-        self.drv_frame = customtkinter.CTkFrame(self)
-        self.drv_frame.grid(
-            row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew"
-        )
-        self.drv_frame.grid_columnconfigure(1, weight=1)
-        self.drv_frame.grid_rowconfigure(0, weight=1)
-
-        self.pwrlabel = customtkinter.CTkLabel(
-            self.drv_frame,
-            text="35\N{DEGREE SIGN}C",
-            font=customtkinter.CTkFont(size=20, weight="bold"),
-            image=tkinter.PhotoImage(file="./temp.png"),
-            compound="left",
-            padx=5,
-        )
-        self.pwrlabel.grid(row=0, column=0, rowspan=3)
-
-        self.pwrlabel = customtkinter.CTkLabel(
-            self.drv_frame,
-            text="2500W",
-            pady=5,
-            font=customtkinter.CTkFont(size=40, weight="bold"),
-            image=tkinter.PhotoImage(file="./transistor.png"),
-            compound="left",
-        )
-        self.pwrlabel.grid(row=0, column=1)
-
-        self.pwrlabel = customtkinter.CTkLabel(
-            self.drv_frame,
-            text="123456J",
-            image=tkinter.PhotoImage(file="./counter.png"),
-            compound="left",
-        )
-        self.pwrlabel.grid(row=1, column=1)
-
-        self.pwrlabel = customtkinter.CTkLabel(
-            self.drv_frame,
-            text="180",
-            font=customtkinter.CTkFont(size=20, weight="bold"),
-            image=tkinter.PhotoImage(file="./templimit.png"),
-            compound="left",
-            padx=10,
-        )
-        self.pwrlabel.grid(row=0, column=2, rowspan=3)
-
-        self.enablebar = customtkinter.CTkProgressBar(
-            self.drv_frame, orientation="horizontal", progress_color="yellow"
-        )
-        self.enablebar.grid(row=2, column=1, padx=(10, 10), pady=(10, 10), sticky="ns")
-        self.enablebar.configure(mode="indeterminnate")
-        self.enablebar.start()
-
-        self.limiter_frame = customtkinter.CTkFrame(self)
-        self.limiter_frame.grid(
-            row=2, column=1, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew"
-        )
-        self.limiter_frame.grid_columnconfigure((0, 1, 2), weight=1)
-        self.limiter_frame.grid_rowconfigure(1, weight=1)
-
-        self.errorlabel = customtkinter.CTkLabel(
-            self.limiter_frame,
-            text="error\n0",
-            image=tkinter.PhotoImage(file="./stop.png"),
-            compound="left",
-        )
-        self.errorlabel.grid(row=0, column=0, padx=(10, 10), pady=(10, 10), sticky="nw")
-        self.errortext = customtkinter.CTkTextbox(
-            self.limiter_frame
-        )  # , state="disabled")
-        self.errortext.grid(
-            row=1, column=0, padx=(10, 10), pady=(10, 10), sticky="nsew"
-        )
-
-        self.statlabel = customtkinter.CTkLabel(
-            self.limiter_frame,
-            text="stat\n0",
-            image=tkinter.PhotoImage(file="./warning.png"),
-            compound="left",
-        )
-        self.statlabel.grid(row=0, column=1, padx=(10, 10), pady=(10, 10), sticky="nw")
-        self.stattext = customtkinter.CTkTextbox(
-            self.limiter_frame
-        )  # , state="disabled")
-        self.stattext.grid(row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
-
-        self.limitlabel = customtkinter.CTkLabel(
-            self.limiter_frame,
-            text="limit\n0",
-            image=tkinter.PhotoImage(file="./limit.png"),
-            compound="left",
-        )
-        self.limitlabel.grid(row=0, column=2, padx=(10, 10), pady=(10, 10), sticky="nw")
-        self.limittext = customtkinter.CTkTextbox(
-            self.limiter_frame
-        )  # , state="disabled")
-        self.limittext.grid(
-            row=1, column=2, padx=(10, 10), pady=(10, 10), sticky="nsew"
-        )
-
-        self.totallimitbar = customtkinter.CTkProgressBar(
-            self.limiter_frame, height=20, progress_color="green"
-        )
-        self.totallimitbar.grid(
-            row=2, column=0, columnspan=3, padx=(10, 10), pady=(10, 10), sticky="ew"
-        )
-
-        self.cmd_frame = customtkinter.CTkFrame(self)
-        self.cmd_frame.grid(
-            row=4, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew"
-        )
-        self.cmd_frame.grid_columnconfigure(2, weight=1)
-        self.cmd_frame.grid_rowconfigure(0, weight=1)
-
-        self.umultbar = customtkinter.CTkProgressBar(
-            self.cmd_frame, orientation="vertical"
-        )
-        self.umultbar.grid(
-            row=0, column=0, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns"
-        )
-
-        self.checkbox_spd = customtkinter.CTkSwitch(
-            master=self.cmd_frame, text="speed loop", state="disabled"
-        )
-        self.checkbox_spd.grid(row=0, column=1, pady=(20, 0), padx=20, sticky="nw")
-        self.checkbox_pos = customtkinter.CTkSwitch(
-            master=self.cmd_frame, text="position loop", state="disabled"
-        )
-        self.checkbox_pos.grid(row=1, column=1, pady=(20, 0), padx=20, sticky="nw")
-
-        self.modelabel = customtkinter.CTkLabel(
-            self.cmd_frame,
-            text="VLT",
-            font=customtkinter.CTkFont(size=40, weight="bold"),
-            image=tkinter.PhotoImage(file="./joystick.png"),
-            compound="left",
-        )
-        self.modelabel.grid(row=0, column=2)
-
-        self.modelabel = customtkinter.CTkLabel(self.cmd_frame, text="0.0")
-        self.modelabel.grid(row=2, column=1, columnspan=2)
-
-        self.cmdbar = customtkinter.CTkSlider(
-            self.cmd_frame,
-            from_=-1,
-            to=1,
-            state="disabled",
-            progress_color="transparent",
-            height=30,
-        )
-        self.cmdbar.grid(
-            row=3, column=1, columnspan=2, padx=(10, 10), pady=(10, 10), sticky="ew"
-        )
-
-        self.imultbar = customtkinter.CTkProgressBar(
-            self.cmd_frame, orientation="vertical"
-        )
-        self.imultbar.grid(
-            row=0, column=3, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns"
-        )
-
-        self.rmultbar = customtkinter.CTkProgressBar(
-            self.cmd_frame, orientation="vertical"
-        )
-        self.rmultbar.grid(
-            row=0, column=4, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns"
-        )
-
-        self.battery_frame = customtkinter.CTkFrame(self)
-        self.battery_frame.grid(
-            row=1, column=2, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew"
-        )
-        self.battery_frame.grid_columnconfigure(0, weight=1)
-        self.battery_frame.grid_rowconfigure(0, weight=1)
-
-        self.battlabel = customtkinter.CTkLabel(
-            self.battery_frame,
-            text="48.0V\n123A",
-            font=customtkinter.CTkFont(size=20, weight="bold"),
-            image=tkinter.PhotoImage(file="./battery.png"),
-            compound="left",
-			pady=10,
-        )
-        self.battlabel.grid(row=0, column=0, sticky="nsew")
-
-        self.pwrlabel = customtkinter.CTkLabel(
-            self.battery_frame,
-            text="23456mAh",
-            image=tkinter.PhotoImage(file="./counter.png"),
-            compound="left",
-        )
-        self.pwrlabel.grid(row=1, column=0)
-
-        self.batcurrentbar = customtkinter.CTkSlider(
-            self.battery_frame,
-            from_=-1,
-            to=1,
-            state="disabled",
-            progress_color="transparent",
-            height=30,
-        )
-        self.batcurrentbar.grid(
-            row=2, column=0, padx=(10, 10), pady=(10, 10), sticky="ns"
-        )
-
-        self.motor_frame = customtkinter.CTkFrame(self)
-        self.motor_frame.grid(
-            row=3, column=2, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew"
-        )
-        self.motor_frame.grid_columnconfigure(0, weight=1)
-        self.motor_frame.grid_columnconfigure(1, weight=1)
-        self.motor_frame.grid_rowconfigure((0,2,4,6,10), weight=1)
-
-        self.motlabel = customtkinter.CTkLabel(
-            self.motor_frame,
-            text="12000\nRPM",
-            font=customtkinter.CTkFont(size=20, weight="bold"),
-            image=tkinter.PhotoImage(file="./motor.png"),
-            compound="left",
-        )
-        self.motlabel.grid(row=0, column=0, columnspan=2, sticky="nsew")
-
-        self.fluxlabel = customtkinter.CTkLabel(
-            self.motor_frame,
-            text="120A\n40V",
-            font=customtkinter.CTkFont(size=20, weight="bold"),
-            image=tkinter.PhotoImage(file="./flux.png"),
-            compound="top",
-        )
-        self.fluxlabel.grid(row=2, column=0, sticky="nsew")
-
-        self.fluxlabel = customtkinter.CTkLabel(
-            self.motor_frame,
-            text="120A\n40V",
-            font=customtkinter.CTkFont(size=20, weight="bold"),
-            image=tkinter.PhotoImage(file="./torque.png"),
-            compound="top",
-        )
-        self.fluxlabel.grid(row=2, column=1, sticky="nsew")
-
-        self.odolabel = customtkinter.CTkLabel(self.motor_frame, text="45V / 36Vrms")
-        self.odolabel.grid(row=4, column=0, columnspan=2)
-
-        self.motcurrentbar = customtkinter.CTkProgressBar(
-            self.motor_frame, progress_color="green", height=10
-        )
-        self.motcurrentbar.grid(
-            row=5, column=0, columnspan=2, padx=(10, 10), pady=(0, 10), sticky="ns"
-        )
-
-        self.odolabel = customtkinter.CTkLabel(self.motor_frame, text="275A / 180Arms")
-        self.odolabel.grid(row=6, column=0, columnspan=2)
-
-        self.motcurrentbar = customtkinter.CTkProgressBar(
-            self.motor_frame, progress_color="red", height=10
-        )
-        self.motcurrentbar.grid(
-            row=8, column=0, columnspan=2, padx=(10, 10), pady=(0, 10), sticky="ns"
-        )
-
-        self.odolabel = customtkinter.CTkLabel(
-            self.motor_frame,
-            text="23456 revs",
-            image=tkinter.PhotoImage(file="./counter.png"),
-            compound="top",
-        )
-        self.odolabel.grid(row=10, column=0)
-
-        self.odolabel = customtkinter.CTkLabel(
-            self.motor_frame,
-            text="2500 ohms",
-            image=tkinter.PhotoImage(file="./ohm.png"),
-            compound="top",
-        )
-        self.odolabel.grid(row=10, column=1)
-
-    def open_input_dialog_event(self):
-        dialog = customtkinter.CTkInputDialog(
-            text="Type in a number:", title="CTkInputDialog"
-        )
-        print("CTkInputDialog:", dialog.get_input())
-
-    def change_appearance_mode_event(self, new_appearance_mode: str):
-        customtkinter.set_appearance_mode(new_appearance_mode)
-
-    def change_scaling_event(self, new_scaling: str):
-        new_scaling_float = int(new_scaling.replace("%", "")) / 100
-        customtkinter.set_widget_scaling(new_scaling_float)
-
-    def sidebar_button_event(self):
-        print("sidebar_button click")
-
-    def change_emgui(self):
-        sxapi.show()
-
-    def open_term(self):
-        sxapi.show("{term}")
-
-    def open_scope(self):
-        sxapi.show("{scope}")
-
-
-import codetostr
-
-
-def fetch_and_display_status():
-    status_value = 12  # status_var.get()
-    app.stattext.delete("0.0", "end")  # delete all text
-    app.stattext.insert("0.0", codetostr.stat2string(status_value))
-    app.statlabel.configure(text="stat\n" + str(status_value))
-
-    limit_value = 0  # limit_var.get()
-    app.limittext.delete("0.0", "end")  # delete all text
-    app.limittext.insert("0.0", codetostr.limit2string(limit_value))
-    app.limitlabel.configure(text="limit\n" + str(limit_value))
-
-    error_value = 16384  # limit_var.get()
-    app.errortext.delete("0.0", "end")  # delete all text
-    app.errortext.insert("0.0", codetostr.error2string(error_value))
-    app.errorlabel.configure(text="error\n" + str(error_value))
-
-
-if __name__ == "__main__":
-    app = App()
-    fetch_and_display_status()
-    app.mainloop()
+app.limiter_frame = customtkinter.CTkFrame(app)
+app.limiter_frame.grid(row=2, column=1, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.limiter_frame.grid_columnconfigure((0, 1, 2), weight=1)
+app.limiter_frame.grid_rowconfigure(1, weight=1)
+
+app.errorlabel = customtkinter.CTkLabel(app.limiter_frame, text="error\n0", image=tkinter.PhotoImage(file="./stop.png"), compound="left")
+app.errorlabel.grid(row=0, column=0, padx=(10, 10), pady=(10, 10), sticky="nw")
+app.errortext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
+app.errortext.grid(row=1, column=0, padx=(10, 10), pady=(10, 10), sticky="nsew")
+
+app.statlabel = customtkinter.CTkLabel(app.limiter_frame, text="stat\n0", image=tkinter.PhotoImage(file="./warning.png"), compound="left")
+app.statlabel.grid(row=0, column=1, padx=(10, 10), pady=(10, 10), sticky="nw")
+app.stattext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
+app.stattext.grid(row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
+
+app.limitlabel = customtkinter.CTkLabel(app.limiter_frame, text="limit\n0", image=tkinter.PhotoImage(file="./limit.png"), compound="left")
+app.limitlabel.grid(row=0, column=2, padx=(10, 10), pady=(10, 10), sticky="nw")
+app.limittext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
+app.limittext.grid(row=1, column=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
+
+app.totallimitbar = customtkinter.CTkProgressBar(app.limiter_frame, height=20, progress_color="black")
+app.totallimitbar.grid(row=2, column=0, columnspan=3, padx=(10, 10), pady=(10, 10), sticky="ew")
+app.totallimitbar.set(1)
+
+app.cmd_frame = customtkinter.CTkFrame(app)
+app.cmd_frame.grid(row=4, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.cmd_frame.grid_columnconfigure(2, weight=1)
+app.cmd_frame.grid_rowconfigure(0, weight=1)
+
+app.umultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
+app.umultbar.grid(row=0, column=0, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns")
+
+app.checkbox_spd = customtkinter.CTkSwitch(master=app.cmd_frame, text="speed loop", state="disabled")
+app.checkbox_spd.grid(row=2, column=1, pady=(20, 20), padx=20, sticky="nw")
+app.checkbox_pos = customtkinter.CTkSwitch(master=app.cmd_frame, text="position loop", state="disabled")
+app.checkbox_pos.grid(row=2, column=2, pady=(20, 20), padx=20, sticky="nw")
+
+app.modelabel = customtkinter.CTkLabel(app.cmd_frame, text=" UNK", font=customtkinter.CTkFont(size=40, weight="bold"), image=tkinter.PhotoImage(file="./joystick.png"), compound="left")
+app.modelabel.grid(row=0, column=0, columnspan=3)
+
+#app.cmdlabel = customtkinter.CTkLabel(app.cmd_frame, text="0.0", font=customtkinter.CTkFont(size=40, weight="bold"))
+#app.cmdlabel.grid(row=0, column=0, columnspan=2)
+
+app.cmdbar = customtkinter.CTkSlider(app.cmd_frame, from_=-1, to=1, state="disabled", progress_color="transparent", height=30)
+app.cmdbar.grid(row=1, column=1, columnspan=2, padx=(10, 10), pady=(10, 10), sticky="ew")
+
+app.imultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
+app.imultbar.grid(row=0, column=3, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns")
+
+#app.rmultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
+#app.rmultbar.grid(row=0, column=4, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns")
+
+app.battery_frame = customtkinter.CTkFrame(app)
+app.battery_frame.grid(row=1, column=2, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.battery_frame.grid_columnconfigure(0, weight=1)
+app.battery_frame.grid_rowconfigure(0, weight=1)
+
+app.battlabel = customtkinter.CTkLabel(app.battery_frame, text="48.0V\n123A", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./battery.png"), compound="left", pady=10)
+app.battlabel.grid(row=0, column=0, sticky="nsew")
+
+app.coulomblabel = customtkinter.CTkLabel(app.battery_frame, text="23456mAh", image=tkinter.PhotoImage(file="./counter.png"), compound="left")
+app.coulomblabel.grid(row=1, column=0)
+
+app.batcurrentbar = customtkinter.CTkSlider(app.battery_frame, from_=-1, to=1, state="disabled", progress_color="transparent", height=30)
+app.batcurrentbar.grid(row=2, column=0, padx=(10, 10), pady=(10, 10), sticky="ns")
+
+app.motor_frame = customtkinter.CTkFrame(app)
+app.motor_frame.grid(row=3, column=2, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.motor_frame.grid_columnconfigure(0, weight=1)
+app.motor_frame.grid_columnconfigure(1, weight=1)
+app.motor_frame.grid_rowconfigure((0,2,4,6,10), weight=1)
+
+app.motlabel = customtkinter.CTkLabel(app.motor_frame, text="12000\nRPM", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./motor.png"), compound="left")
+app.motlabel.grid(row=0, column=0, columnspan=2, sticky="nsew")
+
+app.fluxlabel = customtkinter.CTkLabel(app.motor_frame, text="120A\n40V", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./flux.png"), compound="top")
+app.fluxlabel.grid(row=2, column=0, sticky="nsew")
+
+app.fluxlabel = customtkinter.CTkLabel(app.motor_frame, text="120A\n40V", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./torque.png"), compound="top")
+app.fluxlabel.grid(row=2, column=1, sticky="nsew")
+
+app.odolabel = customtkinter.CTkLabel(app.motor_frame, text="45V / 36Vrms")
+app.odolabel.grid(row=4, column=0, columnspan=2)
+
+app.motcurrentbar = customtkinter.CTkProgressBar(app.motor_frame, progress_color="green", height=10)
+app.motcurrentbar.grid(row=5, column=0, columnspan=2, padx=(10, 10), pady=(0, 10), sticky="ns")
+
+app.odolabel = customtkinter.CTkLabel(app.motor_frame, text="275A / 180Arms")
+app.odolabel.grid(row=6, column=0, columnspan=2)
+
+app.motcurrentbar = customtkinter.CTkProgressBar(app.motor_frame, progress_color="red", height=10)
+app.motcurrentbar.grid(row=8, column=0, columnspan=2, padx=(10, 10), pady=(0, 10), sticky="ns")
+
+app.odolabel = customtkinter.CTkLabel(app.motor_frame, text="23456 revs", image=tkinter.PhotoImage(file="./counter.png"), compound="top")
+app.odolabel.grid(row=10, column=0, pady=5)
+
+app.odolabel = customtkinter.CTkLabel(app.motor_frame, text="2500 ohms", image=tkinter.PhotoImage(file="./ohm.png"), compound="top" )
+app.odolabel.grid(row=10, column=1, pady=5)
+
+
+
+app.mainloop()
