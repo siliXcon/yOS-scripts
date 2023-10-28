@@ -235,7 +235,7 @@ app.emgui_switch = customtkinter.CTkButton(app, text=f"", command=show_emgui, im
 app.emgui_switch.grid(row=0, column=0, padx=(10,0), pady=10, sticky="w")
 
 def open_scope():
-    my_node.open("{scope}")
+    my_node.open("{scope} -t")
 
 app.scope_button = customtkinter.CTkButton(app, text="", command=open_scope, image=tkinter.PhotoImage(file="./scope.png"), width=5)
 app.scope_button.grid(row=0, column=0, padx=(70,0), pady=10, sticky="w")
@@ -302,23 +302,55 @@ for i in range(len(group0)):
     app.scrollable_frame_switches.append(switch)
 
 
-
 # create scope control tabview
-# TODO get rid of duplicit code blocks !
+
 app.tabview = customtkinter.CTkTabview(app.sidebar_frame, width=200, height=200)
 app.tabview.grid(row=3, column=0, columnspan=2, pady=5, sticky="nsew")
 
-def erase_event0():
-    my_node.executeSimple("legend", "-c16", "282", "282", "99", "99")
 
-def autoset_event0():
-    my_node.executeSimple("legend", "-c16", "282", "282", "13", "13")
+class plot_tab:
+    index = 0
+    user_event = None
+    def erase_event(self):
+        my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index), "99", "99", "113", "113") # F1 + 'q' + 'c'
 
-def clear_event0():
-    my_node.executeSimple("plot", "-p0", "-c")
+    def autoset_event(self):
+        my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index), "13", "13")
 
-def period_event0(val):
-    my_node.executeSimple("period", "-p0", val.split(" ", 1)[0])
+    def state_update(self):
+        plot_state = my_node.executeSimple("period", "-p" + str(self.index), "-g", "-c")
+        self.clear_button.configure(text="Clear\n" + str((plot_state>>16)&7))
+
+    def clear_event(self):
+        my_node.executeSimple("plot", "-p" + str(self.index), "-c")
+        self.state_update()
+
+    def period_event(self, val):
+        my_node.executeSimple("period", "-p" + str(self.index), val.split(" ", 1)[0])
+        print("-p" + str(self.index))
+        self.state_update()
+
+    def plot_event(self, val):
+        self.user_event(val)
+        self.state_update()
+
+    def __init__(self, name, idx, event, vals) :
+        app.tabview.add(name)
+        app.tabview.tab(name).grid_columnconfigure((0,1,2,3), weight=1)
+        self.index = idx
+        self.user_event = event
+        self.valuemenu = customtkinter.CTkOptionMenu(app.tabview.tab(name), dynamic_resizing=False, values=vals, command=self.plot_event)
+        self.valuemenu.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
+        self.periodbox = customtkinter.CTkComboBox(app.tabview.tab(name), values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"], command=self.period_event)
+        self.periodbox.set("10 ms")
+        self.periodbox.grid(row=1, column=0, columnspan=3, padx=10, pady=10)
+        self.clear_button = customtkinter.CTkButton(app.tabview.tab(name), text="Clear", command=self.clear_event, border_width=2, width=5)
+        self.clear_button.grid(row=0, column=3, rowspan=2, padx=5, pady=5)
+        self.release_button = customtkinter.CTkButton(app.tabview.tab(name), text="Release", command=self.erase_event, width=5)
+        self.release_button.grid(row=2, column=2, columnspan=2, padx=5, pady=5, sticky="w")
+        self.autoset_button = customtkinter.CTkButton(app.tabview.tab(name), text="Autoset", command=self.autoset_event, width=5)
+        self.autoset_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="e")
+
 
 def plot_event0(val):
     if val=="battery current":
@@ -330,32 +362,7 @@ def plot_event0(val):
     if val=="motor current references":
         my_node.executeSimple("plot", "-p0", "/driver/debug_core/Iqref", "/driver/debug_core/Idref")
 
-app.tabview.add("plot0")
-app.tabview.tab("plot0").grid_columnconfigure((0,1,2), weight=1)
-app.optionmenu_1 = customtkinter.CTkOptionMenu(app.tabview.tab("plot0"), dynamic_resizing=False, values=["battery current", "motor currents", "unfiltered motor currents", "motor current references"], command=plot_event0)
-app.optionmenu_1.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
-app.combobox_1 = customtkinter.CTkComboBox(app.tabview.tab("plot0"), values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"], command=period_event0)
-app.combobox_1.set("10ms")
-app.combobox_1.grid(row=1, column=0, columnspan=3, padx=10, pady=(10, 10))
-
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot0"), text="Erase", command=erase_event0, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=0, padx=5, pady=(10, 10))
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot0"), text="Autoset", command=autoset_event0, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=1, padx=5, pady=(10, 10))
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot0"), text="Clear", command=clear_event0, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=2, padx=5, pady=(10, 10))
-
-def erase_event1():
-    my_node.executeSimple("legend", "-c16", "283", "283", "99", "99")
-
-def autoset_event1():
-    my_node.executeSimple("legend", "-c16", "283", "283", "13", "13")
-
-def clear_event1():
-    my_node.executeSimple("plot", "-p1", "-c")
-
-def period_event1(val):
-    my_node.executeSimple("period", "-p1 ", val.split(" ", 1)[0])
+plot0 = plot_tab("plot0", 0, plot_event0, ["battery current", "motor currents", "unfiltered motor currents", "motor current references"])
 
 def plot_event1(val):
     if val=="battery voltage":
@@ -365,32 +372,7 @@ def plot_event1(val):
     if val=="motor voltage references":
         my_node.executeSimple("plot", "-p1", "/driver/debug_core/Uqref", "/driver/debug_core/Udref")
 
-app.tabview.add("plot1")
-app.tabview.tab("plot1").grid_columnconfigure((0,1,2), weight=1)
-app.optionmenu_1 = customtkinter.CTkOptionMenu(app.tabview.tab("plot1"), dynamic_resizing=False, values=["battery voltage", "motor voltages", "motor voltage references"], command=plot_event1)
-app.optionmenu_1.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
-app.combobox_1 = customtkinter.CTkComboBox(app.tabview.tab("plot1"), values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"], command=period_event1)
-app.combobox_1.set("10ms")
-app.combobox_1.grid(row=1, column=0, columnspan=3, padx=10, pady=(10, 10))
-
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot1"), text="Erase", command=erase_event1, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=0, padx=5, pady=(10, 10))
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot1"), text="Autoset", command=autoset_event1, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=1, padx=5, pady=(10, 10))
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot1"), text="Clear", command=clear_event1, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=2, padx=5, pady=(10, 10))
-
-def erase_event2():
-    my_node.executeSimple("legend", "-c16", "284", "284", "99", "99")
-
-def autoset_event2():
-    my_node.executeSimple("legend", "-c16", "284", "284", "13", "13")
-
-def clear_event2():
-    my_node.executeSimple("plot", "-p2", "-c")
-
-def period_event2(val):
-    my_node.executeSimple("period", "-p2", val.split(" ", 1)[0])
+plot1 = plot_tab("plot1", 1, plot_event1, ["battery voltage", "motor voltages", "motor voltage references"])
 
 def plot_event2(val):
     if val=="power":
@@ -402,33 +384,7 @@ def plot_event2(val):
     if val=="motor temperature (resistance)":
         my_node.executeSimple("plot", "-p2", "/driver/motor/rthermistor")
 
-app.tabview.add("plot2")
-app.tabview.tab("plot2").grid_columnconfigure((0,1,2), weight=1)
-app.optionmenu_1 = customtkinter.CTkOptionMenu(app.tabview.tab("plot2"), dynamic_resizing=False, values=["power", "motor speed", "tempreatures", "motor temperature (resistance)"], command=plot_event2)
-app.optionmenu_1.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
-app.combobox_1 = customtkinter.CTkComboBox(app.tabview.tab("plot2"), values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"], command=period_event2)
-app.combobox_1.set("10ms")
-app.combobox_1.grid(row=1, column=0, columnspan=3, padx=10, pady=(10, 10))
-
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot2"), text="Erase", command=erase_event2, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=0, padx=5, pady=(10, 10))
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot2"), text="Autoset", command=autoset_event2, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=1, padx=5, pady=(10, 10))
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot2"), text="Clear", command=clear_event2, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=2, padx=5, pady=(10, 10))
-
-
-def erase_event3():
-    my_node.executeSimple("legend", "-c16", "285", "285", "99", "99")
-
-def autoset_event3():
-    my_node.executeSimple("legend", "-c16", "285", "285", "13", "13")
-
-def clear_event3():
-    my_node.executeSimple("plot", "-p3", "-c")
-
-def period_event3(val):
-    my_node.executeSimple("period", "-p3", val.split(" ", 1)[0])
+plot2 = plot_tab("plot2", 2, plot_event2, ["power", "motor speed", "tempreatures", "motor temperature (resistance)"])
 
 def plot_event3(val):
     if val=="stat and limit":
@@ -440,20 +396,8 @@ def plot_event3(val):
     if val=="command multipliers":
         my_node.executeSimple("plot", "-p3", "/driver/imult", "/driver/umult")
 
-app.tabview.add("plot3")
-app.tabview.tab("plot3").grid_columnconfigure((0,1,2), weight=1)
-app.optionmenu_1 = customtkinter.CTkOptionMenu(app.tabview.tab("plot3"), dynamic_resizing=False, values=["stat and limit", "totallimit", "command and mode", "command multipliers"], command=plot_event3)
-app.optionmenu_1.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
-app.combobox_1 = customtkinter.CTkComboBox(app.tabview.tab("plot3"), values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"], command=period_event3)
-app.combobox_1.set("10ms")
-app.combobox_1.grid(row=1, column=0, columnspan=3, padx=10, pady=(10, 10))
+plot3 = plot_tab("plot3", 3, plot_event3, ["stat and limit", "totallimit", "command and mode", "command multipliers"])
 
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot3"), text="Erase", command=erase_event3, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=0, padx=5, pady=(10, 10))
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot3"), text="Autoset", command=autoset_event3, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=1, padx=5, pady=(10, 10))
-app.string_input_button = customtkinter.CTkButton(app.tabview.tab("plot3"), text="Clear", command=clear_event3, border_width=2, width=5)
-app.string_input_button.grid(row=2, column=2, padx=5, pady=(10, 10))
 
 
 
