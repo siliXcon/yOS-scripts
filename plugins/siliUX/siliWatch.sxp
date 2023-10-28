@@ -1,5 +1,6 @@
 import tkinter
-import tkinter.messagebox
+import math
+#import tkinter.messagebox
 import customtkinter
 import codetostr
 
@@ -45,56 +46,93 @@ if len(nodes) < 1:
 
 nodenames.append("STOP")
 
-update_driver_id = None
-update_limiter_id = None
-update_cmd_id = None
+update_group0_id = None
+update_group1_id = None
+update_group2_id = None
+update_group3_id = None
 
+def cancel_updates():
+    app.nodeselect_button.configure(selected_color="red")
+    if update_group0_id:
+        app.after_cancel(update_group0_id)
+    if update_group1_id:
+        app.after_cancel(update_group1_id)
+    if update_group2_id:
+        app.after_cancel(update_group2_id)
+    if update_group3_id:
+        app.after_cancel(update_group3_id)
 
-def update_driver():
+def update_group0():
     try:
         app.templabel.configure(text=str(round(drivertemp.get(),1))+"\N{DEGREE SIGN}C")
         app.ptctemplabel.configure(text=str(int(ptctemp.get())))
-        app.pwrlabel.configure(text=str(int(driverpower.get()))+"W")
         app.energylabel.configure(text=str(driverenergy.get())+"J")
-        if driverenable.get():
-           app.enablebar.configure(fg_color="grey", progress_color="yellow")
-        else:
-           app.enablebar.configure(fg_color="grey", progress_color="grey")
-        global update_driver_id
-        update_driver_id = app.after(234, update_driver)
+        app.odolabel.configure(text=str(motorodo.get()))
+        app.ohmlabel.configure(text=str(rthermistor.get()))
+        app.coulomblabel.configure(text=str(supplycap.get())+"mAh")
+
+        global iref
+        iref = driveriref.get()
+
+        global update_group0_id
+        update_group0_id = app.after(567, update_group0)
 
     except sxapi.error as e:
-         app.nodeselect_button.configure(selected_color="red")
-         app.enablebar.configure(fg_color="black", progress_color="black")
+         cancel_updates()
+         raise e
 
 
-def update_limiter():
-    status_value = driverstat.get()
-    app.stattext.delete("0.0", "end")  # delete all text
-    app.stattext.insert("0.0", codetostr.stat2string(status_value))
-    app.statlabel.configure(text="stat\n" + str(status_value))
+def update_group1():
+    try:
+        app.pwrlabel.configure(text=str(int(driverpower.get()))+"W")
 
-    limit_value = driverlimit.get()
-    app.limittext.delete("0.0", "end")  # delete all text
-    app.limittext.insert("0.0", codetostr.limit2string(limit_value))
-    app.limitlabel.configure(text="limit\n" + str(limit_value))
+        status_value = driverstat.get()
+        app.stattext.delete("0.0", "end")  # delete all text
+        app.stattext.insert("0.0", codetostr.stat2string(status_value))
+        app.statlabel.configure(text="stat\n" + str(status_value))
+        if status_value:
+            app.statlabel.configure(fg_color="darkorange")
+        else:
+            app.statlabel.configure(fg_color="transparent")
 
-    error_value = drivererror.get()
-    app.errortext.delete("0.0", "end")  # delete all text
-    app.errortext.insert("0.0", codetostr.error2string(error_value))
-    app.errorlabel.configure(text="error\n" + str(error_value))
+        limit_value = driverlimit.get()
+        app.limittext.delete("0.0", "end")  # delete all text
+        app.limittext.insert("0.0", codetostr.limit2string(limit_value))
+        app.limitlabel.configure(text="limit\n" + str(limit_value))
+        if limit_value:
+            app.limitlabel.configure(fg_color="green")
+        else:
+            app.limitlabel.configure(fg_color="transparent")
 
-    if error_value:
-       app.totallimitbar.configure(progress_color="red")
-    elif status_value:
-       app.totallimitbar.configure(progress_color="yellow")
-    else:
-       app.totallimitbar.configure(progress_color="green")
+        error_value = drivererror.get()
+        app.errortext.delete("0.0", "end")  # delete all text
+        app.errortext.insert("0.0", codetostr.error2string(error_value))
+        app.errorlabel.configure(text="error\n" + str(error_value))
+        if error_value:
+            app.errorlabel.configure(fg_color="red")
+        else:
+            app.errorlabel.configure(fg_color="transparent")
 
-    app.totallimitbar.set(drivertotallimit.get())
+        if error_value:
+            app.totallimitbar.configure(progress_color="red")
+        elif status_value:
+            app.totallimitbar.configure(progress_color="yellow")
+        else:
+            app.totallimitbar.configure(progress_color="green")
 
-    global update_limiter_id
-    update_limiter_id = app.after(345, update_limiter)
+        app.totallimitbar.set(drivertotallimit.get())
+
+        if driverenable.get():
+            app.enablebar.configure(fg_color="grey", progress_color="yellow")
+        else:
+            app.enablebar.configure(fg_color="grey", progress_color="grey")
+
+        global update_group1_id
+        update_group1_id = app.after(456, update_group1)
+
+    except sxapi.error as e:
+         cancel_updates()
+         raise e
 
 modes = [   "FRW",
             "VLT",
@@ -113,43 +151,84 @@ modes = [   "FRW",
             "SVC",
             "SHR"  ]
 
-def update_cmd():
+def update_group2():
+    try:
+        app.rpmlabel.configure(text=" " + str(int(motorrpm.get()))+"\n RPM")
 
-    app.imultbar.set(driverimult.get())
-    app.umultbar.set(driverumult.get())
+        app.imultbar.set(driverimult.get())
+        app.umultbar.set(driverumult.get())
 
-    cmd = drivercmd.get()
-    app.cmdbar.set(cmd)
-    mode = drivermode.get()
+        cmd = drivercmd.get()
+        app.cmdbar.set(cmd)
+        mode = drivermode.get()
 
-    app.modelabel.configure(text=" " + modes[mode&15] + " " + str(round(cmd, 2)))
+        app.modelabel.configure(text=" " + modes[mode&15] + " " + str(round(cmd, 2)))
 
-    app.checkbox_pos.configure(state="enabled")
-    app.checkbox_spd.configure(state="enabled")
+        app.checkbox_pos.configure(state="enabled")
+        app.checkbox_spd.configure(state="enabled")
 
-    if mode&0x10:
-       app.checkbox_spd.select()
-    else:
-       app.checkbox_spd.deselect()
+        if mode&0x10:
+           app.checkbox_spd.select()
+        else:
+           app.checkbox_spd.deselect()
 
-    if mode&0x20:
-       app.checkbox_pos.select()
-    else:
-       app.checkbox_pos.deselect()
+        if mode&0x20:
+           app.checkbox_pos.select()
+        else:
+           app.checkbox_pos.deselect()
 
-    app.checkbox_pos.configure(state="disabled")
-    app.checkbox_spd.configure(state="disabled")
+        app.checkbox_pos.configure(state="disabled")
+        app.checkbox_spd.configure(state="disabled")
 
-    global update_cmd_id
-    update_cmd_id = app.after(456, update_cmd)
+        global update_group2_id
+        update_group2_id = app.after(345, update_group2)
 
+    except sxapi.error as e:
+         cancel_updates()
+         raise e
+
+def update_group3():
+    try:
+        voltage = supplyvoltage.get()
+        current = supplycurrent.get()
+
+        app.batcurrentbar.set(current / iref)
+
+        app.battlabel.configure(text=" " + str(round(voltage,2)) + "V\n "+str(round(current,2)) + "A")
+
+        currentq = motorcurrentq.get()
+        voltageq = motorvoltageq.get()
+
+        app.torquelabel.configure(text=str(round(voltageq,2)) + "V\n"+str(round(currentq,1)) + "A")
+
+        currentd = motorcurrentd.get()
+        voltaged = motorvoltaged.get()
+
+        app.fluxlabel.configure(text=str(round(voltaged,2)) + "V\n"+str(round(currentd,1)) + "A")
+
+        motcurrent = math.sqrt(currentq*currentq + currentd*currentd)
+        app.motcurrentlabel.configure(text=str(round(motcurrent,2)) + "A / " + str(round(motcurrent/1.41,2)) + "Arms")
+        app.motcurrentbar.set(motcurrent / iref)
+        app.motcurrentbar.configure(progress_color="green")
+
+        motvoltage = math.sqrt(voltageq*voltageq + voltaged*voltaged) * 1.73205 #sqrt3
+        app.motvoltagelabel.configure(text=str(round(motvoltage,2)) + "V / " + str(round(motvoltage/1.41,2)) + "Vrms")
+        app.motvoltagebar.set(motvoltage / voltage)
+        app.motvoltagebar.configure(progress_color="yellow")
+
+        global update_group3_id
+        update_group3_id = app.after(234, update_group3)
+
+    except sxapi.error as e:
+         cancel_updates()
+         raise e
 
 # configure grid layout (4x4)
 # https://www.pythontutorial.net/tkinter/tkinter-grid/
 app = customtkinter.CTk()
 app.title("siliWatch (ESCx)")
 app.attributes("-topmost", 1)
-app.geometry(f"{900}x{700}")
+app.geometry(f"{950}x{750}")
 app.grid_columnconfigure(1, weight=1)
 app.grid_columnconfigure((2, 3), weight=0)
 app.grid_rowconfigure(3, weight=1)
@@ -157,18 +236,17 @@ app.grid_rowconfigure(3, weight=1)
 app.attributes("-topmost", 0)
 
 def node_select_callback(value):
-    if update_driver_id:
-        app.after_cancel(update_driver_id)
-    if update_limiter_id:
-        app.after_cancel(update_limiter_id)
-    if update_cmd_id:
-        app.after_cancel(update_cmd_id)
+    cancel_updates()
 
     app.enablebar.configure(fg_color="black", progress_color="black")
     app.totallimitbar.configure(progress_color="black")
     app.nodeselect_button.configure(selected_color="red")
     app.modelabel.configure(text=" UNK")
-
+    app.statlabel.configure(fg_color="transparent")
+    app.limitlabel.configure(fg_color="transparent")
+    app.errorlabel.configure(fg_color="transparent")
+    app.motcurrentbar.configure(progress_color="grey")
+    app.motvoltagebar.configure(progress_color="grey")
     #app.term_button.configure(state="disabled")
     #app.scope_button.configure(state="disabled")
 
@@ -179,30 +257,41 @@ def node_select_callback(value):
         #app.scope_button.configure(state="enabled")
 
         try:
+            #group0
             global drivertemp
             drivertemp = my_node.variable("/driver/temp")
             global ptctemp
             ptctemp = my_node.variable("/driver/ptctemp")
-            global driverpower
-            driverpower = my_node.variable("/driver/power")
+            global rthermistor
+            rthermistor = my_node.variable("/driver/motor/Rthermistor")
+            global motorodo
+            motorodo = my_node.variable("/driver/motor/odo")
             global driverenergy
             driverenergy = my_node.variable("/driver/energy")
-            global driverenable
-            driverenable = my_node.variable("/driver/enable")
-
-            update_driver()
-
+            global supplycap
+            supplycap = my_node.variable("/driver/supply/cap")
+            global driveriref
+            driveriref = my_node.variable("/driver/iref")
             global drivererror
             drivererror = my_node.variable("/driver/error")
+
+            update_group0()
+
+            #group1
+            global driverenable
+            driverenable = my_node.variable("/driver/enable")
             global driverstat
             driverstat = my_node.variable("/driver/stat")
             global driverlimit
             driverlimit = my_node.variable("/driver/limit")
             global drivertotallimit
             drivertotallimit = my_node.variable("/driver/totallimit")
+            global driverpower
+            driverpower = my_node.variable("/driver/power")
 
-            update_limiter()
+            update_group1()
 
+            #group2
             global drivercmd
             drivercmd = my_node.variable("/driver/cmd")
             global drivermode
@@ -211,13 +300,32 @@ def node_select_callback(value):
             driverimult = my_node.variable("/driver/iqmult")
             global driverumult
             driverumult = my_node.variable("/driver/uqmult")
+            global motorrpm
+            motorrpm = my_node.variable("/driver/motor/rpmf")
 
-            update_cmd()
+            update_group2()
+
+            #group3
+            global supplycurrent
+            supplycurrent = my_node.variable("/driver/supply/currentf")
+            global supplyvoltage
+            supplyvoltage = my_node.variable("/driver/supply/voltage")
+            global motorcurrentq
+            motorcurrentq = my_node.variable("/driver/motor/currentqf")
+            global motorcurrentd
+            motorcurrentd = my_node.variable("/driver/motor/currentdf")
+            global motorvoltageq
+            motorvoltageq = my_node.variable("/driver/motor/voltageq")
+            global motorvoltaged
+            motorvoltaged = my_node.variable("/driver/motor/voltaged")
+
+            update_group3()
+
 
             app.nodeselect_button.configure(selected_color="green")
 
         except sxapi.error as e:
-            MessageBox("Could not bind to the controller states!")
+            MessageBox("Could not bind to the controller states!\n" + str(e))
 
 
 app.nodeselect_button = customtkinter.CTkSegmentedButton(app, command=node_select_callback)
@@ -312,10 +420,16 @@ class plot_tab:
     index = 0
     user_event = None
     def erase_event(self):
-        my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index), "99", "99", "113", "113") # F1 + 'q' + 'c'
+        #my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index), "99", "99", "113", "113") # F1 + 'q' + 'c' # compound keystroke send doesn't seem reliable
+        my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index))
+        my_node.executeSimple("legend", "-c16", "99", "99")
+        my_node.executeSimple("legend", "-c16", "113", "113")
 
     def autoset_event(self):
-        my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index), "13", "13")
+        #my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index), "13", "13") # compound keystroke send doesn't seem reliable
+        my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index))
+        my_node.executeSimple("legend", "-c16", "13", "13")
+
 
     def state_update(self):
         plot_state = my_node.executeSimple("period", "-p" + str(self.index), "-g", "-c")
@@ -394,7 +508,7 @@ def plot_event3(val):
     if val=="command and mode":
         my_node.executeSimple("plot", "-p3", "/driver/cmd", "/driver/mode")
     if val=="command multipliers":
-        my_node.executeSimple("plot", "-p3", "/driver/imult", "/driver/umult")
+        my_node.executeSimple("plot", "-p3", "/driver/iqmult", "/driver/uqmult")
 
 plot3 = plot_tab("plot3", 3, plot_event3, ["stat and limit", "totallimit", "command and mode", "command multipliers"])
 
@@ -406,8 +520,8 @@ app.drv_frame.grid(row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
 app.drv_frame.grid_columnconfigure(1, weight=1)
 app.drv_frame.grid_rowconfigure(0, weight=1)
 
-app.templabel = customtkinter.CTkLabel(app.drv_frame, text="0\N{DEGREE SIGN}C", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./temp.png"), compound="left", padx=5)
-app.templabel.grid(row=0, column=0, rowspan=3)
+app.templabel = customtkinter.CTkLabel(app.drv_frame, text="0\N{DEGREE SIGN}C", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./temp.png"), compound="left")
+app.templabel.grid(row=0, column=0, rowspan=3, padx=0, sticky="w")
 
 app.pwrlabel = customtkinter.CTkLabel(app.drv_frame, text="0W", pady=5, font=customtkinter.CTkFont(size=40, weight="bold"), image=tkinter.PhotoImage(file="./transistor.png"), compound="left")
 app.pwrlabel.grid(row=0, column=1)
@@ -415,8 +529,8 @@ app.pwrlabel.grid(row=0, column=1)
 app.energylabel = customtkinter.CTkLabel(app.drv_frame, text="0J", image=tkinter.PhotoImage(file="./counter.png"), compound="left")
 app.energylabel.grid(row=1, column=1)
 
-app.ptctemplabel = customtkinter.CTkLabel(app.drv_frame, text="0", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./templimit.png"), compound="left", padx=10)
-app.ptctemplabel.grid(row=0, column=2, rowspan=3)
+app.ptctemplabel = customtkinter.CTkLabel(app.drv_frame, text="0", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./templimit.png"), compound="left")
+app.ptctemplabel.grid(row=0, column=2, rowspan=3, padx=(0,20), sticky="e")
 
 app.enablebar = customtkinter.CTkProgressBar(app.drv_frame, orientation="horizontal", progress_color="yellow")
 app.enablebar.grid(row=2, column=1, padx=(10, 10), pady=(10, 10), sticky="ns")
@@ -429,17 +543,17 @@ app.limiter_frame.grid(row=2, column=1, rowspan=2, padx=(10, 10), pady=(10, 10),
 app.limiter_frame.grid_columnconfigure((0, 1, 2), weight=1)
 app.limiter_frame.grid_rowconfigure(1, weight=1)
 
-app.errorlabel = customtkinter.CTkLabel(app.limiter_frame, text="error\n0", image=tkinter.PhotoImage(file="./stop.png"), compound="left")
+app.errorlabel = customtkinter.CTkLabel(app.limiter_frame, text="error\n0", image=tkinter.PhotoImage(file="./stop.png"), width=120, compound="left")
 app.errorlabel.grid(row=0, column=0, padx=(10, 10), pady=(10, 10), sticky="nw")
 app.errortext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.errortext.grid(row=1, column=0, padx=(10, 10), pady=(10, 10), sticky="nsew")
 
-app.statlabel = customtkinter.CTkLabel(app.limiter_frame, text="stat\n0", image=tkinter.PhotoImage(file="./warning.png"), compound="left")
+app.statlabel = customtkinter.CTkLabel(app.limiter_frame, text="stat\n0", image=tkinter.PhotoImage(file="./warning.png"), width=120, compound="left")
 app.statlabel.grid(row=0, column=1, padx=(10, 10), pady=(10, 10), sticky="nw")
 app.stattext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.stattext.grid(row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
 
-app.limitlabel = customtkinter.CTkLabel(app.limiter_frame, text="limit\n0", image=tkinter.PhotoImage(file="./limit.png"), compound="left")
+app.limitlabel = customtkinter.CTkLabel(app.limiter_frame, text="limit\n0", image=tkinter.PhotoImage(file="./limit.png"), width=120, compound="left")
 app.limitlabel.grid(row=0, column=2, padx=(10, 10), pady=(10, 10), sticky="nw")
 app.limittext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.limittext.grid(row=1, column=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
@@ -481,10 +595,10 @@ app.battery_frame.grid(row=1, column=2, rowspan=2, padx=(10, 10), pady=(10, 10),
 app.battery_frame.grid_columnconfigure(0, weight=1)
 app.battery_frame.grid_rowconfigure(0, weight=1)
 
-app.battlabel = customtkinter.CTkLabel(app.battery_frame, text="48.0V\n123A", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./battery.png"), compound="left", pady=10)
-app.battlabel.grid(row=0, column=0, sticky="nsew")
+app.battlabel = customtkinter.CTkLabel(app.battery_frame, text="0.0V\n0.0A", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./battery.png"), compound="left")
+app.battlabel.grid(row=0, column=0, pady=10, padx=(30,0), sticky="w")
 
-app.coulomblabel = customtkinter.CTkLabel(app.battery_frame, text="23456mAh", image=tkinter.PhotoImage(file="./counter.png"), compound="left")
+app.coulomblabel = customtkinter.CTkLabel(app.battery_frame, text="0mAh", image=tkinter.PhotoImage(file="./counter.png"), compound="left")
 app.coulomblabel.grid(row=1, column=0)
 
 app.batcurrentbar = customtkinter.CTkSlider(app.battery_frame, from_=-1, to=1, state="disabled", progress_color="transparent", height=30)
@@ -496,32 +610,32 @@ app.motor_frame.grid_columnconfigure(0, weight=1)
 app.motor_frame.grid_columnconfigure(1, weight=1)
 app.motor_frame.grid_rowconfigure((0,2,4,6,10), weight=1)
 
-app.motlabel = customtkinter.CTkLabel(app.motor_frame, text="12000\nRPM", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./motor.png"), compound="left")
-app.motlabel.grid(row=0, column=0, columnspan=2, sticky="nsew")
+app.rpmlabel = customtkinter.CTkLabel(app.motor_frame, text="0\nRPM", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./motor.png"), compound="left")
+app.rpmlabel.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
-app.fluxlabel = customtkinter.CTkLabel(app.motor_frame, text="120A\n40V", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./flux.png"), compound="top")
+app.fluxlabel = customtkinter.CTkLabel(app.motor_frame, text="0A\0V", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./flux.png"), compound="top")
 app.fluxlabel.grid(row=2, column=0, sticky="nsew")
 
-app.fluxlabel = customtkinter.CTkLabel(app.motor_frame, text="120A\n40V", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./torque.png"), compound="top")
-app.fluxlabel.grid(row=2, column=1, sticky="nsew")
+app.torquelabel = customtkinter.CTkLabel(app.motor_frame, text="0A\0V", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./torque.png"), compound="top")
+app.torquelabel.grid(row=2, column=1, sticky="nsew")
 
-app.odolabel = customtkinter.CTkLabel(app.motor_frame, text="45V / 36Vrms")
-app.odolabel.grid(row=4, column=0, columnspan=2)
+app.motvoltagelabel = customtkinter.CTkLabel(app.motor_frame, text="0V / 0Vrms")
+app.motvoltagelabel.grid(row=4, column=0, columnspan=2, pady=(0,0))
 
-app.motcurrentbar = customtkinter.CTkProgressBar(app.motor_frame, progress_color="green", height=10)
-app.motcurrentbar.grid(row=5, column=0, columnspan=2, padx=(10, 10), pady=(0, 10), sticky="ns")
+app.motvoltagebar = customtkinter.CTkProgressBar(app.motor_frame, height=10)
+app.motvoltagebar.grid(row=5, column=0, columnspan=2, pady=(0, 10), sticky="ns")
 
-app.odolabel = customtkinter.CTkLabel(app.motor_frame, text="275A / 180Arms")
-app.odolabel.grid(row=6, column=0, columnspan=2)
+app.motcurrentlabel = customtkinter.CTkLabel(app.motor_frame, text="0A / 0Arms")
+app.motcurrentlabel.grid(row=6, column=0, columnspan=2, pady=(10,0))
 
-app.motcurrentbar = customtkinter.CTkProgressBar(app.motor_frame, progress_color="red", height=10)
-app.motcurrentbar.grid(row=8, column=0, columnspan=2, padx=(10, 10), pady=(0, 10), sticky="ns")
+app.motcurrentbar = customtkinter.CTkProgressBar(app.motor_frame, height=10)
+app.motcurrentbar.grid(row=8, column=0, columnspan=2, pady=(0, 0), sticky="ns")
 
-app.odolabel = customtkinter.CTkLabel(app.motor_frame, text="23456 revs", image=tkinter.PhotoImage(file="./counter.png"), compound="top")
-app.odolabel.grid(row=10, column=0, pady=5)
+app.odolabel = customtkinter.CTkLabel(app.motor_frame, text="0 revs", image=tkinter.PhotoImage(file="./counter.png"), compound="top")
+app.odolabel.grid(row=10, column=0, pady=15)
 
-app.odolabel = customtkinter.CTkLabel(app.motor_frame, text="2500 ohms", image=tkinter.PhotoImage(file="./ohm.png"), compound="top" )
-app.odolabel.grid(row=10, column=1, pady=5)
+app.ohmlabel = customtkinter.CTkLabel(app.motor_frame, text="0 ohms", image=tkinter.PhotoImage(file="./ohm.png"), compound="top" )
+app.ohmlabel.grid(row=10, column=1, pady=15)
 
 
 
