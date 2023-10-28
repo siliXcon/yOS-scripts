@@ -420,16 +420,10 @@ class plot_tab:
     index = 0
     user_event = None
     def erase_event(self):
-        #my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index), "99", "99", "113", "113") # F1 + 'q' + 'c' # compound keystroke send doesn't seem reliable
-        my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index))
-        my_node.executeSimple("legend", "-c16", "99", "99")
-        my_node.executeSimple("legend", "-c16", "113", "113")
+        my_node.executeSimple("legend", "-p" + str(self.index), "-c20", "99", "113")
 
     def autoset_event(self):
-        #my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index), "13", "13") # compound keystroke send doesn't seem reliable
-        my_node.executeSimple("legend", "-c16", str(282 + self.index), str(282 + self.index))
-        my_node.executeSimple("legend", "-c16", "13", "13")
-
+        my_node.executeSimple("legend", "-p" + str(self.index), "-c24", "13", "0") # a bug workaround: YOS only sends payload in multiply of 4 bytes, we must send a dummy zero
 
     def state_update(self):
         plot_state = my_node.executeSimple("period", "-p" + str(self.index), "-g", "-c")
