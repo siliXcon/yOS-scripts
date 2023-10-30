@@ -11,7 +11,7 @@ def MessageBox(message):
     app = customtkinter.CTk()
     app.attributes("-topmost", 1)
     app.eval("tk::PlaceWindow . center")
-    app.title("siliWatch (ESCx)")
+    app.title("siliWatch (ESCx VECTOR)")
     customtkinter.CTkLabel(app, text=message).pack(padx=20, pady=20)
     customtkinter.CTkButton(app, text=f"OK", command=app.destroy).pack(padx=20, pady=20)
     app.mainloop()
@@ -35,7 +35,7 @@ nodes = []
 nodenames = []
 
 for i in range(nodeCount):
-    newNode = sxapi.node(i)
+    newNode = sxapi.node(i, iomode=3) # TODO explore other iomode options for better responsiveness and safety
     if newNode.hwid().decode()[:3] == "esc":
         nodes.append(newNode)
         nodenames.append(newNode.name.decode() + " (" + newNode.address.decode() + ")")
@@ -192,8 +192,6 @@ def update_group3():
         voltage = supplyvoltage.get()
         current = supplycurrent.get()
 
-        app.batcurrentbar.set(current / iref)
-
         app.battlabel.configure(text=" " + str(round(voltage,2)) + "V\n "+str(round(current,2)) + "A")
 
         currentq = motorcurrentq.get()
@@ -208,13 +206,18 @@ def update_group3():
 
         motcurrent = math.sqrt(currentq*currentq + currentd*currentd)
         app.motcurrentlabel.configure(text=str(round(motcurrent,2)) + "A / " + str(round(motcurrent/1.41,2)) + "Arms")
-        app.motcurrentbar.set(motcurrent / iref)
         app.motcurrentbar.configure(progress_color="green")
 
         motvoltage = math.sqrt(voltageq*voltageq + voltaged*voltaged) * 1.73205 #sqrt3
         app.motvoltagelabel.configure(text=str(round(motvoltage,2)) + "V / " + str(round(motvoltage/1.41,2)) + "Vrms")
-        app.motvoltagebar.set(motvoltage / voltage)
         app.motvoltagebar.configure(progress_color="yellow")
+
+        if voltage:
+           app.motvoltagebar.set(motvoltage / voltage)
+
+        if iref:
+           app.batcurrentbar.set(current / iref)
+           app.motcurrentbar.set(motcurrent / iref)
 
         global update_group3_id
         update_group3_id = app.after(234, update_group3)
@@ -226,7 +229,7 @@ def update_group3():
 # configure grid layout (4x4)
 # https://www.pythontutorial.net/tkinter/tkinter-grid/
 app = customtkinter.CTk()
-app.title("siliWatch (ESCx)")
+app.title("siliWatch (ESCx VECTOR)")
 app.attributes("-topmost", 1)
 app.geometry(f"{950}x{750}")
 app.grid_columnconfigure(1, weight=1)
@@ -256,14 +259,19 @@ def node_select_callback(value):
         #app.term_button.configure(state="enabled")
         #app.scope_button.configure(state="enabled")
 
+        #handle some of the exceptions - some variables are named differently in esc3 and esc5
+        global driverpower
+        try:
+            driverpower = my_node.variable("/driver/power") #power at esc3
+        except sxapi.error as e:
+            driverpower = my_node.variable("/driver/powerf") #powerf at esc5
+
         try:
             #group0
             global drivertemp
             drivertemp = my_node.variable("/driver/temp")
             global ptctemp
             ptctemp = my_node.variable("/driver/ptctemp")
-            global rthermistor
-            rthermistor = my_node.variable("/driver/motor/Rthermistor")
             global motorodo
             motorodo = my_node.variable("/driver/motor/odo")
             global driverenergy
@@ -274,6 +282,8 @@ def node_select_callback(value):
             driveriref = my_node.variable("/driver/iref")
             global drivererror
             drivererror = my_node.variable("/driver/error")
+            global rthermistor
+            rthermistor = my_node.variable("/driver/motor/Rthermistor")
 
             update_group0()
 
@@ -286,8 +296,6 @@ def node_select_callback(value):
             driverlimit = my_node.variable("/driver/limit")
             global drivertotallimit
             drivertotallimit = my_node.variable("/driver/totallimit")
-            global driverpower
-            driverpower = my_node.variable("/driver/power")
 
             update_group1()
 
@@ -325,7 +333,7 @@ def node_select_callback(value):
             app.nodeselect_button.configure(selected_color="green")
 
         except sxapi.error as e:
-            MessageBox("Could not bind to the controller states!\n" + str(e))
+            MessageBox("Could not bind to all the controller states!\n" + str(e))
 
 
 app.nodeselect_button = customtkinter.CTkSegmentedButton(app, command=node_select_callback)
