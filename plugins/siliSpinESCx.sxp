@@ -1,7 +1,6 @@
 import tkinter
 import math
 import customtkinter
-import codetostr
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 # customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -64,7 +63,7 @@ def node_select_callback(value):
 def show_emgui():
     sxapi.show()
 
-emgui_switch = customtkinter.CTkButton(app, text=f"", command=show_emgui, image=tkinter.PhotoImage(file="./main.png"), width=5)
+emgui_switch = customtkinter.CTkButton(app, text=f"", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
 emgui_switch.grid(row=0, column=0, padx=(10,0), pady=10, sticky="w")
 
 #def open_term():
