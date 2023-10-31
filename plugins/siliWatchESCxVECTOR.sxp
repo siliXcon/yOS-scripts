@@ -67,10 +67,21 @@ def cancel_updates():
 def update_group0():
     try:
         app.templabel.configure(text=str(round(drivertemp.get(),1))+"\N{DEGREE SIGN}C")
-        app.ptctemplabel.configure(text=str(int(ptctemp.get())))
+
+        temp = ptctemp.get()
+        if math.isnan(temp) :
+            app.ptctemplabel.configure(text=str("N/A"))
+        else :
+            app.ptctemplabel.configure(text=str(int(temp)))
+
+        temp = rthermistor.get()
+        if math.isnan(temp) :
+            app.ohmlabel.configure(text=str("N/A"))
+        else :
+            app.ohmlabel.configure(text=str(int(temp))+" ohms")
+
         app.energylabel.configure(text=str(driverenergy.get())+"J")
         app.odolabel.configure(text=str(motorodo.get())+" revs")
-        app.ohmlabel.configure(text=str(int(rthermistor.get()))+" ohms")
         app.coulomblabel.configure(text=str(supplycap.get())+"mAh")
 
         global iref
