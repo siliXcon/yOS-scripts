@@ -117,6 +117,8 @@ class preset_tab:
 
     def setlabel(self, value) :
         self.cmdlabel0.configure(text=str(round(value,2)))
+        if checkbox_follow.get() :
+           self.run()
 
     def __init__(self, r, c, initval) :
         self.cmdbar0 = customtkinter.CTkSlider(app, from_=-1, to=1, progress_color="transparent", command=self.setlabel)
@@ -131,16 +133,6 @@ class preset_tab:
         self.runbutton = customtkinter.CTkButton(app, text="Run", command=self.run)
         self.runbutton.grid(row=r, column=7, padx=5, pady=5)
 
-preset_tab(1, 0, 0.1)
-preset_tab(2, 0, 0.2)
-preset_tab(3, 0, 0.3)
-preset_tab(4, 0, 0.4)
-preset_tab(5, 0, 0.5)
-preset_tab(6, 0, 0.6)
-preset_tab(7, 0, 0.7)
-preset_tab(8, 0, 0.8)
-preset_tab(9, 0, 0.9)
-preset_tab(10, 0, 1.0)
 
 imultlabel = customtkinter.CTkLabel(app, text="imult\n1", font=customtkinter.CTkFont(weight="bold"), height=80)
 imultlabel.grid(row=20, column=0)
@@ -160,11 +152,14 @@ umultbar = customtkinter.CTkSlider(app, from_=0, to=1, progress_color="transpare
 umultbar.grid(row=21, column=2, rowspan=2, pady=5)
 umultbar.set(1)
 
+checkbox_follow = customtkinter.CTkCheckBox(app, text="follow")
+checkbox_follow.grid(row=20,  column=5, rowspan=3,columnspan=2, pady=(20, 20), padx=20, sticky="nw")
+
 checkbox_spd = customtkinter.CTkSwitch(app, text="speed loop")
-checkbox_spd.grid(row=21, column=5, columnspan=2, pady=(20, 20), padx=20, sticky="nw")
+checkbox_spd.grid(row=20, column=5, rowspan=3, columnspan=2, pady=(20, 20), padx=20, sticky="w")
 
 checkbox_pos = customtkinter.CTkSwitch(app, text="position loop")
-checkbox_pos.grid(row=22, column=5, columnspan=2, pady=(20, 20), padx=20, sticky="nw")
+checkbox_pos.grid(row=20, column=5, rowspan=3, columnspan=2, pady=(20, 20), padx=20, sticky="sw")
 
 
 def stop():
@@ -173,5 +168,16 @@ def stop():
 stopbutton = customtkinter.CTkButton(app, text="Stop", fg_color="red", command=stop)
 stopbutton.grid(row=20, rowspan=3, column=7, padx=5, pady=5, sticky="nsew")
 
+
+preset_tab(1, 0, 0.1)
+preset_tab(2, 0, 0.2)
+preset_tab(3, 0, 0.3)
+preset_tab(4, 0, 0.4)
+preset_tab(5, 0, 0.5)
+preset_tab(6, 0, 0.6)
+preset_tab(7, 0, 0.7)
+preset_tab(8, 0, 0.8)
+preset_tab(9, 0, 0.9)
+preset_tab(10, 0, 1.0)
 
 app.mainloop()
