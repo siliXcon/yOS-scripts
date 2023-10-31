@@ -67,8 +67,8 @@ def update_group0():
         app.templabel.configure(text=str(round(drivertemp.get(),1))+"\N{DEGREE SIGN}C")
         app.ptctemplabel.configure(text=str(int(ptctemp.get())))
         app.energylabel.configure(text=str(driverenergy.get())+"J")
-        app.odolabel.configure(text=str(motorodo.get()))
-        app.ohmlabel.configure(text=str(rthermistor.get()))
+        app.odolabel.configure(text=str(motorodo.get())+" revs")
+        app.ohmlabel.configure(text=str(int(rthermistor.get()))+" ohms")
         app.coulomblabel.configure(text=str(supplycap.get())+"mAh")
 
         global iref
@@ -123,7 +123,7 @@ def update_group1():
         app.totallimitbar.set(drivertotallimit.get())
 
         if driverenable.get():
-            app.enablebar.configure(fg_color="grey", progress_color="yellow")
+            app.enablebar.configure(fg_color="grey", progress_color="blue")
         else:
             app.enablebar.configure(fg_color="grey", progress_color="grey")
 
@@ -534,11 +534,12 @@ app.energylabel.grid(row=1, column=1)
 app.ptctemplabel = customtkinter.CTkLabel(app.drv_frame, text="0", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="./templimit.png"), compound="left")
 app.ptctemplabel.grid(row=0, column=2, rowspan=3, padx=(0,20), sticky="e")
 
-app.enablebar = customtkinter.CTkProgressBar(app.drv_frame, orientation="horizontal", progress_color="yellow")
+#TODO consider other widget to indicate enable state (e.g. icon)
+app.enablebar = customtkinter.CTkProgressBar(app.drv_frame, orientation="horizontal")
 app.enablebar.grid(row=2, column=1, padx=(10, 10), pady=(10, 10), sticky="ns")
-app.enablebar.configure(progress_color="black", fg_color="black", mode="indeterminate")
+app.enablebar.configure(progress_color="black", fg_color="black") #, mode="indeterminate")
 app.enablebar.set(1)
-app.enablebar.start()
+#app.enablebar.start()
 
 app.limiter_frame = customtkinter.CTkFrame(app)
 app.limiter_frame.grid(row=2, column=1, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
