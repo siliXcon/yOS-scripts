@@ -272,14 +272,14 @@ def node_select_callback(value):
         #app.term_button.configure(state="enabled")
         #app.scope_button.configure(state="enabled")
 
-        #handle some of the exceptions - some variables are named differently in esc3 and esc5
-        global driverpower
         try:
-            driverpower = my_node.variable("/driver/power") #power at esc3
-        except sxapi.error as e:
-            driverpower = my_node.variable("/driver/powerf") #powerf at esc5
+            #handle some of the exceptions - some variables are named differently in esc3 and esc5
+            global driverpower
+            try:
+                driverpower = my_node.variable("/driver/power") #power at esc3
+            except sxapi.error as e:
+                driverpower = my_node.variable("/driver/powerf") #powerf at esc5
 
-        try:
             #group0
             global drivertemp
             drivertemp = my_node.variable("/driver/temp")
