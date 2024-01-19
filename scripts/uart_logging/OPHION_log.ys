@@ -1,0 +1,67 @@
+
+
+
+
+@c # Stop any running scripts
+@! # Login
+
+
+# 1 -  UARTCOM
+# 5 -  UARTEXT
+
+@d LOG_INTERFACE : 1
+
+# If you do send the header, you will have about 2s delay before the first line is sent
+# Comment this out if you want send first data immediately after power up
+@d SEND_HEADER
+
+# Send period
+# Values lower than 500ms may not work due small RX buffer on OpenLog
+@d LOG_PERIOD : 1000
+
+
+# Log current time ins [s]
+@d VAR0 : /permanents/time
+
+# Driver variables
+@d VAR1 : /driver/supply/voltage
+@d VAR2 : /driver/supply/currentf
+@d VAR3 : /driver/motor/rpmf
+@d VAR4 : /driver/motor/currentqf
+@d VAR5 : /driver/motor/Rthermistor
+@d VAR6 : /driver/limit
+@d VAR7 : /driver/stat
+@d VAR8 : /driver/error
+@d VAR9 : /driver/totallimit
+@d VAR10 : /driver/temp
+@d VAR11 : /driver/ptctemp
+@d VAR12 : /driver/powerf
+@d VAR13 : /driver/cmd
+@d VAR14 : /driver/mode
+
+
+
+# Ophion variables
+@d VAR20 : /in1
+@d VAR21 : /in2
+@d VAR22 : /level
+@d VAR23 : /level2
+@d VAR24 : /mode
+
+
+# Common block variables
+@d VAR30 : /common/stat
+@d VAR31 : /common/error
+@d VAR32 : /common/din
+@d VAR33 : /common/gpio
+@d VAR34 : /common/gdin
+
+# AM controller
+# Because some of the variables are arrays, we need to define CSV header for them as well
+@d VAR32_HEADER : din1,din2
+@d VAR33_HEADER : gpio1,gpio2
+@d VAR34_HEADER : gdin1,gdin2
+
+
+# Include script with all the logging functions
+@i ./common/logging_common.ys
