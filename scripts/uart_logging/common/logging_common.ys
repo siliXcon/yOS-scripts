@@ -1,6 +1,7 @@
 
 
-var line.1000 string #create buffer of 1000 chars
+var line.64 string #create buffer
+# internal YOS buffer is 64bytes long, so we are unable to send more than 64 bytes at once
 
 @n LOG_INTERFACE
     @d LOG_INTERFACE : 1
@@ -17,6 +18,11 @@ echo
 
 @f SEND_HEADER
 .send_csv_header {
+    @f TIMESTAMP
+        set line "timestamp"+","
+        send -i[LOG_INTERFACE] -f255 line
+    @e
+
     @n VAR0_HEADER
         @f VAR0
         set line "[VAR0]"+","
@@ -539,6 +545,17 @@ echo
 
 
 .send_csv_line {
+
+    @f TIMESTAMP
+        set line ""
+        clock -dline
+        set line line+" "
+        send -i[LOG_INTERFACE] -f255 line
+        set line ""
+        clock -tline
+        set line line+","
+        send -i[LOG_INTERFACE] -f255 line
+    @e
 
     @f VAR0
     set line [VAR0]+","
