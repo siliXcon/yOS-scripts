@@ -15,6 +15,8 @@
 # Values lower than 500ms may not work due small RX buffer on OpenLog
 @d LOG_PERIOD : 1000
 
+# This fix problem with waking up from sleep in the BMS - OpenLog needs some time to wake up and some time before last message
+@d BMS
 
 # Store script in the device flash
 # Use script -e to remove it
@@ -25,8 +27,8 @@
 @d TIMESTAMP
 
 # Driver variables
-@d VAR0 : /driver/statemachine/state # State as number
-@d VAR1 : /driver/state     # State as string
+@d VAR0 : /driver/statemachine/state
+@d VAR1 : /driver/state
 @d VAR2 : /driver/hw_error
 @d VAR3 : /driver/voltage
 @d VAR4 : /driver/currentf

@@ -1,4 +1,5 @@
 
+script e
 
 # Store the script in the device memory
 @f STORE_SCRIPT
@@ -24,6 +25,9 @@ echo
 
 @f SEND_HEADER
 .send_csv_header {
+
+    # The openlog need some time to bootup
+    delay 2000
     @f TIMESTAMP
         set line "timestamp"+","
         send -i[LOG_INTERFACE] -f255 line
@@ -773,10 +777,22 @@ call send_csv_header
 
 
 {
+    @f BMS
+    if /driver/sleep/timer<1000 {
+        set ticks 0
+        branch p
+        }
+
+    if ticks<3000 {
+
+        branch p
+    }
+    @e
     call send_csv_line
     delay [LOG_PERIOD]
     branch s
 }
+
 
 
 # Store the script in the device memory
