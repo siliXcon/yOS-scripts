@@ -1,7 +1,3 @@
-
-
-
-
 @c # Stop any running scripts
 @! # Login
 
@@ -19,6 +15,9 @@
 # Values lower than 500ms may not work due small RX buffer on OpenLog
 @d LOG_PERIOD : 1000
 
+# Store script in the device flash
+# Use script -e to remove it
+@d STORE_SCRIPT
 
 # Log current time ins [s]
 @d VAR0 : /permanents/time

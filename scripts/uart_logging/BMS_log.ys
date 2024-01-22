@@ -1,14 +1,10 @@
-
-
-
-
+@w # Wait for the board to boot
 @c # Stop any running scripts
 @! # Login
 
 
 # 1 -  UARTCOM
 # 5 -  UARTEXT
-
 @d LOG_INTERFACE : 1
 
 # If you do send the header, you will have about 2s delay before the first line is sent
@@ -20,15 +16,47 @@
 @d LOG_PERIOD : 1000
 
 
+# Store script in the device flash
+# Use script -e to remove it
+@d STORE_SCRIPT
+
 # Log timestamp
 # Only works if you have RTC on your board
 @d TIMESTAMP
 
 # Driver variables
-@d VAR1 : /driver/state
+@d VAR0 : /driver/statemachine/state # State as number
+@d VAR1 : /driver/state     # State as string
 @d VAR2 : /driver/hw_error
 @d VAR3 : /driver/voltage
+@d VAR4 : /driver/currentf
+@d VAR5 : /driver/power
+@d VAR6 : /driver/limit
+@d VAR7 : /driver/totalLimitPos
+@d VAR8 : /driver/totalLimitNeg
 
+@d VAR10 : /driver/balancing/balState
+@d VAR11 : /driver/balancing/balCmd
+@d VAR12 : /driver/balancing/cellVoltages.0.9
+@d VAR12_HEADER : cell1,cell2,cell3,cell4,cell5,cell6,cell7,cell8,cell9,cell10
+
+@d VAR13 : /driver/balancing/cellVoltages.9.17
+@d VAR14_HEADER : cell11,cell12,cell13,cell14,cell15,cell16,cell17,cell18
+
+
+@d VAR15 : /driver/temp/ts1
+@d VAR16 : /driver/temp/ts2
+@d VAR17 : /driver/temp/ts3
+@d VAR18 : /driver/temp/ts4
+@d VAR19 : /driver/temp/mcu
+@d VAR20 : /driver/temp/balmcu
+
+@d VAR21 : /driver/best/soc
+@d VAR22 : /permanents/cycles
+@d VAR23 : /permanents/mah_pos
+@d VAR24 : /permanents/mah_neg
+@d VAR25 : /permanents/energy_pos
+@d VAR26 : /permanents/energy_neg
 
 # Include script with all the logging functions
 @i ./common/logging_common.ys

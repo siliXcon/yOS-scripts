@@ -1,5 +1,11 @@
 
 
+# Store the script in the device memory
+@f STORE_SCRIPT
+    script
+@e
+
+
 var line.64 string #create buffer
 # internal YOS buffer is 64bytes long, so we are unable to send more than 64 bytes at once
 
@@ -771,3 +777,11 @@ call send_csv_header
     delay [LOG_PERIOD]
     branch s
 }
+
+
+# Store the script in the device memory
+@f STORE_SCRIPT
+  quit
+  # Start the internal script
+  script s
+@e
