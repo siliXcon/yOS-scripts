@@ -20,102 +20,102 @@ echo
     @n VAR0_HEADER
         @f VAR0
         set line "[VAR0]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR0_HEADER
         set line "[VAR0_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR1_HEADER
         @f VAR1
         set line "[VAR1]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR1_HEADER
         set line "[VAR1_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR2_HEADER
         @f VAR2
         set line "[VAR2]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR2_HEADER
         set line "[VAR2_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR3_HEADER
         @f VAR3
         set line "[VAR3]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR3_HEADER
         set line "[VAR3_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR4_HEADER
         @f VAR4
         set line "[VAR4]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR4_HEADER
         set line "[VAR4_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR5_HEADER
         @f VAR5
         set line "[VAR5]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR5_HEADER
         set line "[VAR5_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR6_HEADER
         @f VAR6
         set line "[VAR6]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR6_HEADER
         set line "[VAR6_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR7_HEADER
         @f VAR7
         set line "[VAR7]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR7_HEADER
         set line "[VAR7_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR8_HEADER
         @f VAR8
         set line "[VAR8]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR8_HEADER
         set line "[VAR8_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR9_HEADER
         @f VAR9
         set line "[VAR9]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR9_HEADER8
         set line "[VAR9_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
 
     delay 250
@@ -123,102 +123,102 @@ echo
     @n VAR10_HEADER
         @f VAR10
         set line "[VAR10]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR10_HEADER
         set line "[VAR10_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR11_HEADER
         @f VAR11
         set line "[VAR11]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR11_HEADER
         set line "[VAR11_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR12_HEADER
         @f VAR12
         set line "[VAR12]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR12_HEADER
         set line "[VAR12_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR13_HEADER
         @f VAR13
         set line "[VAR13]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR13_HEADER
         set line "[VAR13_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR14_HEADER
         @f VAR14
         set line "[VAR14]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR14_HEADER
         set line "[VAR14_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR15_HEADER
         @f VAR15
         set line "[VAR15]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR15_HEADER
         set line "[VAR15_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR16_HEADER
         @f VAR16
         set line "[VAR16]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR16_HEADER
         set line "[VAR16_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR17_HEADER
         @f VAR17
         set line "[VAR17]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR17_HEADER
         set line "[VAR17_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR18_HEADER
         @f VAR18
         set line "[VAR18]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR18_HEADER
         set line "[VAR18_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR19_HEADER
         @f VAR19
         set line "[VAR19]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR19_HEADER8
         set line "[VAR19_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
 
     delay 250
@@ -226,102 +226,102 @@ echo
     @n VAR20_HEADER
         @f VAR20
         set line "[VAR20]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR20_HEADER
         set line "[VAR20_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR21_HEADER
         @f VAR21
         set line "[VAR21]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR21_HEADER
         set line "[VAR21_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR22_HEADER
         @f VAR22
         set line "[VAR22]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR22_HEADER
         set line "[VAR22_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR23_HEADER
         @f VAR23
         set line "[VAR23]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR23_HEADER
         set line "[VAR23_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR24_HEADER
         @f VAR24
         set line "[VAR24]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR24_HEADER
         set line "[VAR24_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR25_HEADER
         @f VAR25
         set line "[VAR25]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR25_HEADER
         set line "[VAR25_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR26_HEADER
         @f VAR26
         set line "[VAR26]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR26_HEADER
         set line "[VAR26_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR27_HEADER
         @f VAR27
         set line "[VAR27]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR27_HEADER
         set line "[VAR27_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR28_HEADER
         @f VAR28
         set line "[VAR28]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR28_HEADER
         set line "[VAR28_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR29_HEADER
         @f VAR29
         set line "[VAR29]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR29_HEADER8
         set line "[VAR29_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
 
     delay 250
@@ -329,102 +329,102 @@ echo
     @n VAR30_HEADER
         @f VAR30
         set line "[VAR30]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR30_HEADER
         set line "[VAR30_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR31_HEADER
         @f VAR31
         set line "[VAR31]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR31_HEADER
         set line "[VAR31_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR32_HEADER
         @f VAR32
         set line "[VAR32]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR32_HEADER
         set line "[VAR32_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR33_HEADER
         @f VAR33
         set line "[VAR33]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR33_HEADER
         set line "[VAR33_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR34_HEADER
         @f VAR34
         set line "[VAR34]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR34_HEADER
         set line "[VAR34_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR35_HEADER
         @f VAR35
         set line "[VAR35]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR35_HEADER
         set line "[VAR35_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR36_HEADER
         @f VAR36
         set line "[VAR36]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR36_HEADER
         set line "[VAR36_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR37_HEADER
         @f VAR37
         set line "[VAR37]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR37_HEADER
         set line "[VAR37_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR38_HEADER
         @f VAR38
         set line "[VAR38]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR38_HEADER
         set line "[VAR38_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR39_HEADER
         @f VAR39
         set line "[VAR39]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR39_HEADER8
         set line "[VAR39_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
 
     delay 250
@@ -432,107 +432,107 @@ echo
     @n VAR40_HEADER
         @f VAR40
         set line "[VAR40]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR40_HEADER
         set line "[VAR40_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR41_HEADER
         @f VAR41
         set line "[VAR41]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR41_HEADER
         set line "[VAR41_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR42_HEADER
         @f VAR42
         set line "[VAR42]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR42_HEADER
         set line "[VAR42_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR43_HEADER
         @f VAR43
         set line "[VAR43]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR43_HEADER
         set line "[VAR43_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR44_HEADER
         @f VAR44
         set line "[VAR44]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR44_HEADER
         set line "[VAR44_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR45_HEADER
         @f VAR45
         set line "[VAR45]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR45_HEADER
         set line "[VAR45_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR46_HEADER
         @f VAR46
         set line "[VAR46]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR46_HEADER
         set line "[VAR46_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR47_HEADER
         @f VAR47
         set line "[VAR47]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR47_HEADER
         set line "[VAR47_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR48_HEADER
         @f VAR48
         set line "[VAR48]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR48_HEADER
         set line "[VAR48_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
     @n VAR49_HEADER
         @f VAR49
         set line "[VAR49]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
         @e
     @e
     @f VAR49_HEADER8
         set line "[VAR49_HEADER]"+","
-        send -i1 -f255 line
+        send -i[LOG_INTERFACE] -f255 line
     @e
 
 
 
-    send -i1 -f255 10 13 #send cr + lf
+    send -i[LOG_INTERFACE] -f255 10 13 #send cr + lf
     delay 250   # Wait for the logger to write
 }
 @e
@@ -542,206 +542,206 @@ echo
 
     @f VAR0
     set line [VAR0]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR1
     set line [VAR1]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR2
     set line [VAR2]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR3
     set line [VAR3]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR4
     set line [VAR4]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR5
     set line [VAR5]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR6
     set line [VAR6]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR7
     set line [VAR7]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR8
     set line [VAR8]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR9
     set line [VAR9]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR10
     set line [VAR10]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR11
     set line [VAR11]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR12
     set line [VAR12]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR13
     set line [VAR13]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR14
     set line [VAR14]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR15
     set line [VAR15]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR16
     set line [VAR16]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR17
     set line [VAR17]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR18
     set line [VAR18]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR19
     set line [VAR19]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR20
     set line [VAR20]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR21
     set line [VAR21]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR22
     set line [VAR22]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR23
     set line [VAR23]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR24
     set line [VAR24]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR25
     set line [VAR25]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR26
     set line [VAR26]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR27
     set line [VAR27]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR28
     set line [VAR28]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR29
     set line [VAR29]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR30
     set line [VAR30]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR31
     set line [VAR31]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR32
     set line [VAR32]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR33
     set line [VAR33]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR34
     set line [VAR34]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR35
     set line [VAR35]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR36
     set line [VAR36]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR37
     set line [VAR37]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR38
     set line [VAR38]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR39
     set line [VAR39]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR40
     set line [VAR40]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR41
     set line [VAR41]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR42
     set line [VAR42]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR43
     set line [VAR43]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR44
     set line [VAR44]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR45
     set line [VAR45]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR46
     set line [VAR46]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR47
     set line [VAR47]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR48
     set line [VAR48]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
     @f VAR49
     set line [VAR49]+","
-    send -i1 -f255 line
+    send -i[LOG_INTERFACE] -f255 line
     @e
 
-    send -i1 -f255 10 13 #send cr + lf
+    send -i[LOG_INTERFACE] -f255 10 13 #send cr + lf
 }
 
 @f SEND_HEADER
