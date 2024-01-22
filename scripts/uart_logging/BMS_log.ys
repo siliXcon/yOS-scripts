@@ -1,0 +1,34 @@
+
+
+
+
+@c # Stop any running scripts
+@! # Login
+
+
+# 1 -  UARTCOM
+# 5 -  UARTEXT
+
+@d LOG_INTERFACE : 1
+
+# If you do send the header, you will have about 2s delay before the first line is sent
+# Comment this out if you want send first data immediately after power up
+@d SEND_HEADER
+
+# Send period
+# Values lower than 500ms may not work due small RX buffer on OpenLog
+@d LOG_PERIOD : 1000
+
+
+# Log timestamp
+# Only works if you have RTC on your board
+@d TIMESTAMP
+
+# Driver variables
+@d VAR1 : /driver/state
+@d VAR2 : /driver/hw_error
+@d VAR3 : /driver/voltage
+
+
+# Include script with all the logging functions
+@i ./common/logging_common.ys
