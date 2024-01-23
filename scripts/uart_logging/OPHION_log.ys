@@ -1,4 +1,5 @@
 @c # Stop any running scripts
+@w # Wait for target shell process
 @! # Login
 
 

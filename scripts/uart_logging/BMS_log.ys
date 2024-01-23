@@ -1,5 +1,5 @@
-@w # Wait for the board to boot
 @c # Stop any running scripts
+@w # Wait for target shell process
 @! # Login
 
 

@@ -1,4 +1,5 @@
 @c # Stop any running scripts
+@w # Wait for target shell process
 @! # Login
 
 
@@ -64,6 +65,10 @@
 @d VAR33_HEADER : gpio1,gpio2
 @d VAR34_HEADER : gdin1,gdin2
 
+if /misc/dispmode!=0 {
+    echo Please set display mode to 0
+    echo otherwise the script will not work
+}
 
 # Include script with all the logging functions
 @i ./common/logging_common.ys
