@@ -17,7 +17,7 @@
 @d LOG_PERIOD : 1000
 
 # Store script in the device flash
-# Use script -e to remove it
+# Use "script e" to remove it
 @d STORE_SCRIPT
 
 # Log current time ins [s]
