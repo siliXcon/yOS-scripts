@@ -22,9 +22,26 @@ def clean_csv(input_file):
         reader = csv.reader(infile)
         writer = csv.writer(outfile)
 
-        for row in reader:
-            cleaned_row = [remove_non_printable(cell) for cell in row]
-            writer.writerow(cleaned_row)
+        try:
+            # Process header
+            header = next(reader)
+            writer.writerow(header)
+            # Get the number of columns in the header
+            num_columns = len(header)
+
+            for row in reader:
+                try:
+                    if len(row) == num_columns:
+                        cleaned_row = [remove_non_printable(cell) for cell in row]
+                        writer.writerow(cleaned_row)
+                    else:
+                        print(f"Warning: Skipping row with {len(row)} columns: {row}")
+                except UnicodeDecodeError as e:
+                    print(f"Error: {e}")
+                    print(f"Row: {row}")
+
+        except UnicodeDecodeError as e:
+            print(f"UnicodeDecodeError: {e}. Skipping the problematic line.")
 
     if not input_file.lower().endswith(".csv"):
         input_file = Path(input_file).stem + ".csv"
