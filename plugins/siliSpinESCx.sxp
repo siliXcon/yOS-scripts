@@ -165,7 +165,18 @@ def stop():
    my_node.executeSimple("stop")
 
 stopbutton = customtkinter.CTkButton(app, text="Stop", fg_color="red", command=stop)
-stopbutton.grid(row=20, rowspan=3, column=7, padx=5, pady=5, sticky="nsew")
+stopbutton.grid(row=20, rowspan=2, column=7, padx=5, pady=5, sticky="nsew")
+
+
+
+
+def release():
+   my_node.executeSimple("run")
+
+stopbutton = customtkinter.CTkButton(app, text="Release", fg_color="green", command=release)
+stopbutton.grid(row=22, rowspan=2, column=7, padx=5, pady=5, sticky="nsew")
+
+
 
 
 preset_tab(1, 0, 0.1)
