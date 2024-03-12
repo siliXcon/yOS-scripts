@@ -1,5 +1,8 @@
 
+@c
+
 script e
+delay 10
 
 # Store the script in the device memory
 @f STORE_SCRIPT
@@ -23,11 +26,19 @@ echo Sending CSV log to interface [LOG_INTERFACE]
 echo with a period of [LOG_PERIOD] ms
 echo
 
+delay 10
+
 @f SEND_HEADER
 .send_csv_header {
 
     # The openlog need some time to bootup
-    delay 2000
+    delay 1000
+    set line "           "
+    send -i[LOG_INTERFACE] -f255 line
+    send -i[LOG_INTERFACE] -f255 13 10 #send cr + lf
+    delay 250
+
+
     @f TIMESTAMP
         set line "timestamp"+","
         send -i[LOG_INTERFACE] -f255 line
@@ -548,7 +559,7 @@ echo
 
 
 
-    send -i[LOG_INTERFACE] -f255 10 13 #send cr + lf
+    send -i[LOG_INTERFACE] -f255 13 10 #send cr + lf
     delay 250   # Wait for the logger to write
 }
 @e
@@ -768,7 +779,7 @@ echo
     send -i[LOG_INTERFACE] -f255 line
     @e
 
-    send -i[LOG_INTERFACE] -f255 10 13 #send cr + lf
+    send -i[LOG_INTERFACE] -f255 13 10 #send cr + lf
 }
 
 @f SEND_HEADER
@@ -781,13 +792,17 @@ call send_csv_header
     if /driver/sleep/timer<1000 {
         set ticks 0
         branch p
-        }
-
-    if ticks<3000 {
-
+    }
+    
+    if ticks<1002 {
+        delay 200
+        set line "           "
+        send -i[LOG_INTERFACE] -f255 line
+        send -i[LOG_INTERFACE] -f255 13 10 #send cr + lf
         branch p
     }
     @e
+
     call send_csv_line
     delay [LOG_PERIOD]
     branch s

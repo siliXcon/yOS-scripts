@@ -1,5 +1,5 @@
-@w # Wait for the board to boot
 @c # Stop any running scripts
+@w # Wait for target shell process
 @! # Login
 
 
@@ -19,7 +19,7 @@
 @d BMS
 
 # Store script in the device flash
-# Use script -e to remove it
+# Use "script e" to remove it
 @d STORE_SCRIPT
 
 # Log timestamp
@@ -43,7 +43,7 @@
 @d VAR12_HEADER : cell1,cell2,cell3,cell4,cell5,cell6,cell7,cell8,cell9,cell10
 
 @d VAR13 : /driver/balancing/cellVoltages.9.17
-@d VAR14_HEADER : cell11,cell12,cell13,cell14,cell15,cell16,cell17,cell18
+@d VAR13_HEADER : cell11,cell12,cell13,cell14,cell15,cell16,cell17,cell18
 
 
 @d VAR15 : /driver/temp/ts1
