@@ -7,7 +7,7 @@ bit_messages = {
     4: "[Sensor]",
     5: "[AnalogError]",
     6: "[SyncError]",
-    7: "[OverSpeed]",
+    7: "[RangeExceed]",
 }
 
 # Bit mappings for /driver/limit

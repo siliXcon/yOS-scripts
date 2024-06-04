@@ -434,7 +434,7 @@ for i in range(len(group0)):
 # create scope control tabview
 
 app.tabview = customtkinter.CTkTabview(app.sidebar_frame, width=200, height=200)
-app.tabview.grid(row=3, column=0, columnspan=2, pady=5, sticky="nsew")
+app.tabview.grid(row=0, column=0, columnspan=2, pady=5, sticky="nsew")
 
 
 class plot_tab:
