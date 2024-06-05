@@ -5,6 +5,8 @@ import tkinter
 import math
 import customtkinter
 import codetostr
+import csv
+from datetime import datetime
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 # customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -18,6 +20,9 @@ def MessageBox(message):
     customtkinter.CTkButton(app, text=f"OK", command=app.destroy).pack(padx=20, pady=20)
     app.mainloop()
 
+
+################################################################################
+# retrieve all nodes and make the node select widget
 
 # Connect to the node
 try:
@@ -48,6 +53,143 @@ if len(nodes) < 1:
 
 nodenames.append("STOP")
 
+################################################################################
+# log callbacks
+
+logfile = None
+writer = None
+log_count = 0
+
+class value:
+    # updated in group 3
+    voltage = 0
+    current = 0
+    voltageq = 0
+    currentq = 0
+    voltaged = 0
+    currentd = 0
+    motorcurrent = 0
+    motorvoltage = 0
+    motcurrentrms = 0
+    motvoltagerms = 0
+    #updated in group 2
+    rpm = 0
+    imult = 0
+    umult = 0
+    cmd = 0
+    mode = 0
+    #updated in group 1 
+    power = 0
+    status = 0
+    limit = 0
+    error = 0
+    totallimit = 0
+    enable = 0
+    #updated in group 0 
+    temp = 0
+    ptctemp = 0
+    rthermistor = 0
+
+log_group = [
+            "battery and motor currents",
+            "battery and motor voltages",
+            "total motor current and voltage",
+            "rms motor current and voltage",
+            "motor speed",
+            "command and mode",
+            "command multipliers",
+            "power throughput",
+            "error, stat, limit and totallimit",
+            "temperatures",
+        ]
+        
+log_group_header = [
+            ["/driver/supply/currentf [A]", "/driver/motor/currentqf [A]", "/driver/motor/currentdf [A]"],
+            ["/driver/supply/voltage [V]", "/driver/motor/voltageq [V]", "/driver/motor/voltaged [V]"],
+            ["total motor current [A]", "total motor voltage [V]"],
+            ["RMS motor current [A]", "RMS motor voltage [V]"],
+            ["/driver/motor/rpmf [rpm]"],
+            ["/driver/command", "/driver/mode"],
+            ["/driver/imult", "/driver/umult"],            
+            ["/driver/powerf"],
+            ["/driver/error", "/driver/stat", "/driver/limit", "/driver/totallimit"],
+            ["/driver/temp", "/driver/ptctemp", "/driver/motor/rthermistor"],
+
+        ]
+
+
+log_switches = []
+
+def log_group_cb(group):
+    global value, logfile, writer, log_count
+    if logfile and writer:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+        row = [timestamp]
+        max_group = -1
+
+        # updated in group 3 (fastest)
+        if (log_switches[0].get() == 1) :
+            row.append(value.current)
+            row.append(value.currentq)
+            row.append(value.currentd)
+            max_group=max(max_group, 3)  
+        if (log_switches[1].get() == 1) :
+            row.append(value.voltage)
+            row.append(value.voltageq)
+            row.append(value.voltaged)
+            max_group=max(max_group, 3)              
+        if (log_switches[2].get() == 1) :
+            row.append(value.motorcurrent)
+            row.append(value.motorvoltage)
+            max_group=max(max_group, 3)                       
+        if (log_switches[3].get() == 1) :
+            row.append(value.motcurrentrms)
+            row.append(value.motvoltagerms)
+            max_group=max(max_group, 3)                     
+           
+        #updated in group 2    
+        if (log_switches[4].get() == 1) :
+            row.append(value.rpm)             
+            max_group=max(max_group, 2)     
+        if (log_switches[5].get() == 1) :
+            row.append(value.command)
+            row.append(value.mode)
+            max_group=max(max_group, 2)                                   
+        if (log_switches[6].get() == 1) :
+            row.append(value.imult)
+            row.append(value.umult)
+            max_group=max(max_group, 2)                 
+            
+        #updated in group 1    
+        if (log_switches[7].get() == 1) :
+            row.append(value.power)
+            max_group=max(max_group, 1)                                        
+        if (log_switches[8].get() == 1) :
+            row.append(value.error)
+            row.append(value.stat)
+            row.append(value.limit)            
+            row.append(value.totallimit)
+            max_group=max(max_group, 1)                 
+            
+        #updated in group 0               
+        if (log_switches[9].get() == 1) :
+            row.append(value.temp)
+            row.append(value.ptctemp)
+            row.append(value.rthermistor)
+            max_group=max(max_group, 0)
+            
+        # log at the frequency of the selected group that updates the fastest
+        if group!=max_group:
+            return                            
+
+        writer.writerow(row)
+        log_count = log_count + 1
+        app.logcountlabel.configure(text=str(log_count))
+
+
+################################################################################
+# define group updater callbacks
+
 update_group0_id = None
 update_group1_id = None
 update_group2_id = None
@@ -66,19 +208,26 @@ def cancel_updates():
 
 def update_group0():
     try:
-        app.templabel.configure(text=str(round(drivertemp.get(),1))+"\N{DEGREE SIGN}C")
+        global log
+            
+        value.temp= drivertemp.get()
+        app.templabel.configure(text=str(round(value.temp,1))+"\N{DEGREE SIGN}C")
 
-        temp = ptctemp.get()
-        if math.isnan(temp) :
+        value.ptctemp = ptctemp.get()
+        if math.isnan(value.ptctemp) :
             app.ptctemplabel.configure(text=str("N/A"))
+        elif math.isinf(value.ptctemp) :
+            app.ptctemplabel.configure(text=str("INF"))        
         else :
-            app.ptctemplabel.configure(text=str(int(temp)))
+            app.ptctemplabel.configure(text=str(int(value.ptctemp)))
 
-        temp = rthermistor.get()
-        if math.isnan(temp) :
+        app.rthermistor = rthermistor.get()
+        if math.isnan(app.rthermistor) :
             app.ohmlabel.configure(text=str("N/A"))
+        elif math.isinf(app.rthermistor) :
+            app.ohmlabel.configure(text=str("INF"))                    
         else :
-            app.ohmlabel.configure(text=str(int(temp))+" ohms")
+            app.ohmlabel.configure(text=str(int(app.rthermistor))+" ohms")
 
         app.energylabel.configure(text=str(driverenergy.get())+"J")
         app.odolabel.configure(text=str(motorodo.get())+" revs")
@@ -87,6 +236,7 @@ def update_group0():
         global iref
         iref = driveriref.get()
 
+        log_group_cb(0)
         global update_group0_id
         update_group0_id = app.after(567, update_group0)
 
@@ -97,49 +247,56 @@ def update_group0():
 
 def update_group1():
     try:
-        app.pwrlabel.configure(text=str(int(driverpower.get()))+"W")
+        #localize global variables - to store them for logging
+        global log
 
-        status_value = driverstat.get()
+        value.power = driverpower.get()
+        app.pwrlabel.configure(text=str(int(value.power))+"W")
+
+        value.status = driverstat.get()
         app.stattext.delete("0.0", "end")  # delete all text
-        app.stattext.insert("0.0", codetostr.stat2string(status_value))
-        app.statlabel.configure(text="stat\n" + str(status_value))
-        if status_value:
+        app.stattext.insert("0.0", codetostr.stat2string(value.status))
+        app.statlabel.configure(text="stat\n" + str(value.status))
+        if value.status:
             app.statlabel.configure(fg_color="darkorange")
         else:
             app.statlabel.configure(fg_color="transparent")
 
-        limit_value = driverlimit.get()
+        value.limit = driverlimit.get()
         app.limittext.delete("0.0", "end")  # delete all text
-        app.limittext.insert("0.0", codetostr.limit2string(limit_value))
-        app.limitlabel.configure(text="limit\n" + str(limit_value))
-        if limit_value:
+        app.limittext.insert("0.0", codetostr.limit2string(value.limit))
+        app.limitlabel.configure(text="limit\n" + str(value.limit))
+        if value.limit:
             app.limitlabel.configure(fg_color="green")
         else:
             app.limitlabel.configure(fg_color="transparent")
 
-        error_value = drivererror.get()
+        value.error = drivererror.get()
         app.errortext.delete("0.0", "end")  # delete all text
-        app.errortext.insert("0.0", codetostr.error2string(error_value))
-        app.errorlabel.configure(text="error\n" + str(error_value))
-        if error_value:
+        app.errortext.insert("0.0", codetostr.error2string(value.error))
+        app.errorlabel.configure(text="error\n" + str(value.error))
+        if value.error:
             app.errorlabel.configure(fg_color="red")
         else:
             app.errorlabel.configure(fg_color="transparent")
 
-        if error_value:
+        if value.error:
             app.totallimitbar.configure(progress_color="red")
-        elif status_value:
+        elif value.status:
             app.totallimitbar.configure(progress_color="yellow")
         else:
             app.totallimitbar.configure(progress_color="green")
 
-        app.totallimitbar.set(drivertotallimit.get())
+        value.totallimit = drivertotallimit.get()
+        app.totallimitbar.set(value.totallimit)
 
-        if driverenable.get():
+        value.enable = driverenable.get()
+        if value.enable:
             app.enablebar.configure(fg_color="grey", progress_color="blue")
         else:
             app.enablebar.configure(fg_color="grey", progress_color="grey")
-
+            
+        log_group_cb(1)
         global update_group1_id
         update_group1_id = app.after(456, update_group1)
 
@@ -166,26 +323,32 @@ modes = [   "FRW",
 
 def update_group2():
     try:
-        app.rpmlabel.configure(text=" " + str(int(motorrpm.get()))+"\n RPM")
+        #localize global variables - to store them for logging
+        global log
+        
+        value.rpm = motorrpm.get()
+        app.rpmlabel.configure(text=" " + str(int(value.rpm))+"\n RPM")
 
-        app.imultbar.set(driverimult.get())
-        app.umultbar.set(driverumult.get())
+        value.imult = driverimult.get()
+        app.imultbar.set(value.imult)
+        value.umult = driverumult.get()
+        app.umultbar.set(value.umult)
 
-        cmd = drivercmd.get()
-        app.cmdbar.set(cmd)
-        mode = drivermode.get()
+        value.cmd = drivercmd.get()
+        app.cmdbar.set(value.cmd)
 
-        app.modelabel.configure(text=" " + modes[mode&15] + " " + str(round(cmd, 2)))
+        value.mode = drivermode.get()
+        app.modelabel.configure(text=" " + modes[value.mode&15] + " " + str(round(value.cmd, 2)))
 
         app.checkbox_pos.configure(state="enabled")
         app.checkbox_spd.configure(state="enabled")
 
-        if mode&0x10:
+        if value.mode&0x10:
            app.checkbox_spd.select()
         else:
            app.checkbox_spd.deselect()
 
-        if mode&0x20:
+        if value.mode&0x20:
            app.checkbox_pos.select()
         else:
            app.checkbox_pos.deselect()
@@ -193,6 +356,7 @@ def update_group2():
         app.checkbox_pos.configure(state="disabled")
         app.checkbox_spd.configure(state="disabled")
 
+        log_group_cb(2)
         global update_group2_id
         update_group2_id = app.after(345, update_group2)
 
@@ -202,42 +366,52 @@ def update_group2():
 
 def update_group3():
     try:
-        voltage = supplyvoltage.get()
-        current = supplycurrent.get()
+        #localize global variables - to store them for logging
+        global log
 
-        app.battlabel.configure(text=" " + str(round(voltage,2)) + "V\n "+str(round(current,2)) + "A")
+        value.voltage = supplyvoltage.get()
+        value.current = supplycurrent.get()
 
-        currentq = motorcurrentq.get()
-        voltageq = motorvoltageq.get()
+        app.battlabel.configure(text=" " + str(round(value.voltage,2)) + "V\n "+str(round(value.current,2)) + "A")
 
-        app.torquelabel.configure(text=str(round(voltageq,2)) + "V\n"+str(round(currentq,1)) + "A")
+        value.currentq = motorcurrentq.get()
+        value.voltageq = motorvoltageq.get()
 
-        currentd = motorcurrentd.get()
-        voltaged = motorvoltaged.get()
+        app.torquelabel.configure(text=str(round(value.voltageq,2)) + "V\n"+str(round(value.currentq,1)) + "A")
 
-        app.fluxlabel.configure(text=str(round(voltaged,2)) + "V\n"+str(round(currentd,1)) + "A")
+        value.currentd = motorcurrentd.get()
+        value.voltaged = motorvoltaged.get()
 
-        motcurrent = math.sqrt(currentq*currentq + currentd*currentd)
-        app.motcurrentlabel.configure(text=str(round(motcurrent,2)) + "A / " + str(round(motcurrent/1.41,2)) + "Arms")
+        app.fluxlabel.configure(text=str(round(value.voltaged,2)) + "V\n"+str(round(value.currentd,1)) + "A")
+
+        value.motcurrent = math.sqrt(value.currentq*value.currentq + value.currentd*value.currentd)
+        value.motcurrentrms = value.motcurrent/1.41
+        app.motcurrentlabel.configure(text=str(round(value.motcurrent,2)) + "A / " + str(round(value.motcurrentrms,2)) + "Arms")
         app.motcurrentbar.configure(progress_color="green")
 
-        motvoltage = math.sqrt(voltageq*voltageq + voltaged*voltaged) * 1.73205 #sqrt3
-        app.motvoltagelabel.configure(text=str(round(motvoltage,2)) + "V / " + str(round(motvoltage/1.41,2)) + "Vrms")
+        value.motvoltage = math.sqrt(value.voltageq*value.voltageq + value.voltaged*value.voltaged) * 1.73205 #sqrt3
+        value.motvoltagerms = value.motvoltage/1.41
+        app.motvoltagelabel.configure(text=str(round(value.motvoltage,2)) + "V / " + str(round(value.motvoltagerms,2)) + "Vrms")
         app.motvoltagebar.configure(progress_color="yellow")
 
-        if voltage:
-           app.motvoltagebar.set(motvoltage / voltage)
+        if value.voltage:
+           app.motvoltagebar.set(value.motvoltage / value.voltage)
 
         if iref:
-           app.batcurrentbar.set(current / iref)
-           app.motcurrentbar.set(motcurrent / iref)
+           app.batcurrentbar.set(value.current / iref)
+           app.motcurrentbar.set(value.motcurrent / iref)
 
+        log_group_cb(3)
         global update_group3_id
         update_group3_id = app.after(234, update_group3)
 
     except sxapi.error as e:
          cancel_updates()
          raise e
+         
+         
+################################################################################
+# make the main window and node select callback
 
 # configure grid layout (4x4)
 # https://www.pythontutorial.net/tkinter/tkinter-grid/
@@ -355,6 +529,7 @@ app.nodeselect_button.set("STOP")
 
 app.nodeselect_button.grid(row=0, column=1, pady=5)
 
+################################################################################
 # create scope and term launchers
 
 def show_emgui():
@@ -392,45 +567,58 @@ app.sidebar_frame.grid(row=1, column=0, rowspan=4, padx=(10, 10), pady=(10, 10),
 app.sidebar_frame.grid_rowconfigure(1, weight=1)
 
 
-# create scrollable frame
-app.scrollable_frame = customtkinter.CTkScrollableFrame(app.sidebar_frame, label_text="Data logging")
+################################################################################
+# create scrollable frame - logging
+
+def log_ctl_event(value):
+    global logfile, writer, log_count
+        
+    if value == "Record":
+        app.entry.configure(state="readonly")
+        app.logctl_button.configure(selected_color="red")
+        for i in range(len(log_group)):
+            log_switches[i].configure(state="disabled")
+            
+        logfile = open(app.entry.get(), mode='w', newline='')
+        writer = csv.writer(logfile)
+        row = ['timestamp']
+        for i in range(len(log_group)):
+             if log_switches[i].get() == 1 :
+                 for j in range(len(log_group_header[i])):
+                    row.append(log_group_header[i][j])
+        writer.writerow(row)
+        log_count = 0
+                    
+    if value == "Stop":
+        app.entry.configure(state="normal")
+        app.logctl_button.configure(selected_color="green")
+        for i in range(len(log_group)):
+            log_switches[i].configure(state="normal")
+        if logfile:
+            logfile.close()
+            logfile = 0    
+                                        
+app.scrollable_frame = customtkinter.CTkScrollableFrame(app.sidebar_frame, label_text="Background data logging")
 app.scrollable_frame.grid(row=1, column=0, columnspan=2, pady=5, sticky="nsew")
 app.scrollable_frame.grid_columnconfigure(0, weight=1)
 
-app.logctl_button = customtkinter.CTkSegmentedButton(app.scrollable_frame)
-app.logctl_button.configure(values=["Stop", "Record", "Show"],  state="disabled")
+app.logctl_button = customtkinter.CTkSegmentedButton(app.scrollable_frame, command=log_ctl_event)
+app.logctl_button.configure(values=["Stop", "Record"], selected_color="green")
 app.logctl_button.set("Stop")
 app.logctl_button.grid(row=0, column=0)
 
-app.entry = customtkinter.CTkEntry(app.scrollable_frame, placeholder_text="my_log.csv", state="disabled")
-app.entry.grid(row=1, column=0, pady=5)
+app.logcountlabel = customtkinter.CTkLabel(app.scrollable_frame, text="0", font=customtkinter.CTkFont(size=15, weight="bold"))
+app.logcountlabel.grid(row=0, column=1, padx=10)
 
-group0 = [
-            "battery current",
-            "motor currents",
-            "unfiltered motor currents",
-            "motor current references",
-            "battery voltage",
-            "motor voltages",
-            "rms motor voltage and current",
-            "total motor voltage and current",
-            "motor RPM",
-            "error",
-            "stat and limit",
-            "power",
-            "temperatures",
-            "motor temp resistance",
-            "command and mode",
-            "command multipliers",
-        ]
+app.entry = customtkinter.CTkEntry(app.scrollable_frame)
+app.entry.grid(row=1, column=0, columnspan=2, pady=5, sticky="we")
+app.entry.insert(0, "log.csv")
+for i in range(len(log_group)):
+    switch = customtkinter.CTkCheckBox(master=app.scrollable_frame, text=log_group[i])
+    switch.grid(row=i + 2, column=0, columnspan=2, pady=5, sticky="w")
+    log_switches.append(switch)
 
-app.scrollable_frame_switches = []
-for i in range(len(group0)):
-    switch = customtkinter.CTkCheckBox(master=app.scrollable_frame, text=group0[i], state="disabled")
-    switch.grid(row=i + 2, column=0, pady=5, sticky="w")
-    app.scrollable_frame_switches.append(switch)
-
-
+################################################################################
 # create scope control tabview
 
 app.tabview = customtkinter.CTkTabview(app.sidebar_frame, width=200, height=200)
@@ -528,7 +716,8 @@ def plot_event3(val):
 plot3 = plot_tab("plot3", 3, plot_event3, ["stat and limit", "totallimit", "command and mode", "command multipliers"])
 
 
-
+################################################################################
+# create driver powerstage frame
 
 app.drv_frame = customtkinter.CTkFrame(app)
 app.drv_frame.grid(row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
@@ -554,6 +743,9 @@ app.enablebar.configure(progress_color="black", fg_color="black") #, mode="indet
 app.enablebar.set(1)
 #app.enablebar.start()
 
+################################################################################
+# create limter/stat/error view frame
+
 app.limiter_frame = customtkinter.CTkFrame(app)
 app.limiter_frame.grid(row=2, column=1, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
 app.limiter_frame.grid_columnconfigure((0, 1, 2), weight=1)
@@ -577,6 +769,9 @@ app.limittext.grid(row=1, column=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
 app.totallimitbar = customtkinter.CTkProgressBar(app.limiter_frame, height=20, progress_color="black")
 app.totallimitbar.grid(row=2, column=0, columnspan=3, padx=(10, 10), pady=(10, 10), sticky="ew")
 app.totallimitbar.set(1)
+
+################################################################################
+# create driver command frame
 
 app.cmd_frame = customtkinter.CTkFrame(app)
 app.cmd_frame.grid(row=4, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
@@ -606,6 +801,10 @@ app.imultbar.grid(row=0, column=3, rowspan=4, padx=(10, 10), pady=(10, 10), stic
 #app.rmultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
 #app.rmultbar.grid(row=0, column=4, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns")
 
+
+################################################################################
+# create battery frame
+
 app.battery_frame = customtkinter.CTkFrame(app)
 app.battery_frame.grid(row=1, column=2, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
 app.battery_frame.grid_columnconfigure(0, weight=1)
@@ -619,6 +818,9 @@ app.coulomblabel.grid(row=1, column=0)
 
 app.batcurrentbar = customtkinter.CTkSlider(app.battery_frame, from_=-1, to=1, state="disabled", progress_color="transparent", height=30)
 app.batcurrentbar.grid(row=2, column=0, padx=(10, 10), pady=(10, 10), sticky="ns")
+
+################################################################################
+# create motor frame
 
 app.motor_frame = customtkinter.CTkFrame(app)
 app.motor_frame.grid(row=3, column=2, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
@@ -653,6 +855,7 @@ app.odolabel.grid(row=10, column=0, pady=15)
 app.ohmlabel = customtkinter.CTkLabel(app.motor_frame, text="0 ohms", image=tkinter.PhotoImage(file="siliUX/ohm.png"), compound="top" )
 app.ohmlabel.grid(row=10, column=1, pady=15)
 
-
+################################################################################
+# start the loop !
 
 app.mainloop()
