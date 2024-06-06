@@ -121,7 +121,6 @@ log_group_header = [
 log_switches = []
 
 def log_group_cb(group):
-    global value, logfile, writer, log_count
     if logfile and writer:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         row = [timestamp]
@@ -183,6 +182,8 @@ def log_group_cb(group):
             return                            
 
         writer.writerow(row)
+        
+        global log_count        
         log_count = log_count + 1
         app.logcountlabel.configure(text=str(log_count))
 
@@ -207,9 +208,7 @@ def cancel_updates():
         app.after_cancel(update_group3_id)
 
 def update_group0():
-    try:
-        global log
-            
+    try:           
         value.temp= drivertemp.get()
         app.templabel.configure(text=str(round(value.temp,1))+"\N{DEGREE SIGN}C")
 
@@ -247,9 +246,6 @@ def update_group0():
 
 def update_group1():
     try:
-        #localize global variables - to store them for logging
-        global log
-
         value.power = driverpower.get()
         app.pwrlabel.configure(text=str(int(value.power))+"W")
 
@@ -322,10 +318,7 @@ modes = [   "FRW",
             "SHR"  ]
 
 def update_group2():
-    try:
-        #localize global variables - to store them for logging
-        global log
-        
+    try:        
         value.rpm = motorrpm.get()
         app.rpmlabel.configure(text=" " + str(int(value.rpm))+"\n RPM")
 
@@ -366,9 +359,6 @@ def update_group2():
 
 def update_group3():
     try:
-        #localize global variables - to store them for logging
-        global log
-
         value.voltage = supplyvoltage.get()
         value.current = supplycurrent.get()
 
