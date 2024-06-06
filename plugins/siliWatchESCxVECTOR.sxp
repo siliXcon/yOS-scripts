@@ -61,6 +61,7 @@ logfile = None
 writer = None
 log_count = 0
 
+#NOTE the values are global only for the purpose of logging. Otherwise, values can exist only locally, within the update functions.
 class value:
     # updated in group 3
     voltage = 0

@@ -1,0 +1,165 @@
+import tkinter
+import math
+import customtkinter
+
+customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
+# customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+
+def MessageBox(message):
+    app = customtkinter.CTk()
+    app.attributes("-topmost", 1)
+    app.eval("tk::PlaceWindow . center")
+    app.title("siliTune (ESCx)")
+    app.iconbitmap("siliUX/SiliXcon.ico")
+    customtkinter.CTkLabel(app, text=message).pack(padx=20, pady=20)
+    customtkinter.CTkButton(app, text=f"OK", command=app.destroy).pack(padx=20, pady=20)
+    app.mainloop()
+
+
+# Connect to the node
+try:
+    nodeCount = sxapi.search(dummy=1)
+    if nodeCount < 1:
+        nodeCount2 = sxapi.search()
+        if nodeCount2 < 1:
+            MessageBox("No nodes found: " + str(nodeCount2))
+            raise ValueError()  # no other way to kill the script without exitting emgui
+        nodeCount = nodeCount2
+
+except sxapi.error as e:
+    # tkinter.messagebox.showerror("Error", "Failed to connect to the device")
+    exit()
+
+nodes = []
+nodenames = []
+
+for i in range(nodeCount):
+    newNode = sxapi.node(i, iomode=3) # TODO explore other iomode options for better responsiveness and safety
+    if newNode.hwid().decode()[:3] == "esc":
+        nodes.append(newNode)
+        nodenames.append(newNode.name.decode() + " (" + newNode.address.decode() + ")")
+
+if len(nodes) < 1:
+    MessageBox("None of the nodes is an ESCx member!")
+    raise ValueError()  # no other way to kill the script without exitting emgui
+
+
+
+
+
+# configure grid layout (4x4)
+# https://www.pythontutorial.net/tkinter/tkinter-grid/
+app = customtkinter.CTk()
+app.title("siliTune (ESCx)")
+app.attributes("-topmost", 1)
+app.geometry(f"{600}x{450}")
+app.grid_columnconfigure(6, weight=1)
+app.grid_rowconfigure((20,21,22), weight=1)
+app.attributes("-topmost", 0)
+app.iconbitmap("siliUX/SiliXcon.ico")
+
+
+
+app.top_frame = customtkinter.CTkFrame(app, fg_color="transparent")
+app.top_frame.grid(row=0, column=0, columnspan=8, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="sew")
+app.top_frame.grid_columnconfigure((2,3,4), weight=1)
+
+
+
+def node_select_callback(value):
+    global my_node
+    my_node = nodes[nodenames.index(value)]
+
+def show_emgui():
+    sxapi.show()
+
+emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
+emgui_switch.grid(row=0, column=0, padx=(10,0))
+
+def open_term():
+    my_node.open("{term}")
+
+term_button = customtkinter.CTkButton(app.top_frame, text="", command=open_term, image=tkinter.PhotoImage(file="siliUX/term.png"), width=5)
+term_button.grid(row=0, column=1, padx=(10,0))
+
+
+nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
+nodeselect_button.configure(values=nodenames, selected_color="green")
+nodeselect_button.grid(row=0, column=2, pady=5, sticky="e")
+
+# another button might be confusing. User can refresh the values by clicking on the node name.
+#refresh_button = customtkinter.CTkButton(app.top_frame, text="", image=tkinter.PhotoImage(file="siliUX/pull.png"), fg_color="green", width=5)
+#refresh_button.grid(row=0, column=3, sticky="w")
+
+
+def change_appearance_mode_event(new_appearance_mode: str):
+    customtkinter.set_appearance_mode(new_appearance_mode)
+
+appearance_mode_optionemenu = customtkinter.CTkOptionMenu(app.top_frame, values=["Dark", "Light"], command=change_appearance_mode_event)
+appearance_mode_optionemenu.grid(row=0, column=4, padx=10, pady=5, sticky="e")
+
+################################################################################
+
+def param_edit(frame, row, col, name, unit):
+
+    label = customtkinter.CTkLabel(frame, text=name, font=customtkinter.CTkFont(size=15, weight="bold"))
+    label.grid(row=row, column=col, padx=5, sticky="e")
+
+    value = customtkinter.CTkEntry(frame, width=50)
+    value.grid(row=row, column=col+1, pady=5)
+
+    unit = customtkinter.CTkLabel(frame, text=unit, font=customtkinter.CTkFont(size=15, weight="bold"))
+    unit.grid(row=row, column=col+2, padx=5, sticky="w")
+    
+    return value
+
+param_edit(app, 3, 2, "ipeak", "A")
+param_edit(app, 4, 2, "iref", "A")
+param_edit(app, 5, 2, "irefr", "A")
+param_edit(app, 6, 2, "uref", "V")
+param_edit(app, 7, 2, "rref", "RPM")
+
+label = customtkinter.CTkLabel(app, text="init as", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=8, column=2, padx=5, sticky="e")
+
+prestbox = customtkinter.CTkComboBox(app, width=100, values=["deinit", "async", "sensorless", "hall", "sincos", "resolver", "ssi", "biss", "biss32", "ssi32", "encoder"])
+prestbox.grid(row=8, column=3, columnspan=2, pady=5)
+        
+        
+ident_button = customtkinter.CTkButton(app, text=f"Automatic\nidentification ...")
+ident_button.grid(row=10, column=2, columnspan=3, rowspan=12, padx=(10,0), pady=10, sticky="nsew")
+        
+################################################################################
+
+app.tabview = customtkinter.CTkTabview(app, width=200, height=200)
+app.tabview.grid(row=2, column=6, rowspan=20, padx=10, sticky="nsew")
+
+app.tabview.add("Motor")
+#app.tabview.tab(name).grid_columnconfigure((0,1,2,3), weight=1)
+
+app.tabview.add("Supply")
+
+app.tabview.add("PID")
+
+app.tabview.add("REST")
+
+app.tabview.add("DAC")
+
+app.tabview.add("Limiter")
+
+################################################################################
+
+app.bottom_frame = customtkinter.CTkFrame(app, fg_color="transparent")
+app.bottom_frame.grid(row=22, column=0, columnspan=8, rowspan=2, pady=(5,15),  sticky="s")
+app.bottom_frame.grid_columnconfigure((1,2,3), weight=1)
+
+save_button = customtkinter.CTkButton(app.bottom_frame, text=f"Save to flash !\n(make it final)", fg_color="red")
+save_button.grid(row=1, column=1, padx=10, sticky="nsew")
+
+load_button = customtkinter.CTkButton(app.bottom_frame, text=f"Load from flash !\n(discard changes)", fg_color="green")
+load_button.grid(row=1, column=2, padx=10, sticky="nsew")
+
+restore_button = customtkinter.CTkButton(app.bottom_frame, text=f"Restore to defaults !\n(start over)")
+restore_button.grid(row=1, column=3, padx=10, sticky="nsew")
+
+app.mainloop()
