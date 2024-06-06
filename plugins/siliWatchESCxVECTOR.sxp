@@ -16,6 +16,7 @@ def MessageBox(message):
     app.attributes("-topmost", 1)
     app.eval("tk::PlaceWindow . center")
     app.title("siliWatch (ESCx VECTOR)")
+    app.iconbitmap("siliUX/SiliXcon.ico")
     customtkinter.CTkLabel(app, text=message).pack(padx=20, pady=20)
     customtkinter.CTkButton(app, text=f"OK", command=app.destroy).pack(padx=20, pady=20)
     app.mainloop()
@@ -412,6 +413,7 @@ app.geometry(f"{950}x{750}")
 app.grid_columnconfigure(1, weight=1)
 app.grid_columnconfigure((2, 3), weight=0)
 app.grid_rowconfigure(3, weight=1)
+app.iconbitmap("siliUX/SiliXcon.ico")
 
 app.attributes("-topmost", 0)
 
@@ -548,7 +550,7 @@ def change_scaling_event(app, new_scaling: str):
     new_scaling_float = int(new_scaling.replace("%", "")) / 100
     customtkinter.set_widget_scaling(new_scaling_float)
 
-app.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(app, values=["Dark", "Light", "System"], command=change_appearance_mode_event)
+app.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(app, values=["Dark", "Light"], command=change_appearance_mode_event)
 app.appearance_mode_optionemenu.grid(row=0, column=2, padx=10, pady=5, sticky="e")
 
 # create sidebar frame with widgets
