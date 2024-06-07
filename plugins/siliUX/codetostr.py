@@ -123,7 +123,9 @@ def error2string(err):
             err = 0x8000 - err
             str_out = f"pre-init {err} : "
 
-            if err == 11:
+            if err == 10:
+                str_out += "gate driver error"
+            elif err == 11:
                 str_out += "overvoltage"
             elif err == 12:
                 str_out += "undervoltage or SMPS off"
@@ -132,9 +134,9 @@ def error2string(err):
             elif err == 14:
                 str_out += "powered from the motor"
             elif err == 15:
-                str_out += "voltage fluctuation"
+                str_out += "input voltage fluctuation"
             elif err == 16:
-                str_out += "ADC error"
+                str_out += "analog circuitry error"
             else:
                 str_out += "unknown"
 
