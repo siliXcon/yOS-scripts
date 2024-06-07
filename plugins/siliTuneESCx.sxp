@@ -1,6 +1,10 @@
+sys.path.append('./siliUX')
+
 import tkinter
 import math
 import customtkinter
+
+from ctk_tooltip import *
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 # customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -87,6 +91,9 @@ nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node
 nodeselect_button.configure(values=nodenames, selected_color="green")
 nodeselect_button.grid(row=0, column=2, pady=5, sticky="e")
 
+#CTkToolTip(nodeselect_button, message="Choose the node you want to bind to. Click the node again to refresh the values.")
+
+
 # another button might be confusing. User can refresh the values by clicking on the node name.
 #refresh_button = customtkinter.CTkButton(app.top_frame, text="", image=tkinter.PhotoImage(file="siliUX/pull.png"), fg_color="green", width=5)
 #refresh_button.grid(row=0, column=3, sticky="w")
@@ -100,27 +107,30 @@ appearance_mode_optionemenu.grid(row=0, column=4, padx=10, pady=5, sticky="e")
 
 ################################################################################
 
-def param_edit(frame, row, col, name, unit):
+def param_edit(frame, row, col, size, name, unit, tip):
 
-    label = customtkinter.CTkLabel(frame, text=name, font=customtkinter.CTkFont(size=15, weight="bold"))
+    label = customtkinter.CTkLabel(frame, text=name, font=customtkinter.CTkFont(size=size, weight="bold"))
     label.grid(row=row, column=col, padx=5, sticky="e")
+    CTkToolTip(label, message=tip)
 
     value = customtkinter.CTkEntry(frame, width=50)
     value.grid(row=row, column=col+1, pady=5)
 
-    unit = customtkinter.CTkLabel(frame, text=unit, font=customtkinter.CTkFont(size=15, weight="bold"))
+    unit = customtkinter.CTkLabel(frame, text=unit, font=customtkinter.CTkFont(size=size, weight="bold"))
     unit.grid(row=row, column=col+2, padx=5, sticky="w")
     
     return value
 
-param_edit(app, 3, 2, "ipeak", "A")
-param_edit(app, 4, 2, "iref", "A")
-param_edit(app, 5, 2, "irefr", "A")
-param_edit(app, 6, 2, "uref", "V")
-param_edit(app, 7, 2, "rref", "RPM")
+param_edit(app, 3, 2, 15, "ipeak", "[A]", "Peak current threshold. An intervention takes place once the phase current crosses this threshold and the 'over-current condition' is signalled.")
+param_edit(app, 4, 2, 15, "iref", "[A]", "Reference phase current. This is the most fundamental constant that defines the maximum stator current magnitude in all control modes.")
+param_edit(app, 5, 2, 15, "irefr", "[A]", "Reference phase current in voltage braking modes. Set to zero to use 'iref' (as a default).")
+param_edit(app, 6, 2, 15, "uref", "[V]", "Reference phase voltage for torque genrating axis. Set to zero to use the entire available voltage (as a default).")
+param_edit(app, 7, 2, 15, "rref", "[RPM]", "Reference motor speed for speed control modes. Set to zero to use the entire available speed range (as a default).")
 
 label = customtkinter.CTkLabel(app, text="init as", font=customtkinter.CTkFont(size=15, weight="bold"))
 label.grid(row=8, column=2, padx=5, sticky="e")
+
+CTkToolTip(label, message="Choose and perform the driver initialization for a particular motor sensor.\nThe selection executes the reinit command.")
 
 prestbox = customtkinter.CTkComboBox(app, width=100, values=["deinit", "async", "sensorless", "hall", "sincos", "resolver", "ssi", "biss", "biss32", "ssi32", "encoder"])
 prestbox.grid(row=8, column=3, columnspan=2, pady=5)
@@ -134,12 +144,74 @@ ident_button.grid(row=10, column=2, columnspan=3, rowspan=12, padx=(10,0), pady=
 app.tabview = customtkinter.CTkTabview(app, width=200, height=200)
 app.tabview.grid(row=2, column=6, rowspan=20, padx=10, sticky="nsew")
 
-app.tabview.add("Motor")
+tab = app.tabview.add("Motor")
 #app.tabview.tab(name).grid_columnconfigure((0,1,2,3), weight=1)
+label = customtkinter.CTkLabel(tab, text="Electrical", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=1, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 1, 12, "psi", "[Wb]", "Permanent magnet flux linkage")
+param_edit(tab, 3, 1, 12, "Lq", "[H]", "Q-axis inductance in star model")
+param_edit(tab, 4, 1, 12, "Ld", "[H]", "D-axis inductance in star model")
+param_edit(tab, 5, 1, 12, "Rt", "[Ohm]", "stator resistance in star model")
 
-app.tabview.add("Supply")
 
-app.tabview.add("PID")
+label = customtkinter.CTkLabel(tab, text="Mechanical", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=10, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 10, 12, "pp", "[pairs]", "pole pair count")
+picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/motor.png"), compound="left")
+picture.grid(row=3, column=10, rowspan=10, columnspan=3,  padx=10, pady=10, sticky="nsew")
+
+
+label = customtkinter.CTkLabel(tab, text="Non-linear", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=15, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 15, 12, "Da", "[1/Amp]", "aligned inductance derating")
+param_edit(tab, 3, 15, 12, "Dc", "[1/Amp]", "cross-inductance derating")
+param_edit(tab, 4, 15, 12, "Dp", "[1/K]", "PM flux derating")
+param_edit(tab, 5, 15, 12, "Dt", "[1/K]", "Resistance derating")
+
+
+tab = app.tabview.add("Supply")
+
+label = customtkinter.CTkLabel(tab, text="Precharge", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=1, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 1, 12, "pchg1", "[V]", "Precharge voltage the controller tries to reach at initialization after booting.")
+param_edit(tab, 3, 1, 12, "pchg2", "[V]", "Precharge voltage the controller tries to reach at manually requested initialization.")
+param_edit(tab, 4, 1, 12, "pchgtim", "[ms]", "The maximum duration of the precharge phase (absolute value).")
+
+picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/battery.png"), compound="left")
+picture.grid(row=1, column=10, rowspan=10, padx=10, pady=10, sticky="nsew")
+
+tab = app.tabview.add("PID")
+
+label = customtkinter.CTkLabel(tab, text="Q-current", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=1, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 1, 12, "P", "", "Q-axis porportional term")
+param_edit(tab, 3, 1, 12, "I", "", "Q-axis integral term")
+
+label = customtkinter.CTkLabel(tab, text="D-current", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=4, column=1, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 5, 1, 12, "P", "", "D-axis proportional term")
+param_edit(tab, 6, 1, 12, "I", "", "Q-axis proportional term")
+
+
+label = customtkinter.CTkLabel(tab, text="Speed loop", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=15, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 15, 12, "P", "", "porportional term")
+param_edit(tab, 3, 15, 12, "I", "", "integral term")
+param_edit(tab, 4, 15, 12, "D", "", "derivative term")
+param_edit(tab, 5, 15, 12, "Td", "", "derivative filtering term")
+
+
+label = customtkinter.CTkLabel(tab, text="Position loop", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=30, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 30, 12, "P", "", "porportional term")
+param_edit(tab, 3, 30, 12, "I", "", "integral term")
+param_edit(tab, 4, 30, 12, "D", "", "derivative term")
+param_edit(tab, 5, 30, 12, "Td", "", "derivative filtering term")
+
+
+picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/pid.png"), compound="left")
+picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+
 
 app.tabview.add("REST")
 
