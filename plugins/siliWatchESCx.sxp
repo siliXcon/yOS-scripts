@@ -371,13 +371,14 @@ def update_group3():
 
         app.torquelabel.configure(text=str(round(value.voltageq,2)) + "V\n"+str(round(value.currentq,1)) + "A")
         
-        if motorcurrentd:
+        if motorcurrentd and motorvoltaged: #VECTOR
             value.currentd = motorcurrentd.get()
-            
-        if motorvoltaged:
             value.voltaged = motorvoltaged.get()
-
-        app.fluxlabel.configure(text=str(round(value.voltaged,2)) + "V\n"+str(round(value.currentd,1)) + "A")
+            app.fluxlabel.configure(text=str(round(value.voltaged,2)) + "V\n"+str(round(value.currentd,1)) + "A")
+        else: #BLDC
+            value.currentd = 0.0
+            value.voltaged = 0.0        
+            app.fluxlabel.configure(text="N/A")
 
         value.motcurrent = math.sqrt(value.currentq*value.currentq + value.currentd*value.currentd)
         value.motcurrentrms = value.motcurrent/1.41
