@@ -15,7 +15,7 @@ def MessageBox(message):
     app = customtkinter.CTk()
     app.attributes("-topmost", 1)
     app.eval("tk::PlaceWindow . center")
-    app.title("siliWatch (ESCx VECTOR)")
+    app.title("siliWatch (ESCx)")
     app.iconbitmap("siliUX/SiliXcon.ico")
     customtkinter.CTkLabel(app, text=message).pack(padx=20, pady=20)
     customtkinter.CTkButton(app, text=f"OK", command=app.destroy).pack(padx=20, pady=20)
@@ -370,9 +370,12 @@ def update_group3():
         value.voltageq = motorvoltageq.get()
 
         app.torquelabel.configure(text=str(round(value.voltageq,2)) + "V\n"+str(round(value.currentq,1)) + "A")
-
-        value.currentd = motorcurrentd.get()
-        value.voltaged = motorvoltaged.get()
+        
+        if motorcurrentd:
+            value.currentd = motorcurrentd.get()
+            
+        if motorvoltaged:
+            value.voltaged = motorvoltaged.get()
 
         app.fluxlabel.configure(text=str(round(value.voltaged,2)) + "V\n"+str(round(value.currentd,1)) + "A")
 
@@ -408,7 +411,7 @@ def update_group3():
 # configure grid layout (4x4)
 # https://www.pythontutorial.net/tkinter/tkinter-grid/
 app = customtkinter.CTk()
-app.title("siliWatch (ESCx VECTOR)")
+app.title("siliWatch (ESCx)")
 app.attributes("-topmost", 1)
 app.geometry(f"{950}x{750}")
 app.grid_columnconfigure(1, weight=1)
@@ -484,12 +487,20 @@ def node_select_callback(value):
             drivercmd = my_node.variable("/driver/cmd")
             global drivermode
             drivermode = my_node.variable("/driver/mode")
-            global driverimult
-            driverimult = my_node.variable("/driver/iqmult")
-            global driverumult
-            driverumult = my_node.variable("/driver/uqmult")
             global motorrpm
             motorrpm = my_node.variable("/driver/motor/rpmf")
+   
+            global driverimult
+            try:
+                driverimult = my_node.variable("/driver/iqmult") #VECTOR
+            except sxapi.error as e:
+                driverimult = my_node.variable("/driver/imult") #BLDC
+                
+            global driverumult
+            try:            
+                driverumult = my_node.variable("/driver/uqmult") #VECTOR
+            except sxapi.error as e:
+                driverumult = my_node.variable("/driver/umult") #BLDC
 
             update_group2()
 
@@ -498,15 +509,26 @@ def node_select_callback(value):
             supplycurrent = my_node.variable("/driver/supply/currentf")
             global supplyvoltage
             supplyvoltage = my_node.variable("/driver/supply/voltage")
-            global motorcurrentq
-            motorcurrentq = my_node.variable("/driver/motor/currentqf")
-            global motorcurrentd
-            motorcurrentd = my_node.variable("/driver/motor/currentdf")
-            global motorvoltageq
-            motorvoltageq = my_node.variable("/driver/motor/voltageq")
-            global motorvoltaged
-            motorvoltaged = my_node.variable("/driver/motor/voltaged")
+            
 
+            global motorcurrentq
+            global motorcurrentd
+            try:
+                motorcurrentq = my_node.variable("/driver/motor/currentqf") #VECTOR
+                motorcurrentd = my_node.variable("/driver/motor/currentdf")
+            except sxapi.error as e:
+                motorcurrentq = my_node.variable("/driver/motor/current") #BLDC
+                motorcurrentd = 0
+            
+            global motorvoltageq
+            global motorvoltaged
+            try:
+                motorvoltageq = my_node.variable("/driver/motor/voltageq")
+                motorvoltaged = my_node.variable("/driver/motor/voltaged")
+            except sxapi.error as e:
+                motorvoltageq = my_node.variable("/driver/motor/voltage")
+                motorvoltaged = 0
+            
             update_group3()
 
 
