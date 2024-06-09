@@ -161,10 +161,10 @@ picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="si
 picture.grid(row=3, column=10, rowspan=10, columnspan=3,  padx=10, pady=10, sticky="nsew")
 
 
-label = customtkinter.CTkLabel(tab, text="Non-linear", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(tab, text="Derating", font=customtkinter.CTkFont(size=15, weight="bold"))
 label.grid(row=1, column=15, columnspan=3, padx=5, sticky="w")
-param_edit(tab, 2, 15, 12, "Da", "[1/Amp]", "aligned inductance derating")
-param_edit(tab, 3, 15, 12, "Dc", "[1/Amp]", "cross-inductance derating")
+param_edit(tab, 2, 15, 12, "Da", "[1/A]", "aligned inductance derating")
+param_edit(tab, 3, 15, 12, "Dc", "[1/A]", "cross-inductance derating")
 param_edit(tab, 4, 15, 12, "Dp", "[1/K]", "PM flux derating")
 param_edit(tab, 5, 15, 12, "Dt", "[1/K]", "Resistance derating")
 
@@ -192,14 +192,12 @@ label.grid(row=4, column=1, columnspan=3, padx=5, sticky="w")
 param_edit(tab, 5, 1, 12, "P", "", "D-axis proportional term")
 param_edit(tab, 6, 1, 12, "I", "", "Q-axis proportional term")
 
-
 label = customtkinter.CTkLabel(tab, text="Speed loop", font=customtkinter.CTkFont(size=15, weight="bold"))
 label.grid(row=1, column=15, columnspan=3, padx=5, sticky="w")
 param_edit(tab, 2, 15, 12, "P", "", "porportional term")
 param_edit(tab, 3, 15, 12, "I", "", "integral term")
 param_edit(tab, 4, 15, 12, "D", "", "derivative term")
 param_edit(tab, 5, 15, 12, "Td", "", "derivative filtering term")
-
 
 label = customtkinter.CTkLabel(tab, text="Position loop", font=customtkinter.CTkFont(size=15, weight="bold"))
 label.grid(row=1, column=30, columnspan=3, padx=5, sticky="w")
@@ -208,16 +206,26 @@ param_edit(tab, 3, 30, 12, "I", "", "integral term")
 param_edit(tab, 4, 30, 12, "D", "", "derivative term")
 param_edit(tab, 5, 30, 12, "Td", "", "derivative filtering term")
 
-
 picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/pid.png"), compound="left")
 picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
 
 
-app.tabview.add("REST")
+tab = app.tabview.add("REST")
 
-app.tabview.add("DAC")
+picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/rest.png"), compound="left")
+picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
 
-app.tabview.add("Limiter")
+
+tab = app.tabview.add("DAC")
+
+picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/flux.png"), compound="left")
+picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+
+tab = app.tabview.add("Limiter")
+
+picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/limiter.png"), compound="left")
+picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+
 
 ################################################################################
 
