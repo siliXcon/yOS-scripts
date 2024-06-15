@@ -87,7 +87,7 @@ class value:
     error = 0
     totallimit = 0
     enable = 0
-    #updated in group 0 
+    #updated in group 0
     temp = 0
     ptctemp = 0
     rthermistor = 0
@@ -116,7 +116,6 @@ log_group_header = [
             ["/driver/powerf"],
             ["/driver/error", "/driver/stat", "/driver/limit", "/driver/totallimit"],
             ["/driver/temp", "/driver/ptctemp", "/driver/motor/rthermistor"],
-
         ]
 
 
@@ -133,22 +132,22 @@ def log_group_cb(group):
             row.append(value.current)
             row.append(value.currentq)
             row.append(value.currentd)
-            max_group=max(max_group, 3)  
+            max_group=max(max_group, 3)
         if (log_switches[1].get() == 1) :
             row.append(value.voltage)
             row.append(value.voltageq)
             row.append(value.voltaged)
-            max_group=max(max_group, 3)              
+            max_group=max(max_group, 3)
         if (log_switches[2].get() == 1) :
             row.append(value.motorcurrent)
             row.append(value.motorvoltage)
-            max_group=max(max_group, 3)                       
+            max_group=max(max_group, 3)
         if (log_switches[3].get() == 1) :
             row.append(value.motcurrentrms)
             row.append(value.motvoltagerms)
-            max_group=max(max_group, 3)                     
+            max_group=max(max_group, 3)
            
-        #updated in group 2    
+        #updated in group 2
         if (log_switches[4].get() == 1) :
             row.append(value.rpm)             
             max_group=max(max_group, 2)     
@@ -160,25 +159,25 @@ def log_group_cb(group):
             row.append(value.imult)
             row.append(value.umult)
             max_group=max(max_group, 2)                 
-            
-        #updated in group 1    
+
+        #updated in group 1
         if (log_switches[7].get() == 1) :
             row.append(value.power)
             max_group=max(max_group, 1)                                        
         if (log_switches[8].get() == 1) :
             row.append(value.error)
             row.append(value.stat)
-            row.append(value.limit)            
+            row.append(value.limit)
             row.append(value.totallimit)
-            max_group=max(max_group, 1)                 
+            max_group=max(max_group, 1)
             
-        #updated in group 0               
+        #updated in group 0
         if (log_switches[9].get() == 1) :
             row.append(value.temp)
             row.append(value.ptctemp)
             row.append(value.rthermistor)
             max_group=max(max_group, 0)
-            
+
         # log at the frequency of the selected group that updates the fastest
         if group!=max_group:
             return                            
@@ -210,29 +209,29 @@ def cancel_updates():
         app.after_cancel(update_group3_id)
 
 def update_group0():
-    try:           
-        value.temp= drivertemp.get()
+    try:
+        value.temp = drivertemp.get()
         app.templabel.configure(text=str(round(value.temp,1))+"\N{DEGREE SIGN}C")
 
         value.ptctemp = ptctemp.get()
         if math.isnan(value.ptctemp) :
             app.ptctemplabel.configure(text=str("N/A"))
         elif math.isinf(value.ptctemp) :
-            app.ptctemplabel.configure(text=str("INF"))        
+            app.ptctemplabel.configure(text=str("INF"))
         else :
             app.ptctemplabel.configure(text=str(int(value.ptctemp)))
 
-        app.rthermistor = rthermistor.get()
-        if math.isnan(app.rthermistor) :
+        value.rthermistor = rthermistor.get()
+        if math.isnan(value.rthermistor) :
             app.ohmlabel.configure(text=str("N/A"))
-        elif math.isinf(app.rthermistor) :
+        elif math.isinf(value.rthermistor) :
             app.ohmlabel.configure(text=str("INF"))                    
         else :
-            app.ohmlabel.configure(text=str(int(app.rthermistor))+" ohms")
+            app.ohmlabel.configure(text=str(int(value.rthermistor))+" ohms")
 
-        app.energylabel.configure(text=str(driverenergy.get())+"J")
+        app.energylabel.configure(text=str(int(driverenergy.get()))+"J")
         app.odolabel.configure(text=str(motorodo.get())+" revs")
-        app.coulomblabel.configure(text=str(supplycap.get())+"mAh")
+        app.coulomblabel.configure(text=str(int(supplycap.get()))+"mAh")
 
         global iref
         iref = driveriref.get()
@@ -293,7 +292,7 @@ def update_group1():
             app.enablebar.configure(fg_color="grey", progress_color="blue")
         else:
             app.enablebar.configure(fg_color="grey", progress_color="grey")
-            
+
         log_group_cb(1)
         global update_group1_id
         update_group1_id = app.after(456, update_group1)
@@ -370,23 +369,26 @@ def update_group3():
         value.voltageq = motorvoltageq.get()
 
         app.torquelabel.configure(text=str(round(value.voltageq,2)) + "V\n"+str(round(value.currentq,1)) + "A")
-        
+
         if motorcurrentd and motorvoltaged: #VECTOR
             value.currentd = motorcurrentd.get()
             value.voltaged = motorvoltaged.get()
+            value.motcurrent = math.sqrt(value.currentq*value.currentq + value.currentd*value.currentd)
+            value.motvoltage = math.sqrt(value.voltageq*value.voltageq + value.voltaged*value.voltaged) * 1.73205 #sqrt3
             app.fluxlabel.configure(text=str(round(value.voltaged,2)) + "V\n"+str(round(value.currentd,1)) + "A")
+
         else: #BLDC
             value.currentd = 0.0
             value.voltaged = 0.0        
+            value.motcurrent = value.currentq
+            value.motvoltage = value.voltageq
             app.fluxlabel.configure(text="N/A")
 
-        value.motcurrent = math.sqrt(value.currentq*value.currentq + value.currentd*value.currentd)
         value.motcurrentrms = value.motcurrent/1.41
+        value.motvoltagerms = value.motvoltage/1.41
         app.motcurrentlabel.configure(text=str(round(value.motcurrent,2)) + "A / " + str(round(value.motcurrentrms,2)) + "Arms")
         app.motcurrentbar.configure(progress_color="green")
 
-        value.motvoltage = math.sqrt(value.voltageq*value.voltageq + value.voltaged*value.voltaged) * 1.73205 #sqrt3
-        value.motvoltagerms = value.motvoltage/1.41
         app.motvoltagelabel.configure(text=str(round(value.motvoltage,2)) + "V / " + str(round(value.motvoltagerms,2)) + "Vrms")
         app.motvoltagebar.configure(progress_color="yellow")
 
@@ -404,8 +406,7 @@ def update_group3():
     except sxapi.error as e:
          cancel_updates()
          raise e
-         
-         
+
 ################################################################################
 # make the main window and node select callback
 
@@ -451,6 +452,8 @@ def node_select_callback(value):
             except sxapi.error as e:
                 driverpower = my_node.variable("/driver/powerf") #powerf at esc5
 
+            #TODO add support for esc4 and esc6 !
+
             #group0
             global drivertemp
             drivertemp = my_node.variable("/driver/temp")
@@ -490,13 +493,13 @@ def node_select_callback(value):
             drivermode = my_node.variable("/driver/mode")
             global motorrpm
             motorrpm = my_node.variable("/driver/motor/rpmf")
-   
+
             global driverimult
             try:
                 driverimult = my_node.variable("/driver/iqmult") #VECTOR
             except sxapi.error as e:
                 driverimult = my_node.variable("/driver/imult") #BLDC
-                
+
             global driverumult
             try:            
                 driverumult = my_node.variable("/driver/uqmult") #VECTOR
@@ -510,7 +513,7 @@ def node_select_callback(value):
             supplycurrent = my_node.variable("/driver/supply/currentf")
             global supplyvoltage
             supplyvoltage = my_node.variable("/driver/supply/voltage")
-            
+
 
             global motorcurrentq
             global motorcurrentd
@@ -520,7 +523,7 @@ def node_select_callback(value):
             except sxapi.error as e:
                 motorcurrentq = my_node.variable("/driver/motor/current") #BLDC
                 motorcurrentd = 0
-            
+
             global motorvoltageq
             global motorvoltaged
             try:
@@ -529,7 +532,7 @@ def node_select_callback(value):
             except sxapi.error as e:
                 motorvoltageq = my_node.variable("/driver/motor/voltage")
                 motorvoltaged = 0
-            
+
             update_group3()
 
 
@@ -588,13 +591,13 @@ app.sidebar_frame.grid_rowconfigure(1, weight=1)
 
 def log_ctl_event(value):
     global logfile, writer, log_count
-        
+
     if value == "Record":
         app.entry.configure(state="readonly")
         app.logctl_button.configure(selected_color="red")
         for i in range(len(log_group)):
             log_switches[i].configure(state="disabled")
-            
+
         logfile = open(app.entry.get(), mode='w', newline='')
         writer = csv.writer(logfile)
         row = ['timestamp']
@@ -604,7 +607,7 @@ def log_ctl_event(value):
                     row.append(log_group_header[i][j])
         writer.writerow(row)
         log_count = 0
-                    
+
     if value == "Stop":
         app.entry.configure(state="normal")
         app.logctl_button.configure(selected_color="green")
@@ -689,11 +692,20 @@ def plot_event0(val):
     if val=="battery current":
         my_node.executeSimple("plot", "-p0", "/driver/supply/currentf")
     if val=="motor currents":
-        my_node.executeSimple("plot", "-p0", "/driver/motor/currentqf", "/driver/motor/currentdf")
+        if motorcurrentd and motorvoltaged: #VECTOR
+            my_node.executeSimple("plot", "-p0", "/driver/motor/currentqf", "/driver/motor/currentdf")
+        else: #BLDC
+            my_node.executeSimple("plot", "-p0", "/driver/motor/current")
     if val=="unfiltered motor currents":
-        my_node.executeSimple("plot", "-p0", "/driver/motor/currentq", "/driver/motor/currentd")
+        if motorcurrentd and motorvoltaged: #VECTOR
+            my_node.executeSimple("plot", "-p0", "/driver/motor/currentq", "/driver/motor/currentd")
+        else: #BLDC
+            my_node.executeSimple("plot", "-p0", "/driver/motor/current")
     if val=="motor current references":
-        my_node.executeSimple("plot", "-p0", "/driver/debug_core/Iqref", "/driver/debug_core/Idref")
+        if motorcurrentd and motorvoltaged: #VECTOR
+            my_node.executeSimple("plot", "-p0", "/driver/debug_core/Iqref", "/driver/debug_core/Idref")
+        else: #BLDC
+            my_node.executeSimple("plot", "-p0", "/driver/debug_core/currentr") # TODO !
 
 plot0 = plot_tab("plot0", 0, plot_event0, ["battery current", "motor currents", "unfiltered motor currents", "motor current references"])
 
@@ -701,9 +713,15 @@ def plot_event1(val):
     if val=="battery voltage":
         my_node.executeSimple("plot", "-p1", "/driver/supply/voltage")
     if val=="motor voltages":
-        my_node.executeSimple("plot", "-p1", "/driver/motor/voltageq", "/driver/motor/voltaged")
+        if motorcurrentd and motorvoltaged: #VECTOR
+            my_node.executeSimple("plot", "-p1", "/driver/motor/voltageq", "/driver/motor/voltaged")
+        else: #BLDC
+            my_node.executeSimple("plot", "-p1", "/driver/motor/voltage", "/driver/motor/duty")
     if val=="motor voltage references":
-        my_node.executeSimple("plot", "-p1", "/driver/debug_core/Uqref", "/driver/debug_core/Udref")
+        if motorcurrentd and motorvoltaged: #VECTOR
+            my_node.executeSimple("plot", "-p1", "/driver/debug_core/Uqref", "/driver/debug_core/Udref")
+        else: #BLDC
+            my_node.executeSimple("plot", "-p1", "/driver/debug_core/dutyr") # TODO !
 
 plot1 = plot_tab("plot1", 1, plot_event1, ["battery voltage", "motor voltages", "motor voltage references"])
 
@@ -777,7 +795,7 @@ app.statlabel.grid(row=0, column=1, padx=(10, 10), pady=(10, 10), sticky="nw")
 app.stattext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.stattext.grid(row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
 
-app.limitlabel = customtkinter.CTkLabel(app.limiter_frame, text="limit\n0", image=tkinter.PhotoImage(file="siliUX/limit.png"), width=120, compound="left")
+app.limitlabel = customtkinter.CTkLabel(app.limiter_frame, text="limit\n0", image=tkinter.PhotoImage(file="siliUX/limiter.png"), width=120, compound="left")
 app.limitlabel.grid(row=0, column=2, padx=(10, 10), pady=(10, 10), sticky="nw")
 app.limittext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.limittext.grid(row=1, column=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
