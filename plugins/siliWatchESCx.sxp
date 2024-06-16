@@ -502,7 +502,7 @@ def node_select_callback(value):
             app.nodeselect_button.configure(selected_color="green")
 
         except sxapi.error as e:
-            MessageBox("Could not bind to all the controller states!\n" + str(e))
+            find_nodes.MessageBox("Could not bind to all the controller states!\n" + str(e))
 
 ################################################################################
 # create top frame
@@ -770,17 +770,17 @@ app.limiter_frame.grid_rowconfigure(2, weight=1)
 app.namelabel = customtkinter.CTkLabel(app.limiter_frame, text="Protection and derating", corner_radius=5, fg_color=("gray78", "gray23"))
 app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
-app.errorlabel = customtkinter.CTkLabel(app.limiter_frame, text="error\n0", image=tkinter.PhotoImage(file="siliUX/stop.png"), width=120, compound="left")
+app.errorlabel = customtkinter.CTkLabel(app.limiter_frame, text="error\n0", corner_radius=5, image=tkinter.PhotoImage(file="siliUX/stop.png"), width=120, compound="left")
 app.errorlabel.grid(row=1, column=0, padx=5, pady=5, sticky="nw")
 app.errortext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.errortext.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
-app.statlabel = customtkinter.CTkLabel(app.limiter_frame, text="stat\n0", image=tkinter.PhotoImage(file="siliUX/warning.png"), width=120, compound="left")
+app.statlabel = customtkinter.CTkLabel(app.limiter_frame, text="stat\n0", corner_radius=5, image=tkinter.PhotoImage(file="siliUX/warning.png"), width=120, compound="left")
 app.statlabel.grid(row=1, column=1, padx=5, pady=5, sticky="nw")
 app.stattext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.stattext.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
 
-app.limitlabel = customtkinter.CTkLabel(app.limiter_frame, text="limit\n0", image=tkinter.PhotoImage(file="siliUX/limiter.png"), width=120, compound="left")
+app.limitlabel = customtkinter.CTkLabel(app.limiter_frame, text="limit\n0", corner_radius=5, image=tkinter.PhotoImage(file="siliUX/limiter.png"), width=120, compound="left")
 app.limitlabel.grid(row=1, column=2, padx=5, pady=5, sticky="nw")
 app.limittext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.limittext.grid(row=2, column=2, padx=5, pady=5, sticky="nsew")

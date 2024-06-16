@@ -94,7 +94,7 @@ def param_edit(frame, row, col, size, name, unit, tip):
 
     unit = customtkinter.CTkLabel(frame, text=unit, font=customtkinter.CTkFont(size=size, weight="bold"))
     unit.grid(row=row, column=col+2, padx=5, sticky="w")
-    
+
     return value
 
 param_edit(app, 3, 2, 15, "ipeak", "[A]", "Peak current threshold. An intervention takes place once the phase current crosses this threshold and the 'over-current condition' is signalled.")
@@ -139,10 +139,10 @@ picture.grid(row=3, column=10, rowspan=10, columnspan=3,  padx=10, pady=10, stic
 
 label = customtkinter.CTkLabel(tab, text="Derating", font=customtkinter.CTkFont(size=15, weight="bold"))
 label.grid(row=1, column=15, columnspan=3, padx=5, sticky="w")
-param_edit(tab, 2, 15, 12, "Da", "[1/A]", "Aligned inductance derating. <0:disable>")
-param_edit(tab, 3, 15, 12, "Dc", "[1/A]", "Cross-inductance derating. <0:disable>")
-param_edit(tab, 4, 15, 12, "Dp", "[1/K]", "PM flux derating. <0:disable>")
-param_edit(tab, 5, 15, 12, "Dt", "[1/K]", "Resistance derating. <0:disable>")
+param_edit(tab, 2, 15, 12, "Dp", "[Wb/K]", "PM flux derating. <0:disable>")
+param_edit(tab, 3, 15, 12, "Da", "[uH/A]", "Aligned inductance derating. <0:disable>")
+param_edit(tab, 4, 15, 12, "Dc", "[uH/A]", "Cross-inductance derating. <0:disable>")
+param_edit(tab, 5, 15, 12, "Dt", "[mOhm/K]", "Resistance derating. <0:disable>")
 
 ################################################################################
 
