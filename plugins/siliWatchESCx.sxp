@@ -42,7 +42,7 @@ class value:
     umult = 0
     cmd = 0
     mode = 0
-    #updated in group 1 
+    #updated in group 1
     power = 0
     status = 0
     limit = 0
@@ -66,7 +66,7 @@ log_group = [
             "error, stat, limit and totallimit",
             "temperatures",
         ]
-        
+
 log_group_header = [
             ["/driver/supply/currentf [A]", "/driver/motor/currentqf [A]", "/driver/motor/currentdf [A]"],
             ["/driver/supply/voltage [V]", "/driver/motor/voltageq [V]", "/driver/motor/voltaged [V]"],
@@ -120,19 +120,19 @@ def log_group_cb(group):
         if (log_switches[6].get() == 1) :
             row.append(value.imult)
             row.append(value.umult)
-            max_group=max(max_group, 2)                 
+            max_group=max(max_group, 2)
 
         #updated in group 1
         if (log_switches[7].get() == 1) :
             row.append(value.power)
-            max_group=max(max_group, 1)                                        
+            max_group=max(max_group, 1)
         if (log_switches[8].get() == 1) :
             row.append(value.error)
             row.append(value.stat)
             row.append(value.limit)
             row.append(value.totallimit)
             max_group=max(max_group, 1)
-            
+
         #updated in group 0
         if (log_switches[9].get() == 1) :
             row.append(value.temp)
@@ -146,7 +146,7 @@ def log_group_cb(group):
 
         writer.writerow(row)
         
-        global log_count        
+        global log_count
         log_count = log_count + 1
         app.logcountlabel.configure(text=str(log_count))
 
@@ -281,7 +281,7 @@ modes = [   "FRW",
             "SHR"  ]
 
 def update_group2():
-    try:        
+    try:
         value.rpm = motorrpm.get()
         app.rpmlabel.configure(text=" " + str(int(value.rpm))+"\n RPM")
 
@@ -381,6 +381,7 @@ app.geometry(f"{950}x{750}")
 app.grid_columnconfigure(1, weight=1)
 app.grid_columnconfigure((2, 3), weight=0)
 app.grid_rowconfigure(3, weight=1)
+app.grid_rowconfigure(4, weight=1)
 app.iconbitmap("siliUX/SiliXcon.ico")
 
 app.attributes("-topmost", 0)
@@ -463,7 +464,7 @@ def node_select_callback(value):
                 driverimult = my_node.variable("/driver/imult") #BLDC
 
             global driverumult
-            try:            
+            try:
                 driverumult = my_node.variable("/driver/uqmult") #VECTOR
             except sxapi.error as e:
                 driverumult = my_node.variable("/driver/umult") #BLDC
@@ -503,48 +504,64 @@ def node_select_callback(value):
         except sxapi.error as e:
             MessageBox("Could not bind to all the controller states!\n" + str(e))
 
-
-app.nodeselect_button = customtkinter.CTkSegmentedButton(app, command=node_select_callback)
-app.nodeselect_button.configure(values=nodenames, selected_color="red")
-app.nodeselect_button.set("STOP")
-
-app.nodeselect_button.grid(row=0, column=1, pady=5)
-
 ################################################################################
-# create scope and term launchers
+# create top frame
+
+app.top_frame = customtkinter.CTkFrame(app, fg_color="transparent")
+app.top_frame.grid(row=0, column=0, columnspan=8, padx=(10, 10), pady=(10, 10), sticky="sew")
+app.top_frame.grid_columnconfigure((3,4,5), weight=1)
 
 def show_emgui():
     sxapi.show()
 
-app.emgui_switch = customtkinter.CTkButton(app, text=f"", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
-app.emgui_switch.grid(row=0, column=0, padx=(10,0), pady=10, sticky="w")
+emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
+emgui_switch.grid(row=0, column=0, padx=(10,0))
 
 def open_scope():
     my_node.open("{scope} -t")
 
-app.scope_button = customtkinter.CTkButton(app, text="", command=open_scope, image=tkinter.PhotoImage(file="siliUX/scope.png"), width=5)
-app.scope_button.grid(row=0, column=0, padx=(70,0), pady=10, sticky="w")
+scope_button = customtkinter.CTkButton(app.top_frame, text="", command=open_scope, image=tkinter.PhotoImage(file="siliUX/scope.png"), width=5)
+scope_button.grid(row=0, column=1, padx=(10,0), sticky="w")
 
 def open_term():
     my_node.open("{term}")
 
-app.term_button = customtkinter.CTkButton(app, text="", command=open_term, image=tkinter.PhotoImage(file="siliUX/term.png"), width=5)
-app.term_button.grid(row=0, column=0, padx=(130,0), pady=10, sticky="w")
+term_button = customtkinter.CTkButton(app.top_frame, text="", command=open_term, image=tkinter.PhotoImage(file="siliUX/term.png"), width=5)
+term_button.grid(row=0, column=2, padx=(10,0))
 
 
-def change_appearance_mode_event(new_appearance_mode: str):
-    customtkinter.set_appearance_mode(new_appearance_mode)
+app.nodeselect_label = customtkinter.CTkLabel(app.top_frame, text="Select device to watch:", font=customtkinter.CTkFont(size=15, weight="bold"))
+app.nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
 
-def change_scaling_event(app, new_scaling: str):
-    new_scaling_float = int(new_scaling.replace("%", "")) / 100
-    customtkinter.set_widget_scaling(new_scaling_float)
+app.nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
+app.nodeselect_button.grid(row=0, column=4, sticky="w")
+app.nodeselect_button.configure(values=nodenames, selected_color="red")
+app.nodeselect_button.set("STOP")
 
-app.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(app, values=["Dark", "Light"], command=change_appearance_mode_event)
-app.appearance_mode_optionemenu.grid(row=0, column=2, padx=10, pady=5, sticky="e")
+
+icon_light=tkinter.PhotoImage(file="siliUX/light.png")
+icon_dark=tkinter.PhotoImage(file="siliUX/dark.png")
+
+apperance = 0
+def change_appearance_mode_event():
+    global apperance
+    if apperance:
+        customtkinter.set_appearance_mode("dark")
+        apperance_switch.configure(image=icon_light)
+        apperance = 0
+    else:
+        customtkinter.set_appearance_mode("light")
+        apperance_switch.configure(image=icon_dark)
+        apperance = 1
+
+apperance_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=change_appearance_mode_event, image=icon_light, width=5)
+apperance_switch.grid(row=0, column=5, padx=5, pady=5, sticky="e")
+
+################################################################################
 
 # create sidebar frame with widgets
 app.sidebar_frame = customtkinter.CTkFrame(app, fg_color="transparent")
-app.sidebar_frame.grid(row=1, column=0, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.sidebar_frame.grid(row=1, column=0, rowspan=4, padx=5, pady=5, sticky="nsew")
 app.sidebar_frame.grid_rowconfigure(1, weight=1)
 
 
@@ -577,8 +594,8 @@ def log_ctl_event(value):
             log_switches[i].configure(state="normal")
         if logfile:
             logfile.close()
-            logfile = 0    
-                                        
+            logfile = 0
+
 app.scrollable_frame = customtkinter.CTkScrollableFrame(app.sidebar_frame, label_text="Background data logging")
 app.scrollable_frame.grid(row=1, column=0, columnspan=2, pady=5, sticky="nsew")
 app.scrollable_frame.grid_columnconfigure(0, weight=1)
@@ -716,25 +733,28 @@ plot3 = plot_tab("plot3", 3, plot_event3, ["stat and limit", "totallimit", "comm
 # create driver powerstage frame
 
 app.drv_frame = customtkinter.CTkFrame(app)
-app.drv_frame.grid(row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.drv_frame.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 app.drv_frame.grid_columnconfigure(1, weight=1)
-app.drv_frame.grid_rowconfigure(0, weight=1)
+app.drv_frame.grid_rowconfigure(1, weight=1)
+
+app.namelabel = customtkinter.CTkLabel(app.drv_frame, text="Power stage",  corner_radius=5, fg_color=("gray78", "gray23"))
+app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
 app.templabel = customtkinter.CTkLabel(app.drv_frame, text="0\N{DEGREE SIGN}C", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/temp.png"), compound="left")
-app.templabel.grid(row=0, column=0, rowspan=3, padx=0, sticky="w")
+app.templabel.grid(row=1, column=0, rowspan=3, padx=0, sticky="w")
 
 app.pwrlabel = customtkinter.CTkLabel(app.drv_frame, text="0W", pady=5, font=customtkinter.CTkFont(size=40, weight="bold"), image=tkinter.PhotoImage(file="siliUX/transistor.png"), compound="left")
-app.pwrlabel.grid(row=0, column=1)
+app.pwrlabel.grid(row=1, column=1)
 
 app.energylabel = customtkinter.CTkLabel(app.drv_frame, text="0J", image=tkinter.PhotoImage(file="siliUX/counter.png"), compound="left")
-app.energylabel.grid(row=1, column=1)
+app.energylabel.grid(row=2, column=1)
 
 app.ptctemplabel = customtkinter.CTkLabel(app.drv_frame, text="0", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/templimit.png"), compound="left")
-app.ptctemplabel.grid(row=0, column=2, rowspan=3, padx=(0,20), sticky="e")
+app.ptctemplabel.grid(row=1, column=2, rowspan=3, padx=(0,20), sticky="e")
 
 #TODO consider other widget to indicate enable state (e.g. icon)
 app.enablebar = customtkinter.CTkProgressBar(app.drv_frame, orientation="horizontal")
-app.enablebar.grid(row=2, column=1, padx=(10, 10), pady=(10, 10), sticky="ns")
+app.enablebar.grid(row=3, column=1, padx=5, pady=5, sticky="ns")
 app.enablebar.configure(progress_color="black", fg_color="black") #, mode="indeterminate")
 app.enablebar.set(1)
 #app.enablebar.start()
@@ -743,56 +763,62 @@ app.enablebar.set(1)
 # create limter/stat/error view frame
 
 app.limiter_frame = customtkinter.CTkFrame(app)
-app.limiter_frame.grid(row=2, column=1, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.limiter_frame.grid(row=2, column=1, rowspan=2, padx=5, pady=5, sticky="nsew")
 app.limiter_frame.grid_columnconfigure((0, 1, 2), weight=1)
-app.limiter_frame.grid_rowconfigure(1, weight=1)
+app.limiter_frame.grid_rowconfigure(2, weight=1)
+
+app.namelabel = customtkinter.CTkLabel(app.limiter_frame, text="Protection and derating", corner_radius=5, fg_color=("gray78", "gray23"))
+app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
 app.errorlabel = customtkinter.CTkLabel(app.limiter_frame, text="error\n0", image=tkinter.PhotoImage(file="siliUX/stop.png"), width=120, compound="left")
-app.errorlabel.grid(row=0, column=0, padx=(10, 10), pady=(10, 10), sticky="nw")
+app.errorlabel.grid(row=1, column=0, padx=5, pady=5, sticky="nw")
 app.errortext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
-app.errortext.grid(row=1, column=0, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.errortext.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
 app.statlabel = customtkinter.CTkLabel(app.limiter_frame, text="stat\n0", image=tkinter.PhotoImage(file="siliUX/warning.png"), width=120, compound="left")
-app.statlabel.grid(row=0, column=1, padx=(10, 10), pady=(10, 10), sticky="nw")
+app.statlabel.grid(row=1, column=1, padx=5, pady=5, sticky="nw")
 app.stattext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
-app.stattext.grid(row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.stattext.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
 
 app.limitlabel = customtkinter.CTkLabel(app.limiter_frame, text="limit\n0", image=tkinter.PhotoImage(file="siliUX/limiter.png"), width=120, compound="left")
-app.limitlabel.grid(row=0, column=2, padx=(10, 10), pady=(10, 10), sticky="nw")
+app.limitlabel.grid(row=1, column=2, padx=5, pady=5, sticky="nw")
 app.limittext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
-app.limittext.grid(row=1, column=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.limittext.grid(row=2, column=2, padx=5, pady=5, sticky="nsew")
 
 app.totallimitbar = customtkinter.CTkProgressBar(app.limiter_frame, height=20, progress_color="black")
-app.totallimitbar.grid(row=2, column=0, columnspan=3, padx=(10, 10), pady=(10, 10), sticky="ew")
+app.totallimitbar.grid(row=3, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
 app.totallimitbar.set(1)
 
 ################################################################################
 # create driver command frame
 
 app.cmd_frame = customtkinter.CTkFrame(app)
-app.cmd_frame.grid(row=4, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.cmd_frame.grid(row=4, column=1, padx=5, pady=5, sticky="nsew")
 app.cmd_frame.grid_columnconfigure(2, weight=1)
-app.cmd_frame.grid_rowconfigure(0, weight=1)
+app.cmd_frame.grid_rowconfigure(1, weight=2)
+
+app.namelabel = customtkinter.CTkLabel(app.cmd_frame, text="Command set point", corner_radius=5, fg_color=("gray78", "gray23"))
+app.namelabel.grid(row=0, column=0, columnspan=4, sticky="ew")
 
 app.umultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
-app.umultbar.grid(row=0, column=0, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns")
+app.umultbar.grid(row=1, column=0, rowspan=3, padx=5, pady=5, sticky="ns")
 
 app.checkbox_spd = customtkinter.CTkSwitch(master=app.cmd_frame, text="speed loop", state="disabled")
-app.checkbox_spd.grid(row=2, column=1, pady=(20, 20), padx=20, sticky="nw")
+app.checkbox_spd.grid(row=3, column=1, pady=5, padx=20, sticky="nw")
 app.checkbox_pos = customtkinter.CTkSwitch(master=app.cmd_frame, text="position loop", state="disabled")
-app.checkbox_pos.grid(row=2, column=2, pady=(20, 20), padx=20, sticky="nw")
+app.checkbox_pos.grid(row=3, column=2, pady=5, padx=20, sticky="nw")
 
 app.modelabel = customtkinter.CTkLabel(app.cmd_frame, text=" UNK", font=customtkinter.CTkFont(size=40, weight="bold"), image=tkinter.PhotoImage(file="siliUX/joystick.png"), compound="left")
-app.modelabel.grid(row=0, column=0, columnspan=3)
+app.modelabel.grid(row=1, column=0, columnspan=3, pady=5)
 
 #app.cmdlabel = customtkinter.CTkLabel(app.cmd_frame, text="0.0", font=customtkinter.CTkFont(size=40, weight="bold"))
 #app.cmdlabel.grid(row=0, column=0, columnspan=2)
 
 app.cmdbar = customtkinter.CTkSlider(app.cmd_frame, from_=-1, to=1, state="disabled", progress_color="transparent", height=30)
-app.cmdbar.grid(row=1, column=1, columnspan=2, padx=(10, 10), pady=(10, 10), sticky="ew")
+app.cmdbar.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
 
 app.imultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
-app.imultbar.grid(row=0, column=3, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns")
+app.imultbar.grid(row=1, column=3, rowspan=3, padx=5, pady=5, sticky="ns")
 
 #app.rmultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
 #app.rmultbar.grid(row=0, column=4, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns")
@@ -802,54 +828,60 @@ app.imultbar.grid(row=0, column=3, rowspan=4, padx=(10, 10), pady=(10, 10), stic
 # create battery frame
 
 app.battery_frame = customtkinter.CTkFrame(app)
-app.battery_frame.grid(row=1, column=2, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.battery_frame.grid(row=1, column=2, rowspan=2, padx=5, pady=5, sticky="nsew")
 app.battery_frame.grid_columnconfigure(0, weight=1)
-app.battery_frame.grid_rowconfigure(0, weight=1)
+app.battery_frame.grid_rowconfigure(1, weight=1)
+
+app.namelabel = customtkinter.CTkLabel(app.battery_frame, text="Supply (DC)", corner_radius=5, fg_color=("gray78", "gray23"))
+app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
 app.battlabel = customtkinter.CTkLabel(app.battery_frame, text="0.0V\n0.0A", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/battery.png"), compound="left")
-app.battlabel.grid(row=0, column=0, pady=10, padx=(30,0), sticky="w")
+app.battlabel.grid(row=1, column=0, pady=10, padx=(30,0), sticky="w")
 
 app.coulomblabel = customtkinter.CTkLabel(app.battery_frame, text="0mAh", image=tkinter.PhotoImage(file="siliUX/counter.png"), compound="left")
-app.coulomblabel.grid(row=1, column=0)
+app.coulomblabel.grid(row=2, column=0)
 
 app.batcurrentbar = customtkinter.CTkSlider(app.battery_frame, from_=-1, to=1, state="disabled", progress_color="transparent", height=30)
-app.batcurrentbar.grid(row=2, column=0, padx=(10, 10), pady=(10, 10), sticky="ns")
+app.batcurrentbar.grid(row=3, column=0, padx=(10, 10), pady=(10, 10), sticky="ns")
 
 ################################################################################
 # create motor frame
 
 app.motor_frame = customtkinter.CTkFrame(app)
-app.motor_frame.grid(row=3, column=2, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="nsew")
+app.motor_frame.grid(row=3, column=2, rowspan=2, padx=5, pady=5, sticky="nsew")
 app.motor_frame.grid_columnconfigure(0, weight=1)
 app.motor_frame.grid_columnconfigure(1, weight=1)
-app.motor_frame.grid_rowconfigure((0,2,4,6,10), weight=1)
+app.motor_frame.grid_rowconfigure((1,3,5,7,11), weight=1)
+
+app.namelabel = customtkinter.CTkLabel(app.motor_frame, text="Motor (AC)", corner_radius=5, fg_color=("gray78", "gray23"))
+app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
 app.rpmlabel = customtkinter.CTkLabel(app.motor_frame, text="0\nRPM", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/motor.png"), compound="left")
-app.rpmlabel.grid(row=0, column=0, columnspan=2, sticky="nsew")
+app.rpmlabel.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
 app.fluxlabel = customtkinter.CTkLabel(app.motor_frame, text="0A\0V", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/flux.png"), compound="top")
-app.fluxlabel.grid(row=2, column=0, sticky="nsew")
+app.fluxlabel.grid(row=3, column=0, sticky="nsew")
 
 app.torquelabel = customtkinter.CTkLabel(app.motor_frame, text="0A\0V", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/torque.png"), compound="top")
-app.torquelabel.grid(row=2, column=1, sticky="nsew")
+app.torquelabel.grid(row=3, column=1, sticky="nsew")
 
 app.motvoltagelabel = customtkinter.CTkLabel(app.motor_frame, text="0V / 0Vrms")
-app.motvoltagelabel.grid(row=4, column=0, columnspan=2, pady=(0,0))
+app.motvoltagelabel.grid(row=5, column=0, columnspan=2, pady=(0,0))
 
 app.motvoltagebar = customtkinter.CTkProgressBar(app.motor_frame, height=10)
-app.motvoltagebar.grid(row=5, column=0, columnspan=2, pady=(0, 10), sticky="ns")
+app.motvoltagebar.grid(row=6, column=0, columnspan=2, pady=(0, 10), sticky="ns")
 
 app.motcurrentlabel = customtkinter.CTkLabel(app.motor_frame, text="0A / 0Arms")
-app.motcurrentlabel.grid(row=6, column=0, columnspan=2, pady=(10,0))
+app.motcurrentlabel.grid(row=7, column=0, columnspan=2, pady=(10,0))
 
 app.motcurrentbar = customtkinter.CTkProgressBar(app.motor_frame, height=10)
-app.motcurrentbar.grid(row=8, column=0, columnspan=2, pady=(0, 0), sticky="ns")
+app.motcurrentbar.grid(row=9, column=0, columnspan=2, pady=(0, 0), sticky="ns")
 
 app.odolabel = customtkinter.CTkLabel(app.motor_frame, text="0 revs", image=tkinter.PhotoImage(file="siliUX/counter.png"), compound="top")
-app.odolabel.grid(row=10, column=0, pady=15)
+app.odolabel.grid(row=11, column=0, pady=15)
 
 app.ohmlabel = customtkinter.CTkLabel(app.motor_frame, text="0 ohms", image=tkinter.PhotoImage(file="siliUX/ohm.png"), compound="top" )
-app.ohmlabel.grid(row=10, column=1, pady=15)
+app.ohmlabel.grid(row=11, column=1, pady=15)
 
 ################################################################################
 # start the loop !

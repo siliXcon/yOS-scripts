@@ -23,12 +23,11 @@ app.grid_rowconfigure((20,21,22), weight=1)
 app.attributes("-topmost", 0)
 app.iconbitmap("siliUX/SiliXcon.ico")
 
-
+################################################################################
 
 app.top_frame = customtkinter.CTkFrame(app, fg_color="transparent")
 app.top_frame.grid(row=0, column=0, columnspan=8, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="sew")
-app.top_frame.grid_columnconfigure((2,3,4), weight=1)
-
+app.top_frame.grid_columnconfigure((3,4,5), weight=1)
 
 
 def node_select_callback(value):
@@ -48,9 +47,13 @@ term_button = customtkinter.CTkButton(app.top_frame, text="", command=open_term,
 term_button.grid(row=0, column=1, padx=(10,0))
 
 
+
+nodeselect_label = customtkinter.CTkLabel(app.top_frame, text="Select device to tune:", font=customtkinter.CTkFont(size=15, weight="bold"))
+nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
+
 nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
 nodeselect_button.configure(values=nodenames, selected_color="green")
-nodeselect_button.grid(row=0, column=2, pady=5, sticky="e")
+nodeselect_button.grid(row=0, column=4, pady=5, sticky="w")
 
 #CTkToolTip(nodeselect_button, message="Choose the node you want to bind to. Click the node again to refresh the values.")
 
@@ -60,11 +63,23 @@ nodeselect_button.grid(row=0, column=2, pady=5, sticky="e")
 #refresh_button.grid(row=0, column=3, sticky="w")
 
 
-def change_appearance_mode_event(new_appearance_mode: str):
-    customtkinter.set_appearance_mode(new_appearance_mode)
+icon_light=tkinter.PhotoImage(file="siliUX/light.png")
+icon_dark=tkinter.PhotoImage(file="siliUX/dark.png")
 
-appearance_mode_optionemenu = customtkinter.CTkOptionMenu(app.top_frame, values=["Dark", "Light"], command=change_appearance_mode_event)
-appearance_mode_optionemenu.grid(row=0, column=4, padx=10, pady=5, sticky="e")
+apperance = 0
+def change_appearance_mode_event():
+    global apperance
+    if apperance:
+        customtkinter.set_appearance_mode("dark")
+        apperance_switch.configure(image=icon_light)
+        apperance = 0
+    else:
+        customtkinter.set_appearance_mode("light")
+        apperance_switch.configure(image=icon_dark)
+        apperance = 1
+
+apperance_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=change_appearance_mode_event, image=icon_light, width=5)
+apperance_switch.grid(row=0, column=5, padx=5, pady=5, sticky="e")
 
 ################################################################################
 
@@ -109,10 +124,10 @@ tab = app.tabview.add("Motor")
 #app.tabview.tab(name).grid_columnconfigure((0,1,2,3), weight=1)
 label = customtkinter.CTkLabel(tab, text="Electrical", font=customtkinter.CTkFont(size=15, weight="bold"))
 label.grid(row=1, column=1, columnspan=3, padx=5, sticky="w")
-param_edit(tab, 2, 1, 12, "psi", "[Wb]", "Permanent magnet flux linkage")
-param_edit(tab, 3, 1, 12, "Lq", "[H]", "Q-axis inductance in star model")
-param_edit(tab, 4, 1, 12, "Ld", "[H]", "D-axis inductance in star model")
-param_edit(tab, 5, 1, 12, "Rt", "[Ohm]", "stator resistance in star model")
+param_edit(tab, 2, 1, 12, "psi", "[Wb]", "Permanent magnet flux linkage. <0:ACIM>")
+param_edit(tab, 3, 1, 12, "Lq", "[uH]", "Q-axis inductance in star model")
+param_edit(tab, 4, 1, 12, "Ld", "[uH]", "D-axis inductance in star model")
+param_edit(tab, 5, 1, 12, "Rt", "[mOhm]", "stator resistance in star model")
 
 
 label = customtkinter.CTkLabel(tab, text="Mechanical", font=customtkinter.CTkFont(size=15, weight="bold"))
@@ -124,22 +139,25 @@ picture.grid(row=3, column=10, rowspan=10, columnspan=3,  padx=10, pady=10, stic
 
 label = customtkinter.CTkLabel(tab, text="Derating", font=customtkinter.CTkFont(size=15, weight="bold"))
 label.grid(row=1, column=15, columnspan=3, padx=5, sticky="w")
-param_edit(tab, 2, 15, 12, "Da", "[1/A]", "aligned inductance derating")
-param_edit(tab, 3, 15, 12, "Dc", "[1/A]", "cross-inductance derating")
-param_edit(tab, 4, 15, 12, "Dp", "[1/K]", "PM flux derating")
-param_edit(tab, 5, 15, 12, "Dt", "[1/K]", "Resistance derating")
+param_edit(tab, 2, 15, 12, "Da", "[1/A]", "Aligned inductance derating. <0:disable>")
+param_edit(tab, 3, 15, 12, "Dc", "[1/A]", "Cross-inductance derating. <0:disable>")
+param_edit(tab, 4, 15, 12, "Dp", "[1/K]", "PM flux derating. <0:disable>")
+param_edit(tab, 5, 15, 12, "Dt", "[1/K]", "Resistance derating. <0:disable>")
 
+################################################################################
 
 tab = app.tabview.add("Supply")
 
 label = customtkinter.CTkLabel(tab, text="Precharge", font=customtkinter.CTkFont(size=15, weight="bold"))
 label.grid(row=1, column=1, columnspan=3, padx=5, sticky="w")
-param_edit(tab, 2, 1, 12, "pchg1", "[V]", "Precharge voltage the controller tries to reach at initialization after booting.")
-param_edit(tab, 3, 1, 12, "pchg2", "[V]", "Precharge voltage the controller tries to reach at manually requested initialization.")
-param_edit(tab, 4, 1, 12, "pchgtim", "[ms]", "The maximum duration of the precharge phase (absolute value).")
+param_edit(tab, 2, 1, 12, "pchg1", "[V]", "Precharge voltage the controller tries to reach at initialization after booting. <0:disable>")
+param_edit(tab, 3, 1, 12, "pchg2", "[V]", "Precharge voltage the controller tries to reach at manually requested initialization. <0:disable>")
+param_edit(tab, 4, 1, 12, "pchgtim", "[ms]", "The maximum duration of the precharge phase (absolute value). <0:disable>")
 
 picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/battery.png"), compound="left")
 picture.grid(row=1, column=10, rowspan=10, padx=10, pady=10, sticky="nsew")
+
+################################################################################
 
 tab = app.tabview.add("PID")
 
@@ -170,22 +188,113 @@ param_edit(tab, 5, 30, 12, "Td", "", "derivative filtering term")
 picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/pid.png"), compound="left")
 picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
 
+################################################################################
 
 tab = app.tabview.add("REST")
 
-picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/rest.png"), compound="left")
-picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+label = customtkinter.CTkLabel(tab, text="Mapping", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=1, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 1, 12, "hinv", "", "UVW hall sensor polarity inversion.")
+param_edit(tab, 3, 1, 12, "hvar", "", "Hall sensor connection variant.")
+param_edit(tab, 4, 1, 12, "roff1", "[lsb]", "SIN input offset.")
+param_edit(tab, 5, 1, 12, "roff2", "[lsb]", "COS input offset.")
+param_edit(tab, 6, 1, 12, "rpole", "", "Number of electrical revolutions per one sensor revolution.")
+param_edit(tab, 7, 1, 12, "rangle", "[rad]", "Sensor angle offset.")
 
+label = customtkinter.CTkLabel(tab, text="Estimation", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=15, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 15, 12, "esk", "", "The estimator speed gain.")
+param_edit(tab, 3, 15, 12, "eak", "", "The estimator angle gain.")
+param_edit(tab, 4, 15, 12, "eca", "[rad]", "The estimator angle clip.")
+param_edit(tab, 5, 15, 12, "ect", "[s]", "The estimator angle clip time constant.")
+param_edit(tab, 6, 15, 12, "edc", "[s]", "The estimator sensor latency compensation.")
+
+label = customtkinter.CTkLabel(tab, text="Asynchronous", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=35, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 35, 12, "omega", "[erad/s]", "Asynchronous field speed.")
+
+label = customtkinter.CTkLabel(tab, text="Sensorless", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=3, column=35, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 4, 35, 12, "assl", "[rpm]", "Auto-sensorless engage threshold. <0:disable>")
+param_edit(tab, 5, 35, 12, "assh", "[rpm]", "Auto-sensorless release threshold. <0:disable>")
+
+picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/rest.png"), compound="left")
+picture.grid(row=6, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+
+################################################################################
 
 tab = app.tabview.add("DAC")
 
+
+label = customtkinter.CTkLabel(tab, text="Flux weakening", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=1, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 1, 12, "fwc", "[.iref]", "Maximum d-axis current for field weakening. <0:disable>")
+param_edit(tab, 3, 1, 12, "fwm", "[.uref]", "Flux weakening engage threshold.")
+param_edit(tab, 4, 1, 12, "fwr", "[.uref]", "Flux weakening release threshold.")
+param_edit(tab, 5, 1, 12, "fwd", "", "Flux weakening integrator gain.")
+
+label = customtkinter.CTkLabel(tab, text="Reluctance torque", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=15, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 15, 12, "dxc", "[.iref]", "Maximum d-axis current for reluctance torque generation. <0:disable>")
+param_edit(tab, 3, 15, 12, "mtk", "", "The MTPA feedback gain. <0:direct map>")
+
+label = customtkinter.CTkLabel(tab, text="Compensation", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=35, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 35, 12, "tcc", "[.iref]", "Maximum d-axis current for the DC compensation. <0:disable>")
+param_edit(tab, 3, 35, 12, "tdg", "", "Battery current compensator DC gain.")
+param_edit(tab, 4, 35, 12, "tqf", "", "Torque compensator Q-axis feedthrough ratio. <0:disable>")
+
 picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/flux.png"), compound="left")
-picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+picture.grid(row=5, column=15, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+
+################################################################################
 
 tab = app.tabview.add("Limiter")
 
+label = customtkinter.CTkLabel(tab, text="Battery (DC)", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=1, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 1, 12, "ibpos", "[A]", "Maximum battery discharge current. <0:disable>")
+param_edit(tab, 3, 1, 12, "ibneg", "[A]", "Maximum battery charge current. Use negative number. <0:disable>")
+param_edit(tab, 4, 1, 12, "ibgain", "", "Battery current limiter time sensitivity.")
+param_edit(tab, 5, 1, 12, "ubmax", "[V]", "Maximum battery voltage. <0:disable>")
+param_edit(tab, 6, 1, 12, "ubmin", "[V]", "Minimum battery voltage. <0:disable>")
+param_edit(tab, 7, 1, 12, "ubgain", "", "Battery voltage limiter time sensitivity.")
+
+
+
+label = customtkinter.CTkLabel(tab, text="Power", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=15, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 15, 12, "ppos", "[RPM]", "Maximum positive power. <0:disable>")
+param_edit(tab, 3, 15, 12, "pneg", "[RPM]", "Maximum negative power. Use negative number. <0:disable>")
+param_edit(tab, 4, 15, 12, "pgain", "", "Power limiter time sensitivity.")
+
+
 picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/limiter.png"), compound="left")
-picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+picture.grid(row=6, column=15, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+
+
+label = customtkinter.CTkLabel(tab, text="Motor (AC)", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=35, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 35, 12, "rpos", "[RPM]", "Maximum positive motor speed. <0:disable>")
+param_edit(tab, 3, 35, 12, "rneg", "[RPM]", "Maximum negative motor speed. <0:disable>")
+param_edit(tab, 4, 35, 12, "rdec", "[RPM]", "Speed limiter decrement rate.")
+param_edit(tab, 5, 35, 12, "rgain", "", "Speed limiter time sensitivity.")
+
+
+tab = app.tabview.add("Limiter 2")
+
+label = customtkinter.CTkLabel(tab, text="Temperature", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=1, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 1, 12, "mtemplo", "[Ohm]", "Motor temperature low threshold. <0:disable>")
+param_edit(tab, 3, 1, 12, "mtemphi", "[Ohm]", "Motor temperature high threshold. <0:disable>")
+param_edit(tab, 4, 1, 12, "mtempgain", "", "Motor temperature limiter time sensitivity.")
+
+label = customtkinter.CTkLabel(tab, text="Command", font=customtkinter.CTkFont(size=15, weight="bold"))
+label.grid(row=1, column=15, columnspan=3, padx=5, sticky="w")
+param_edit(tab, 2, 15, 12, "ccdamp", "", "Maximum positive power. <0:disable>")
+param_edit(tab, 3, 15, 12, "cctim", "[ms]", "Maximum negative power. Use negative number. <0:disable>")
+param_edit(tab, 4, 15, 12, "mcflags", "", "Power limiter time sensitivity.")
+param_edit(tab, 5, 15, 12, "mctim", "[ms]", "Power limiter time sensitivity.")
 
 
 ################################################################################

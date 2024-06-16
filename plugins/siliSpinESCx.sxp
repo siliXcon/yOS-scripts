@@ -21,6 +21,15 @@ app.grid_rowconfigure((20,21,22), weight=1)
 app.attributes("-topmost", 0)
 app.iconbitmap("siliUX/SiliXcon.ico")
 
+
+################################################################################
+
+
+app.top_frame = customtkinter.CTkFrame(app, fg_color="transparent")
+app.top_frame.grid(row=0, column=0, columnspan=8, padx=(10, 10), pady=(10, 10), sticky="sew")
+app.top_frame.grid_columnconfigure((3,4,5), weight=1)
+
+
 def node_select_callback(value):
     global my_node
     my_node = nodes[nodenames.index(value)]
@@ -28,26 +37,36 @@ def node_select_callback(value):
 def show_emgui():
     sxapi.show()
 
-emgui_switch = customtkinter.CTkButton(app, text=f"", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
-emgui_switch.grid(row=0, column=0, padx=(10,0), pady=10, sticky="w")
+emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
+emgui_switch.grid(row=0, column=0, padx=(10,0))
 
-#def open_term():
-#    my_node.open("{term}")
+nodeselect_label = customtkinter.CTkLabel(app.top_frame, text="Select device to command:", font=customtkinter.CTkFont(size=15, weight="bold"))
+nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
 
-#term_button = customtkinter.CTkButton(app, text="", command=open_term, image=tkinter.PhotoImage(file="./term.png"), width=5)
-#term_button.grid(row=0, column=0, padx=(70,0), pady=10, sticky="w")
-
-
-nodeselect_button = customtkinter.CTkSegmentedButton(app, command=node_select_callback)
+nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
 nodeselect_button.configure(values=nodenames, selected_color="green")
-nodeselect_button.grid(row=0, column=0, columnspan=7, pady=5)
+nodeselect_button.grid(row=0, column=4, pady=5, sticky="w")
 
-def change_appearance_mode_event(new_appearance_mode: str):
-    customtkinter.set_appearance_mode(new_appearance_mode)
+icon_light=tkinter.PhotoImage(file="siliUX/light.png")
+icon_dark=tkinter.PhotoImage(file="siliUX/dark.png")
 
-appearance_mode_optionemenu = customtkinter.CTkOptionMenu(app, values=["Dark", "Light"], command=change_appearance_mode_event)
-appearance_mode_optionemenu.grid(row=0, column=7, padx=10, pady=5, sticky="e")
+apperance = 0
+def change_appearance_mode_event():
+    global apperance
+    if apperance:
+        customtkinter.set_appearance_mode("dark")
+        apperance_switch.configure(image=icon_light)
+        apperance = 0
+    else:
+        customtkinter.set_appearance_mode("light")
+        apperance_switch.configure(image=icon_dark)
+        apperance = 1
 
+apperance_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=change_appearance_mode_event, image=icon_light, width=5)
+apperance_switch.grid(row=0, column=5, padx=5, pady=5, sticky="e")
+
+
+################################################################################
 
 modes = [   "FRW",
             "VLT",
