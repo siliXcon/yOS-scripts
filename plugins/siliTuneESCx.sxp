@@ -6,7 +6,7 @@ import customtkinter
 
 from ctk_tooltip import *
 
-customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
+# customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 # customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 import find_nodes
@@ -70,15 +70,15 @@ apperance = 0
 def change_appearance_mode_event():
     global apperance
     if apperance:
-        customtkinter.set_appearance_mode("dark")
-        apperance_switch.configure(image=icon_light)
-        apperance = 0
-    else:
         customtkinter.set_appearance_mode("light")
         apperance_switch.configure(image=icon_dark)
+        apperance = 0
+    else:
+        customtkinter.set_appearance_mode("dark")
+        apperance_switch.configure(image=icon_light)
         apperance = 1
 
-apperance_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=change_appearance_mode_event, image=icon_light, width=5)
+apperance_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=change_appearance_mode_event, image=icon_dark, width=5)
 apperance_switch.grid(row=0, column=5, padx=5, pady=5, sticky="e")
 
 ################################################################################
