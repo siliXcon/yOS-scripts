@@ -1,10 +1,11 @@
+import customtkinter
 import sxapi
 
 def MessageBox(message):
     app = customtkinter.CTk()
     app.attributes("-topmost", 1)
     app.eval("tk::PlaceWindow . center")
-    app.title("siliX")
+    app.title("siliSuite")
     app.iconbitmap("siliUX/SiliXcon.ico")
     customtkinter.CTkLabel(app, text=message).pack(padx=20, pady=20)
     customtkinter.CTkButton(app, text=f"OK", command=app.destroy).pack(padx=20, pady=20)
@@ -18,7 +19,7 @@ def find(family):
         if nodeCount < 1:
             nodeCount2 = sxapi.search()
             if nodeCount2 < 1:
-                MessageBox("No nodes found: " + str(nodeCount2))
+                MessageBox("No device was found, search error " + str(nodeCount2))
                 raise ValueError()  # no other way to kill the script without exitting emgui
             nodeCount = nodeCount2
 
