@@ -4,6 +4,8 @@ import tkinter
 import math
 import customtkinter
 
+from ctk_tooltip import *
+
 # customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 # customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
@@ -106,6 +108,7 @@ class preset_tab:
     def __init__(self, r, c, initval) :
         self.cmdbar0 = customtkinter.CTkSlider(app, from_=-1, to=1, progress_color="transparent", command=self.setlabel)
         self.cmdbar0.grid(row=r, column=0, padx=5, columnspan=3, sticky="ew")
+        CTkToolTip(self.cmdbar0, message="Choose the command level for this preset.")
         self.cmdlabel0 = customtkinter.CTkLabel(app, text="0.0", font=customtkinter.CTkFont(size=20, weight="bold"), width=80)
         self.cmdlabel0.grid(row=r, column=5)
         self.cmdbar0.set(initval)
@@ -113,55 +116,57 @@ class preset_tab:
         self.modebox = customtkinter.CTkComboBox(app, values=modes)
         self.modebox.set("VLT")
         self.modebox.grid(row=r, column=6, padx=5, pady=5)
+        CTkToolTip(self.modebox, message="Choose the control mode for this preset.")
         self.runbutton = customtkinter.CTkButton(app, text="Run", command=self.run)
         self.runbutton.grid(row=r, column=7, padx=5, pady=5)
-
 
 imultlabel = customtkinter.CTkLabel(app, text="imult\n1", font=customtkinter.CTkFont(weight="bold"), height=80)
 imultlabel.grid(row=20, column=0)
 imultbar = customtkinter.CTkSlider(app, from_=0, to=1, progress_color="transparent", orientation="vertical", command = lambda value : imultlabel.configure(text="imult\n"+str(round(value,2))))
 imultbar.grid(row=21, column=0, rowspan=2, pady=5)
 imultbar.set(1)
+CTkToolTip(imultbar, message="Current multiplier.\nSlide to adjust the torque generating current,\nor keep at maximum to use the entire range.")
 
 rmultlabel = customtkinter.CTkLabel(app, text="rmult\n1", font=customtkinter.CTkFont(weight="bold"), height=80)
 rmultlabel.grid(row=20, column=1)
 rmultbar = customtkinter.CTkSlider(app, from_=0, to=1, progress_color="transparent", orientation="vertical", command = lambda value : rmultlabel.configure(text="rmult\n"+str(round(value,2))))
 rmultbar.grid(row=21, column=1, rowspan=2, pady=5)
 rmultbar.set(1)
+CTkToolTip(rmultbar, message="Current multiplier in volage brake mode.\nSlide to adjust the torque generating current in voltage brake,\nor keep at maximum to use the entire range.")
 
 umultlabel = customtkinter.CTkLabel(app, text="umult\n1", font=customtkinter.CTkFont(weight="bold"), height=80)
 umultlabel.grid(row=20, column=2)
 umultbar = customtkinter.CTkSlider(app, from_=0, to=1, progress_color="transparent", orientation="vertical", command = lambda value : umultlabel.configure(text="umult\n"+str(round(value,2))))
 umultbar.grid(row=21, column=2, rowspan=2, pady=5)
 umultbar.set(1)
+CTkToolTip(umultbar, message="Volage multiplier.\nSlide to adjust the available voltage for the torque generation,\nor keep at maximum to use the entire range.")
+
 
 checkbox_follow = customtkinter.CTkCheckBox(app, text="follow")
 checkbox_follow.grid(row=20,  column=5, rowspan=3,columnspan=2, pady=(20, 20), padx=20, sticky="nw")
+CTkToolTip(checkbox_follow, message="Check to make the command follow the sliders (no need to hit the 'run' button).")
 
 checkbox_spd = customtkinter.CTkSwitch(app, text="speed loop")
 checkbox_spd.grid(row=20, column=5, rowspan=3, columnspan=2, pady=(20, 20), padx=20, sticky="w")
+CTkToolTip(checkbox_spd, message="Check to engage the speed control loop.")
 
 checkbox_pos = customtkinter.CTkSwitch(app, text="position loop")
 checkbox_pos.grid(row=20, column=5, rowspan=3, columnspan=2, pady=(20, 20), padx=20, sticky="sw")
-
+CTkToolTip(checkbox_pos, message="Check to engage the position control loop.")
 
 def stop():
    my_node.executeSimple("stop")
 
 stopbutton = customtkinter.CTkButton(app, text="Stop", fg_color="red", command=stop)
 stopbutton.grid(row=20, rowspan=2, column=7, padx=5, pady=5, sticky="nsew")
-
-
-
+CTkToolTip(stopbutton, message="Hit to force freewheeling mode.")
 
 def release():
    my_node.executeSimple("run")
 
-stopbutton = customtkinter.CTkButton(app, text="Release", fg_color="green", command=release)
-stopbutton.grid(row=22, rowspan=2, column=7, padx=5, pady=5, sticky="nsew")
-
-
-
+releasebutton = customtkinter.CTkButton(app, text="Release", fg_color="green", command=release)
+releasebutton.grid(row=22, rowspan=2, column=7, padx=5, pady=5, sticky="nsew")
+CTkToolTip(releasebutton, message="Hit to give back the control (to the user application).")
 
 preset_tab(1, 0, 0.1)
 preset_tab(2, 0, 0.2)
