@@ -15,7 +15,6 @@ from ctk_tooltip import *
 
 import find_nodes
 nodes, nodenames = find_nodes.find("esc")
-nodenames.append("NONE")
 
 ################################################################################
 # log callbacks
@@ -112,7 +111,7 @@ def log_group_cb(group):
            
         #updated in group 2
         if (log_switches[4].get() == 1) :
-            row.append(value.rpm)             
+            row.append(value.rpm)
             max_group=max(max_group, 2)     
         if (log_switches[5].get() == 1) :
             row.append(value.command)
@@ -402,7 +401,7 @@ def node_select_callback(value):
     #app.term_button.configure(state="disabled")
     #app.scope_button.configure(state="disabled")
 
-    if value != "NONE":
+    if value in nodenames:
         global my_node
         my_node = nodes[nodenames.index(value)]
         #app.term_button.configure(state="enabled")
@@ -515,20 +514,20 @@ app.top_frame.grid_columnconfigure((3,4,5), weight=1)
 def show_emgui():
     sxapi.show()
 
-emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
+emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"emgui", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
 emgui_switch.grid(row=0, column=0, padx=(10,0))
 
 def open_scope():
     my_node.open("{scope} -t")
 
-scope_button = customtkinter.CTkButton(app.top_frame, text="", command=open_scope, image=tkinter.PhotoImage(file="siliUX/scope.png"), width=5)
+scope_button = customtkinter.CTkButton(app.top_frame, text="scope", command=open_scope, image=tkinter.PhotoImage(file="siliUX/scope.png"), width=5)
 scope_button.grid(row=0, column=1, padx=(10,0), sticky="w")
 
-def open_term():
-    my_node.open("{term}")
+#def open_term():
+#    my_node.open("{term}")
 
-term_button = customtkinter.CTkButton(app.top_frame, text="", command=open_term, image=tkinter.PhotoImage(file="siliUX/term.png"), width=5)
-term_button.grid(row=0, column=2, padx=(10,0))
+#term_button = customtkinter.CTkButton(app.top_frame, text="term", command=open_term, image=tkinter.PhotoImage(file="siliUX/term.png"), width=5)
+#term_button.grid(row=0, column=2, padx=(10,0))
 
 
 app.nodeselect_label = customtkinter.CTkLabel(app.top_frame, text="Select device to watch:", font=customtkinter.CTkFont(size=15, weight="bold"))
@@ -536,9 +535,7 @@ app.nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
 
 app.nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
 app.nodeselect_button.grid(row=0, column=4, sticky="w")
-app.nodeselect_button.configure(values=nodenames, selected_color="red")
-app.nodeselect_button.set("NONE")
-
+app.nodeselect_button.configure(values=nodenames + ["NONE"])
 
 icon_light=tkinter.PhotoImage(file="siliUX/light.png")
 icon_dark=tkinter.PhotoImage(file="siliUX/dark.png")
@@ -626,6 +623,54 @@ app.tabview = customtkinter.CTkTabview(app.sidebar_frame, width=200, height=200)
 app.tabview.grid(row=0, column=0, columnspan=2, pady=5, sticky="nsew")
 
 
+
+def plot_plot(val, index):
+    if val=="battery current":
+        my_node.executeSimple("plot", "-p" + str(index), "/driver/supply/currentf")
+    if val=="motor currents":
+        if motorcurrentd and motorvoltaged: #VECTOR
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/currentqf", "/driver/motor/currentdf")
+        else: #BLDC
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/current")
+    if val=="unfiltered motor currents":
+        if motorcurrentd and motorvoltaged: #VECTOR
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/currentq", "/driver/motor/currentd")
+        else: #BLDC
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/current")
+    if val=="motor current references":
+        if motorcurrentd and motorvoltaged: #VECTOR
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/Iqref", "/driver/debug_core/Idref")
+        else: #BLDC
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/currentr") # TODO !
+    if val=="battery voltage":
+        my_node.executeSimple("plot", "-p" + str(index), "/driver/supply/voltage")
+    if val=="motor voltages":
+        if motorcurrentd and motorvoltaged: #VECTOR
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/voltageq", "/driver/motor/voltaged")
+        else: #BLDC
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/voltage", "/driver/motor/duty")
+    if val=="motor voltage references":
+        if motorcurrentd and motorvoltaged: #VECTOR
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/Uqref", "/driver/debug_core/Udref")
+        else: #BLDC
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/dutyr") # TODO !
+    if val=="power":
+        my_node.executeSimple("plot", "-p" + str(index), "/driver/power")
+    if val=="motor speed":
+        my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/rpmf")
+    if val=="tempreatures":
+        my_node.executeSimple("plot", "-p" + str(index), "/driver/temp", "/driver/ptctemp")
+    if val=="motor temperature (resistance)":
+        my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/rthermistor")
+    if val=="stat and limit":
+        my_node.executeSimple("plot", "-p" + str(index), "/driver/stat", "/driver/limit")
+    if val=="totallimit":
+        my_node.executeSimple("plot", "-p" + str(index), "/driver/totallimit")
+    if val=="command and mode":
+        my_node.executeSimple("plot", "-p" + str(index), "/driver/cmd", "/driver/mode")
+    if val=="command multipliers":
+        my_node.executeSimple("plot", "-p" + str(index), "/driver/iqmult", "/driver/uqmult")
+
 class plot_tab:
     index = 0
     user_event = None
@@ -649,16 +694,17 @@ class plot_tab:
         self.state_update()
 
     def plot_event(self, val):
-        self.user_event(val)
+        self.valuemenu.set("Plot a topic ...")
+        plot_plot(val, self.index)
         self.state_update()
 
-    def __init__(self, name, idx, event, vals) :
+    def __init__(self, name, idx, vals) :
         app.tabview.add(name)
         app.tabview.tab(name).grid_columnconfigure((0,1,2,3), weight=1)
         self.index = idx
-        self.user_event = event
         self.valuemenu = customtkinter.CTkOptionMenu(app.tabview.tab(name), dynamic_resizing=False, values=vals, command=self.plot_event)
         self.valuemenu.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
+        self.valuemenu.set("Plot a topic ...")
         CTkToolTip(self.valuemenu, message="Choose group of variables to plot.")
         self.periodbox = customtkinter.CTkComboBox(app.tabview.tab(name), values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"], command=self.period_event)
         self.periodbox.set("10 ms")
@@ -674,66 +720,15 @@ class plot_tab:
         self.autoset_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="e")
         CTkToolTip(self.autoset_button, message="Auto-scale this plot according to the acutal data.")
 
-def plot_event0(val):
-    if val=="battery current":
-        my_node.executeSimple("plot", "-p0", "/driver/supply/currentf")
-    if val=="motor currents":
-        if motorcurrentd and motorvoltaged: #VECTOR
-            my_node.executeSimple("plot", "-p0", "/driver/motor/currentqf", "/driver/motor/currentdf")
-        else: #BLDC
-            my_node.executeSimple("plot", "-p0", "/driver/motor/current")
-    if val=="unfiltered motor currents":
-        if motorcurrentd and motorvoltaged: #VECTOR
-            my_node.executeSimple("plot", "-p0", "/driver/motor/currentq", "/driver/motor/currentd")
-        else: #BLDC
-            my_node.executeSimple("plot", "-p0", "/driver/motor/current")
-    if val=="motor current references":
-        if motorcurrentd and motorvoltaged: #VECTOR
-            my_node.executeSimple("plot", "-p0", "/driver/debug_core/Iqref", "/driver/debug_core/Idref")
-        else: #BLDC
-            my_node.executeSimple("plot", "-p0", "/driver/debug_core/currentr") # TODO !
+plot_groups = ["battery current", "motor currents", "unfiltered motor currents", "motor current references",
+    "battery voltage", "motor voltages", "motor voltage references",
+    "power", "motor speed", "tempreatures", "motor temperature (resistance)",
+    "stat and limit", "totallimit", "command and mode", "command multipliers"]
 
-plot0 = plot_tab("plot0", 0, plot_event0, ["battery current", "motor currents", "unfiltered motor currents", "motor current references"])
-
-def plot_event1(val):
-    if val=="battery voltage":
-        my_node.executeSimple("plot", "-p1", "/driver/supply/voltage")
-    if val=="motor voltages":
-        if motorcurrentd and motorvoltaged: #VECTOR
-            my_node.executeSimple("plot", "-p1", "/driver/motor/voltageq", "/driver/motor/voltaged")
-        else: #BLDC
-            my_node.executeSimple("plot", "-p1", "/driver/motor/voltage", "/driver/motor/duty")
-    if val=="motor voltage references":
-        if motorcurrentd and motorvoltaged: #VECTOR
-            my_node.executeSimple("plot", "-p1", "/driver/debug_core/Uqref", "/driver/debug_core/Udref")
-        else: #BLDC
-            my_node.executeSimple("plot", "-p1", "/driver/debug_core/dutyr") # TODO !
-
-plot1 = plot_tab("plot1", 1, plot_event1, ["battery voltage", "motor voltages", "motor voltage references"])
-
-def plot_event2(val):
-    if val=="power":
-        my_node.executeSimple("plot", "-p2", "/driver/power")
-    if val=="motor speed":
-        my_node.executeSimple("plot", "-p2", "/driver/motor/rpmf")
-    if val=="tempreatures":
-        my_node.executeSimple("plot", "-p2", "/driver/temp", "/driver/ptctemp")
-    if val=="motor temperature (resistance)":
-        my_node.executeSimple("plot", "-p2", "/driver/motor/rthermistor")
-
-plot2 = plot_tab("plot2", 2, plot_event2, ["power", "motor speed", "tempreatures", "motor temperature (resistance)"])
-
-def plot_event3(val):
-    if val=="stat and limit":
-        my_node.executeSimple("plot", "-p3", "/driver/stat", "/driver/limit")
-    if val=="totallimit":
-        my_node.executeSimple("plot", "-p3", "/driver/totallimit")
-    if val=="command and mode":
-        my_node.executeSimple("plot", "-p3", "/driver/cmd", "/driver/mode")
-    if val=="command multipliers":
-        my_node.executeSimple("plot", "-p3", "/driver/iqmult", "/driver/uqmult")
-
-plot3 = plot_tab("plot3", 3, plot_event3, ["stat and limit", "totallimit", "command and mode", "command multipliers"])
+plot0 = plot_tab("plot0", 0, plot_groups)
+plot1 = plot_tab("plot1", 1, plot_groups)
+plot2 = plot_tab("plot2", 2, plot_groups)
+plot3 = plot_tab("plot3", 3, plot_groups)
 
 
 ################################################################################
@@ -915,5 +910,13 @@ CTkToolTip(app.ohmlabel, message="Resistance of the motor temperature sensor.")
 
 ################################################################################
 # start the loop !
+
+#if a single node is fetched, load it automatically
+if len(nodenames) == 1:
+    app.nodeselect_button.set(nodenames[0])
+    node_select_callback(nodenames[0])
+else:
+    app.nodeselect_button.set("NONE")
+    node_select_callback("NONE")
 
 app.mainloop()

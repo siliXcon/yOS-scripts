@@ -12,7 +12,6 @@ from ctk_tooltip import *
 
 import find_nodes
 nodes, nodenames = find_nodes.find("esc")
-nodenames.append("NONE")
 
 # configure grid layout (4x4)
 # https://www.pythontutorial.net/tkinter/tkinter-grid/
@@ -73,7 +72,7 @@ def node_select_callback(value):
     global my_node
     nodeselect_button.configure(selected_color="red")
 
-    if value != "NONE":
+    if value in nodenames:
         my_node = nodes[nodenames.index(value)]
         refresh()
         nodeselect_button.configure(selected_color="green")
@@ -83,13 +82,13 @@ def node_select_callback(value):
 def show_emgui():
     sxapi.show()
 
-emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
+emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"emgui", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
 emgui_switch.grid(row=0, column=0, padx=(10,0))
 
 def open_term():
     my_node.open("{term}")
 
-term_button = customtkinter.CTkButton(app.top_frame, text="", command=open_term, image=tkinter.PhotoImage(file="siliUX/term.png"), width=5)
+term_button = customtkinter.CTkButton(app.top_frame, text="term", command=open_term, image=tkinter.PhotoImage(file="siliUX/term.png"), width=5)
 term_button.grid(row=0, column=1, padx=(10,0))
 
 
@@ -98,9 +97,8 @@ nodeselect_label = customtkinter.CTkLabel(app.top_frame, text="Select device to 
 nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
 
 nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
-nodeselect_button.configure(values=nodenames, selected_color="red")
+nodeselect_button.configure(values=nodenames + ["NONE"])
 nodeselect_button.grid(row=0, column=4, pady=5, sticky="w")
-nodeselect_button.set("NONE")
 
 #nodeselect_button.bind('<ButtonPress>', node_select_callback)
 
@@ -431,5 +429,15 @@ restore_button = customtkinter.CTkButton(app.bottom_frame, text=f"Restore defaul
 restore_button.grid(row=1, column=3, padx=10, sticky="nsew")
 CTkToolTip(restore_button, message="Return to the original, factory settings for this power cycle.")
 
+################################################################################
+# start the loop !
+
+#if a single node is fetched, load it automatically
+if len(nodenames) == 1:
+    nodeselect_button.set(nodenames[0])
+    node_select_callback(nodenames[0])
+else :
+    nodeselect_button.set("NONE")
+    node_select_callback("NONE")
 
 app.mainloop()

@@ -11,7 +11,6 @@ from ctk_tooltip import *
 
 import find_nodes
 nodes, nodenames = find_nodes.find("esc")
-nodenames.append("NONE")
 
 # configure grid layout (4x4)
 # https://www.pythontutorial.net/tkinter/tkinter-grid/
@@ -37,7 +36,7 @@ def node_select_callback(value):
     global my_node
     nodeselect_button.configure(selected_color="red")
 
-    if value != "NONE":
+    if value in nodenames:
         my_node = nodes[nodenames.index(value)]
         nodeselect_button.configure(selected_color="green")
     else:
@@ -46,16 +45,15 @@ def node_select_callback(value):
 def show_emgui():
     sxapi.show()
 
-emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
+emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"emgui", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
 emgui_switch.grid(row=0, column=0, padx=(10,0))
 
 nodeselect_label = customtkinter.CTkLabel(app.top_frame, text="Select device to command:", font=customtkinter.CTkFont(size=15, weight="bold"))
 nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
 
 nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
-nodeselect_button.configure(values=nodenames, selected_color="red")
+nodeselect_button.configure(values=nodenames  + ["NONE"])
 nodeselect_button.grid(row=0, column=4, pady=5, sticky="w")
-nodeselect_button.set("NONE")
 
 icon_light=tkinter.PhotoImage(file="siliUX/light.png")
 icon_dark=tkinter.PhotoImage(file="siliUX/dark.png")
@@ -186,5 +184,16 @@ preset_tab(7, 0, 0.7)
 preset_tab(8, 0, 0.8)
 preset_tab(9, 0, 0.9)
 preset_tab(10, 0, 1.0)
+
+################################################################################
+# start the loop !
+
+#if a single node is fetched, load it automatically
+if len(nodenames) == 1:
+    nodeselect_button.set(nodenames[0])
+    node_select_callback(nodenames[0])
+else :
+    app.nodeselect_button.set("NONE")
+    node_select_callback("NONE")
 
 app.mainloop()
