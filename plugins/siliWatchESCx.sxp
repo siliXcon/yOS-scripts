@@ -15,7 +15,7 @@ from ctk_tooltip import *
 
 import find_nodes
 nodes, nodenames = find_nodes.find("esc")
-nodenames.append("STOP")
+nodenames.append("NONE")
 
 ################################################################################
 # log callbacks
@@ -143,10 +143,10 @@ def log_group_cb(group):
 
         # log at the frequency of the selected group that updates the fastest
         if group!=max_group:
-            return                            
+            return
 
         writer.writerow(row)
-        
+
         global log_count
         log_count = log_count + 1
         app.logcountlabel.configure(text=str(log_count))
@@ -402,7 +402,7 @@ def node_select_callback(value):
     #app.term_button.configure(state="disabled")
     #app.scope_button.configure(state="disabled")
 
-    if value != "STOP":
+    if value != "NONE":
         global my_node
         my_node = nodes[nodenames.index(value)]
         #app.term_button.configure(state="enabled")
@@ -537,7 +537,7 @@ app.nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
 app.nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
 app.nodeselect_button.grid(row=0, column=4, sticky="w")
 app.nodeselect_button.configure(values=nodenames, selected_color="red")
-app.nodeselect_button.set("STOP")
+app.nodeselect_button.set("NONE")
 
 
 icon_light=tkinter.PhotoImage(file="siliUX/light.png")

@@ -11,6 +11,7 @@ from ctk_tooltip import *
 
 import find_nodes
 nodes, nodenames = find_nodes.find("esc")
+nodenames.append("NONE")
 
 # configure grid layout (4x4)
 # https://www.pythontutorial.net/tkinter/tkinter-grid/
@@ -34,7 +35,13 @@ app.top_frame.grid_columnconfigure((3,4,5), weight=1)
 
 def node_select_callback(value):
     global my_node
-    my_node = nodes[nodenames.index(value)]
+    nodeselect_button.configure(selected_color="red")
+
+    if value != "NONE":
+        my_node = nodes[nodenames.index(value)]
+        nodeselect_button.configure(selected_color="green")
+    else:
+        my_node = 0
 
 def show_emgui():
     sxapi.show()
@@ -46,8 +53,9 @@ nodeselect_label = customtkinter.CTkLabel(app.top_frame, text="Select device to 
 nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
 
 nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
-nodeselect_button.configure(values=nodenames, selected_color="green")
+nodeselect_button.configure(values=nodenames, selected_color="red")
 nodeselect_button.grid(row=0, column=4, pady=5, sticky="w")
+nodeselect_button.set("NONE")
 
 icon_light=tkinter.PhotoImage(file="siliUX/light.png")
 icon_dark=tkinter.PhotoImage(file="siliUX/dark.png")
