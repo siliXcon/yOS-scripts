@@ -117,7 +117,7 @@ def log_group_cb(group):
         if (log_switches[5].get() == 1) :
             row.append(value.command)
             row.append(value.mode)
-            max_group=max(max_group, 2)                                   
+            max_group=max(max_group, 2)
         if (log_switches[6].get() == 1) :
             row.append(value.imult)
             row.append(value.umult)
