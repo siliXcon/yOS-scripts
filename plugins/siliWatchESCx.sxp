@@ -6,6 +6,8 @@ import math
 import customtkinter
 import codetostr
 import csv
+import os # for file explorer after logging ends
+from tkinter import filedialog
 from datetime import datetime
 from ctk_tooltip import *
 
@@ -148,7 +150,7 @@ def log_group_cb(group):
 
         global log_count
         log_count = log_count + 1
-        app.logcountlabel.configure(text=str(log_count))
+        app.logcountlabel.configure(text=str(log_count) + " samples")
 
 
 ################################################################################
@@ -566,55 +568,102 @@ app.sidebar_frame.grid_rowconfigure(1, weight=1)
 ################################################################################
 # create scrollable frame - logging
 
+def log_swcheck_event():
+    count = 0
+    for i in range(len(log_group)):
+         if log_switches[i].get() == 1 :
+               count = count + 1
+    if count:
+        app.logctl_button.configure(state="enabled")
+    else:
+        app.logctl_button.configure(state="disabled")
+
+
+def log_open_event():
+    global logfile_path
+
+    if logfile_path:
+        # Construct the command to open the file explorer
+        if os.name == 'nt':  # Windows
+            os.startfile(logfile_path)
+        elif os.name == 'posix':  # macOS and Linux
+            os.system(f'open "{logfile_path}"')
+
 def log_ctl_event(value):
-    global logfile, writer, log_count
+    global logfile_path, logfile, writer, log_count
 
-    if value == "Record":
-        app.entry.configure(state="readonly")
-        app.logctl_button.configure(selected_color="red")
+    if logfile and value=="Stop":
+        #app.entry.configure(state="normal")
         for i in range(len(log_group)):
-            log_switches[i].configure(state="disabled")
+            log_switches[i].configure(state="normal")
 
-        logfile = open(app.entry.get(), mode='w', newline='')
+        logfile.close()
+        logfile = 0
+        app.logctl_button.configure(selected_color="green")
+        app.showfile_button.configure(state="enabled", text=f"Show " + os.path.basename(logfile_path))
+
+    elif value=="Record":
+        logfile_path = filedialog.asksaveasfilename()
+
+        #user cancelled the file selection dialog
+        if not logfile_path:
+            app.logctl_button.set("Stop")
+            return
+
+        logfile = 0
+        logfile = open(logfile_path, mode='w', newline='')
+
+        #file could not be opened
+        if not logfile:
+            app.logctl_button.set("Stop")
+            return
+
         writer = csv.writer(logfile)
+        #app.entry.configure(state="readonly")
+
         row = ['timestamp']
         for i in range(len(log_group)):
+             log_switches[i].configure(state="disabled")
              if log_switches[i].get() == 1 :
                  for j in range(len(log_group_header[i])):
                     row.append(log_group_header[i][j])
+
         writer.writerow(row)
         log_count = 0
+        app.logctl_button.configure(selected_color="red")
+        app.showfile_button.configure(state="disabled")
 
-    if value == "Stop":
-        app.entry.configure(state="normal")
-        app.logctl_button.configure(selected_color="green")
-        for i in range(len(log_group)):
-            log_switches[i].configure(state="normal")
-        if logfile:
-            logfile.close()
-            logfile = 0
 
 app.scrollable_frame = customtkinter.CTkScrollableFrame(app.sidebar_frame, label_text="Background data recording")
 app.scrollable_frame.grid(row=1, column=0, columnspan=2, pady=5, sticky="nsew")
-app.scrollable_frame.grid_columnconfigure(0, weight=1)
+app.scrollable_frame.grid_columnconfigure(1, weight=0)
 
+
+#app.logctl_button = customtkinter.CTkButton(app.scrollable_frame, text=f"Record ...", width=5, command=log_ctl_event, fg_color="green", state="disabled")
 app.logctl_button = customtkinter.CTkSegmentedButton(app.scrollable_frame, command=log_ctl_event)
-app.logctl_button.configure(values=["Stop", "Record"], selected_color="green")
+app.logctl_button.configure(values=["Stop", "Record"], selected_color="green", state="disabled")
 app.logctl_button.set("Stop")
-app.logctl_button.grid(row=0, column=0)
+app.logctl_button.grid(row=0, column=0, pady=5, padx=5)
 
-app.logcountlabel = customtkinter.CTkLabel(app.scrollable_frame, text="0", font=customtkinter.CTkFont(size=15, weight="bold"))
-app.logcountlabel.grid(row=0, column=1, padx=10)
+
+app.logcountlabel = customtkinter.CTkLabel(app.scrollable_frame, text="0 samples", font=customtkinter.CTkFont(size=15, weight="bold"))
+app.logcountlabel.grid(row=0, column=1, padx=5, sticky="nsew")
 CTkToolTip(app.logcountlabel, message="Samples recorded")
 
-app.entry = customtkinter.CTkEntry(app.scrollable_frame)
-app.entry.grid(row=1, column=0, columnspan=2, pady=5, sticky="we")
-app.entry.insert(0, "log.csv")
+
+app.showfile_button = customtkinter.CTkButton(app.scrollable_frame, text=f"Show recorded data", command=log_open_event, state="disabled")
+app.showfile_button.grid(row=1, column=0, columnspan=2, pady=5, padx=5)
+
+
+#app.entry = customtkinter.CTkEntry(app.scrollable_frame)
+#app.entry.grid(row=1, column=0, columnspan=2, pady=5, sticky="we")
+#app.entry.insert(0, "log.csv")
+#CTkToolTip(app.entry, message="File name to record to.")
+
 for i in range(len(log_group)):
-    switch = customtkinter.CTkCheckBox(master=app.scrollable_frame, text=log_group[i])
+    switch = customtkinter.CTkCheckBox(master=app.scrollable_frame, text=log_group[i], command=log_swcheck_event)
     switch.grid(row=i + 2, column=0, columnspan=2, pady=5, sticky="w")
     log_switches.append(switch)
-CTkToolTip(app.entry, message="File name to record to.")
 
 ################################################################################
 # create scope control tabview
@@ -671,6 +720,9 @@ def plot_plot(val, index):
     if val=="command multipliers":
         my_node.executeSimple("plot", "-p" + str(index), "/driver/iqmult", "/driver/uqmult")
 
+    #always do autoscale
+    my_node.executeSimple("legend", "-p" + str(index), "-c24", "13", "0") # a bug workaround: YOS only sends payload in multiply of 4 bytes, we must send a dummy zero
+
 class plot_tab:
     index = 0
     user_event = None
@@ -716,7 +768,7 @@ class plot_tab:
         self.release_button = customtkinter.CTkButton(app.tabview.tab(name), text="Release", command=self.erase_event, width=5)
         self.release_button.grid(row=2, column=2, columnspan=2, padx=5, pady=5, sticky="w")
         CTkToolTip(self.release_button, message="Release this plot from the scope.")
-        self.autoset_button = customtkinter.CTkButton(app.tabview.tab(name), text="Autoset", command=self.autoset_event, width=5)
+        self.autoset_button = customtkinter.CTkButton(app.tabview.tab(name), text="Autoscale", command=self.autoset_event, width=5)
         self.autoset_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="e")
         CTkToolTip(self.autoset_button, message="Auto-scale this plot according to the acutal data.")
 
