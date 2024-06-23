@@ -601,6 +601,7 @@ def log_ctl_event(value):
         logfile = 0
         app.logctl_button.configure(selected_color="green")
         app.showfile_button.configure(state="enabled", text=f"Show " + os.path.basename(logfile_path))
+        app.delimiter.configure(state="enabled")
 
     elif value=="Record":
         logfile_path = filedialog.asksaveasfilename()
@@ -610,15 +611,18 @@ def log_ctl_event(value):
             app.logctl_button.set("Stop")
             return
 
-        logfile = 0
-        logfile = open(logfile_path, mode='w', newline='')
+        try:
+            logfile = open(logfile_path, mode='w', newline='')
 
         #file could not be opened
-        if not logfile:
+        except Exception as e:
             app.logctl_button.set("Stop")
             return
 
-        writer = csv.writer(logfile)
+        if app.delimiter.get() == 1:
+            writer = csv.writer(logfile, delimiter=';')
+        else:
+            writer = csv.writer(logfile)
         #app.entry.configure(state="readonly")
 
         row = ['timestamp']
@@ -632,7 +636,7 @@ def log_ctl_event(value):
         log_count = 0
         app.logctl_button.configure(selected_color="red")
         app.showfile_button.configure(state="disabled")
-
+        app.delimiter.configure(state="disabled")
 
 app.scrollable_frame = customtkinter.CTkScrollableFrame(app.sidebar_frame, label_text="Background data recording")
 app.scrollable_frame.grid(row=1, column=0, columnspan=2, pady=5, sticky="nsew")
@@ -650,9 +654,11 @@ app.logcountlabel = customtkinter.CTkLabel(app.scrollable_frame, text="0 samples
 app.logcountlabel.grid(row=0, column=1, padx=5, sticky="nsew")
 CTkToolTip(app.logcountlabel, message="Samples recorded")
 
+app.delimiter = customtkinter.CTkSwitch(master=app.scrollable_frame, text="use semicolon delimiter")
+app.delimiter.grid(row=1, column=0, columnspan=2, pady=5, padx=5, sticky="nw")
 
 app.showfile_button = customtkinter.CTkButton(app.scrollable_frame, text=f"Show recorded data", command=log_open_event, state="disabled")
-app.showfile_button.grid(row=1, column=0, columnspan=2, pady=5, padx=5)
+app.showfile_button.grid(row=2, column=0, columnspan=2, pady=5, padx=5)
 
 
 #app.entry = customtkinter.CTkEntry(app.scrollable_frame)
@@ -662,7 +668,7 @@ app.showfile_button.grid(row=1, column=0, columnspan=2, pady=5, padx=5)
 
 for i in range(len(log_group)):
     switch = customtkinter.CTkCheckBox(master=app.scrollable_frame, text=log_group[i], command=log_swcheck_event)
-    switch.grid(row=i + 2, column=0, columnspan=2, pady=5, sticky="w")
+    switch.grid(row=i + 3, column=0, columnspan=2, pady=5, sticky="w")
     log_switches.append(switch)
 
 ################################################################################
