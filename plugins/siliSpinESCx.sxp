@@ -17,7 +17,7 @@ nodes, nodenames = find_nodes.find("esc")
 app = customtkinter.CTk()
 app.title("siliSpin (ESCx)")
 app.attributes("-topmost", 1)
-app.geometry(f"{500}x{350}")
+app.geometry(f"{500}x{400}")
 app.grid_columnconfigure((0), weight=1)
 app.grid_rowconfigure((3,4), weight=1)
 app.attributes("-topmost", 0)
@@ -99,21 +99,23 @@ checkbox_follow = customtkinter.CTkCheckBox(app, text="Follow changes")
 checkbox_follow.grid(row=2, column=1, pady=5, padx=5, sticky="nw")
 CTkToolTip(checkbox_follow, message="Check to make the command follow the sliders (no need to hit the 'run' button)\nand automatically run when a preset is selected.")
 
-retlabel = customtkinter.CTkLabel(app, text="Result", font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
-retlabel.grid(row=6, column=1, padx=5, pady=5, sticky="nsew")
+retlabel = customtkinter.CTkLabel(app, text="Status bar", font=customtkinter.CTkFont(weight="bold"), corner_radius=5, compound="left", fg_color=("gray78", "gray23"))
+retlabel.grid(row=6, column=0, columnspan=2, padx=(10,10), pady=5, sticky="nsew")
+CTkToolTip(retlabel, message="The result and value of the lastly issued command.")
 
-def update_result(value) :
+
+def update_result(value, desc) :
     if value < 0:
-        retlabel.configure(text="Error " + str(value),  text_color="red")
+        retlabel.configure(text=desc + " resulted with error: " + str(value), fg_color="red")
     else:
-        retlabel.configure(text="Success !",  text_color="green")
+        retlabel.configure(text=desc + " succeeded", fg_color=("gray78", "gray23"))
 
 def tabview_callback():
     preset = app.tabview.tab(app.tabview.get()).preset
     preset.update()
 
 app.tabview = customtkinter.CTkTabview(app, width=200, height=200, command=tabview_callback)
-app.tabview.grid(row=2, column=0, rowspan=5, padx=10, pady=(0,10), sticky="nsew")
+app.tabview.grid(row=2, column=0, rowspan=4, padx=10, pady=(0,5), sticky="nsew")
 
 
 class preset_tab:
@@ -127,7 +129,7 @@ class preset_tab:
         self.cmd_var = tkinter.DoubleVar()
         self.cmd_var.trace_add("write", self.update)
 
-        self.modebox = customtkinter.CTkComboBox(tab, values=modes)
+        self.modebox = customtkinter.CTkComboBox(tab, values=modes, command=self.update)
         self.modebox.set("VLT")
         self.modebox.grid(row=0, column=0, columnspan=3, padx=10, pady=10)
         CTkToolTip(self.modebox, message="Choose the control mode for this preset.")
@@ -182,9 +184,23 @@ class preset_tab:
            mode = mode | 0x10
         if self.checkbox_pos.get() :
            mode = mode | 0x20
-        retval = my_node.executeSimple("run", str(round(self.cmdbar0.get(),2)), str(mode), str(round(self.imultbar.get(),2)), str(round(self.umultbar.get(),2)), str(round(self.rmultbar.get(),2)))
-        update_result(retval)
 
+        args = ["run"]
+        args.append(str(round(self.cmdbar0.get(),4)))
+        args.append(str(mode))
+        imult = self.imultbar.get()
+        umult = self.umultbar.get()
+        rmult = self.rmultbar.get()
+
+        if imult != 1 or umult != 1 or rmult != 1:
+            args.append(str(round(imult,2)))
+        if umult != 1 or rmult != 1:
+            args.append(str(round(umult,2)))
+        if rmult != 1:
+            args.append(str(round(rmult,2)))
+
+        retval = my_node.executeSimple(*args)
+        update_result(retval, ' '.join(args))
 
     def update(self, *args):
         if checkbox_follow.get() :
@@ -207,23 +223,23 @@ def run():
     preset = app.tabview.tab(app.tabview.get()).preset
     preset.run()
 
-runbutton = customtkinter.CTkButton(app, text="Run !", command=run)
-runbutton.grid(row=3, column=1, padx=5, pady=5, sticky="nsew")
+runbutton = customtkinter.CTkButton(app, text="Run !", command=run, image=tkinter.PhotoImage(file="siliUX/joystick.png"))
+runbutton.grid(row=3, column=1, padx=(5,10), pady=5, sticky="nsew")
 CTkToolTip(runbutton, message="Hit to issue the command preset.")
 
 def stop():
-   update_result(my_node.executeSimple("stop"))
+   update_result(my_node.executeSimple("stop"), "stop")
 
-stopbutton = customtkinter.CTkButton(app, text="Stop !", fg_color="red", command=stop)
-stopbutton.grid(row=4, column=1, padx=5, pady=5, sticky="nsew")
+stopbutton = customtkinter.CTkButton(app, text="Stop !", fg_color="red", command=stop, image=tkinter.PhotoImage(file="siliUX/stop.png"))
+stopbutton.grid(row=4, column=1, padx=(5,10), pady=5, sticky="nsew")
 CTkToolTip(stopbutton, message="Hit to force the freewheeling mode.")
 
 def release():
-   update_result(my_node.executeSimple("run"))
+   update_result(my_node.executeSimple("run"), "release")
 
 
 releasebutton = customtkinter.CTkButton(app, text="Release !", fg_color="green", command=release)
-releasebutton.grid(row=5, column=1, padx=5, pady=5, sticky="nsew")
+releasebutton.grid(row=5, column=1, padx=(5,10), pady=5, sticky="nsew")
 CTkToolTip(releasebutton, message="Hit to give back the control (to the user application).")
 
 
