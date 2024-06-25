@@ -106,7 +106,7 @@ CTkToolTip(retlabel, message="The result and value of the lastly issued command.
 
 def update_result(value, desc) :
     if value < 0:
-        retlabel.configure(text=desc + " resulted with error: " + str(value), fg_color="red")
+        retlabel.configure(text=desc + " resulted with error " + str(value), fg_color="red")
     else:
         retlabel.configure(text=desc + " succeeded", fg_color=("gray78", "gray23"))
 
