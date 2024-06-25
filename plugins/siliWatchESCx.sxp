@@ -376,17 +376,19 @@ def update_group3():
 
 # configure grid layout (4x4)
 # https://www.pythontutorial.net/tkinter/tkinter-grid/
+
 app = customtkinter.CTk()
 app.title("siliWatch (ESCx)")
 app.attributes("-topmost", 1)
-app.geometry(f"{850}x{650}")
+x, y = app.winfo_pointerxy()
+app.geometry(f"{850}x{650}+{x}+{y}")
 app.grid_columnconfigure(1, weight=1)
 app.grid_columnconfigure((2, 3), weight=0)
 app.grid_rowconfigure(3, weight=1)
 app.grid_rowconfigure(4, weight=1)
 app.iconbitmap("siliUX/SiliXcon.ico")
-
 app.attributes("-topmost", 0)
+
 
 def node_select_callback(value):
     cancel_updates()
