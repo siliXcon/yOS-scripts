@@ -1,0 +1,10 @@
+sys.path.append('./plugins/siliUX')
+
+import os, find_nodes
+find_nodes.find("esc")
+
+silixcon_dir = os.path.dirname(os.path.abspath(__file__))
+
+sxapi.show("{plugin}" + silixcon_dir + "/plugins/siliWatchESCx.sxp")
+sxapi.show("{plugin}" + silixcon_dir + "/plugins/siliSpinESCx.sxp")
+sxapi.show("{plugin}" + silixcon_dir + "/plugins/siliTuneESCx.sxp")
