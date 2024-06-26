@@ -1,8 +1,0 @@
-sys.path.append('./siliUX')
-
-import find_nodes
-find_nodes.find("esc")
-
-sxapi.show("{plugin}siliWatchESCx.sxp")
-sxapi.show("{plugin}siliSpinESCx.sxp")
-sxapi.show("{plugin}siliTuneESCx.sxp")

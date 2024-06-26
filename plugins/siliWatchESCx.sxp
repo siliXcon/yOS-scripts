@@ -381,7 +381,7 @@ app = customtkinter.CTk()
 app.title("siliWatch (ESCx)")
 app.attributes("-topmost", 1)
 x, y = app.winfo_pointerxy()
-app.geometry(f"{850}x{650}+{x}+{y}")
+app.geometry(f"{850}x{750}+{x}+{y}")
 app.grid_columnconfigure(1, weight=1)
 app.grid_columnconfigure((2, 3), weight=0)
 app.grid_rowconfigure(3, weight=1)
@@ -618,7 +618,7 @@ def log_ctl_event(value):
         app.selectnone.configure(state="enabled")
 
     elif value=="Record":
-        logfile_path = filedialog.asksaveasfilename()
+        logfile_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
 
         #user cancelled the file selection dialog
         if not logfile_path:
