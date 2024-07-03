@@ -220,8 +220,8 @@ preset_tab(10, 1.0)
 
 
 def run():
-    preset = app.tabview.tab(app.tabview.get()).preset
-    preset.run()
+   preset = app.tabview.tab(app.tabview.get()).preset
+   preset.run()
 
 runbutton = customtkinter.CTkButton(app, text="Run !", command=run, image=tkinter.PhotoImage(file="siliUX/joystick.png"))
 runbutton.grid(row=3, column=1, padx=(5,10), pady=5, sticky="nsew")
@@ -237,12 +237,25 @@ CTkToolTip(stopbutton, message="Hit to force the freewheeling mode.")
 def release():
    update_result(my_node.executeSimple("run"), "release")
 
-
 releasebutton = customtkinter.CTkButton(app, text="Release !", fg_color="green", command=release)
 releasebutton.grid(row=5, column=1, padx=(5,10), pady=5, sticky="nsew")
 CTkToolTip(releasebutton, message="Hit to give back the control (to the user application).")
 
+def on_mousewheel(event):
+    preset = app.tabview.tab(app.tabview.get()).preset
+    current_value = preset.cmd_var.get()
 
+    if event.delta > 0:
+        new_value = min(current_value + 0.01, 1)
+    else:
+        new_value = max(current_value - 0.01, -1)
+
+    if (current_value > 0 and new_value <= 0) or (current_value < 0 and new_value >= 0):
+        # Zero crossing detected, set to exactly zero
+        preset.cmd_var.set(0)
+    else:
+        # Update the DoubleVar
+        preset.cmd_var.set(new_value)
 
 ################################################################################
 # start the loop !
@@ -254,5 +267,8 @@ if len(nodenames) == 1:
 else :
     app.nodeselect_button.set("NONE")
     node_select_callback("NONE")
+
+# Bind the mouse wheel event to the whole window
+app.bind("<MouseWheel>", on_mousewheel)
 
 app.mainloop()

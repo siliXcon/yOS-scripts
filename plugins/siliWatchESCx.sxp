@@ -506,7 +506,7 @@ def node_select_callback(value):
             app.nodeselect_button.configure(selected_color="green")
 
         except sxapi.error as e:
-            find_nodes.MessageBox("Could not bind to all the controller states!\n" + str(e))
+            find_nodes.MessageBox("Could not bind to all the driver states!\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n" + str(e))
 
 ################################################################################
 # create top frame
