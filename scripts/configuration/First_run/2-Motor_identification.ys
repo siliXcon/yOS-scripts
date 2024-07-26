@@ -12,7 +12,13 @@ set debuglevel 255 #prevent bullshitting
  echo ==============================
  echo Automatic motor identification
  echo ==============================
- echo 
+ echo Driver info before identification:
+ echo error: $/driver/error 
+ echo stat: $/driver/stat 
+ echo limit: $/driver/limit 
+ echo prest: $/driver/prest 
+ echo
+ echo Batt voltage: $/driver/supply/voltage [V] 
  
  
  if (/driver/error==(-12)) {
@@ -42,6 +48,7 @@ set debuglevel 255 #prevent bullshitting
   echo Press Ctrl+x any time to STOP!
   echo 
   
+  delay 1000
   echo Hit enter to start..
   echo $?
   echo
@@ -89,6 +96,16 @@ set debuglevel 255 #prevent bullshitting
   
  }
  stop   
+
+ delay 2000
+ echo =============================
+ echo Driver info after identification:
+ echo error: $/driver/error 
+ echo stat: $/driver/stat 
+ echo limit: $/driver/limit 
+ echo
+ echo Batt voltage: $/driver/supply/voltage [V] 
+
  echo _____________________________
  echo Hit enter to quit and reboot!
  echo $?
