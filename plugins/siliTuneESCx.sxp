@@ -49,21 +49,23 @@ def AutomaticIdentification():
     outputBox = customtkinter.CTkTextbox(app)
     outputBox.grid(row=0, column=0, columnspan=4, sticky="nsew", padx=10, pady=10)
 
-    outputBox.insert("0.0", "The controller offers a few procedures for measuring motor parameters. Their intermediate results will be shown here.\n\n"
+    outputBox.insert("0.0", "The system offers a few procedures for measuring motor parameters. You can start them from below.\n\n"
                             "HINTS:\n"
-                            " - Usually, 'identlin' followed by 'identrun' is enough for basic identification.\n"
-                            " - The result values will be stored into corresponding parameters in /driver/motor folder.\n"
-                            " - The controller must be powered from a battery and within the operating range.\n"
+                            " - Usually, a successful 'identlin' followed by 'identrun' is enough for basic setup.\n"
+                            " - The resulting values will be stored as corresponding parameters (in /motor and /rest folders).\n"
+                            " - The controller must be powered with sufficient current and within the operating voltage range.\n"
+                            " - The sensor learning during 'identrun' is a convergent procedure. Repeat multiple times if needed.\n"
                             " - No limiters/warnings must be active before starting a procedure.\n"
                             "\nCAUTION:\n"
-                            " - The rotor may spin and must load-free (inertia-only) for all procedures !\n"
-                            " - Do not forget saving to flash before reboot.\n"
+                            " - The rotor must be load-free (self-inertia-only) for all procedures !\n"
+                            " - The motor may spin, shake and make noise ! Do not use when engaged within a vehicle !\n"
+                            " - Do not forget saving new values to flash before reboot !\n"
                             "\nADVANCED:\n"
-                            " - The procedures use the PID adjustments for current steering.\n"
                             " - In case of unstability, adjust the PID settings and/or 'iref' value.\n"
-                            " - If the rotor doesn't spin up with 'identrun', adjust the acceleration, current and duration values.\n"
+                            " - 'identrun' of a back-driven motor can be done by setting acceleration to zero.\n"
+                            " - If the rotor fails to spin up with 'identrun', adjust the acceleration, current and duration values.\n"
                             " - 'identrun', 'identsat' and 'identsal' sends recorded data to SCOPE tool for visualisation.\n"
-                            " - 'identsat' and 'identsal' are for reference only and do not record any values.\n")
+                            " - 'identsat' and 'identsal' are for reference only and do not store any values.\n")
 
 
     identlinButton = customtkinter.CTkButton(app, text=f"1. IdentLin ...", command=app.destroy,  border_width=2)
@@ -94,10 +96,13 @@ def AutomaticIdentification():
 
     checkbox_nlin = customtkinter.CTkCheckBox(adv_frame, text="Measure Da, Dc", state="disabled")
     checkbox_nlin.grid(row=0, column=1, padx=10, pady=10, sticky="w")
+    CTkToolTip(checkbox_nlin, message="Attempt to find the inductance derating parameters during identlin.")
 
     checkbox_scope = customtkinter.CTkCheckBox(adv_frame, text="Start scope", state="disabled")
     checkbox_scope.grid(row=1, column=1, padx=10, pady=10, sticky="w")
     checkbox_scope.select()
+    CTkToolTip(checkbox_scope, message="Start an instance of the scope tool before relevant procedures.")
+
 
     i = 2
     j = 0
@@ -105,6 +110,7 @@ def AutomaticIdentification():
     accelBox = customtkinter.CTkEntry(adv_frame, width=40, state="disabled")
     accelBox.grid(row=j, column=i+1, pady=5, padx=3, sticky="ew")
     customtkinter.CTkLabel(adv_frame, text="[rad/s/s]", text_color="grey").grid(row=j, column=i+2, sticky="w")
+    CTkToolTip(accelBox, message="Override the acceleration speed in synchronous spinup during identrun (default 100).")
 
     i = 2
     j = 1
@@ -112,6 +118,7 @@ def AutomaticIdentification():
     currentBox = customtkinter.CTkEntry(adv_frame, width=40, state="disabled")
     currentBox.grid(row=j, column=i+1, pady=5, padx=3, sticky="ew")
     customtkinter.CTkLabel(adv_frame, text="[A]", text_color="grey").grid(row=j, column=i+2, sticky="w")
+    CTkToolTip(currentBox, message="Override the maximum current for the procedures (default iref/4).")
 
     i = 6
     j = 0
@@ -119,6 +126,7 @@ def AutomaticIdentification():
     durationBox = customtkinter.CTkEntry(adv_frame, width=40, state="disabled")
     durationBox.grid(row=j, column=i+1, pady=5, padx=3, sticky="ew")
     customtkinter.CTkLabel(adv_frame, text="[ms]", text_color="grey").grid(row=j, column=i+2, sticky="w")
+    CTkToolTip(durationBox, message="Define the spinup time for identrun (default 4000 ms).")
 
     i = 6
     j = 1
@@ -126,6 +134,7 @@ def AutomaticIdentification():
     cyclesBox = customtkinter.CTkEntry(adv_frame, width=40, state="disabled")
     cyclesBox.grid(row=j, column=i+1, pady=5, padx=3, sticky="ew")
     #customtkinter.CTkLabel(adv_frame, text="[A]").grid(row=j, column=i+2, sticky="w")
+    CTkToolTip(cyclesBox, message="Override the procedure tick time.")
 
     retlabel = customtkinter.CTkLabel(app, text="Status bar", font=customtkinter.CTkFont(weight="bold"), corner_radius=5, compound="left", fg_color=("gray78", "gray23"))
     retlabel.grid(row=6, column=0, columnspan=4, padx=(10,10), pady=5, sticky="nsew")
@@ -187,11 +196,17 @@ def tabview_callback():
     for i in range(len(params)):
        params[i].get()
 
+def refresh_prest() :
+    prest = my_node.variable("/driver/prest")
+    prestval = prest.get() & 0x0F
+    prestbox.set(initmodes[prestval+2])
+
 def refresh() :
     for i in range(len(main_params)):
         main_params[i].get()
-    tabview_callback()
 
+    refresh_prest()
+    tabview_callback()
 
 def node_select_callback(value):
     global my_node
@@ -322,20 +337,32 @@ label.grid(row=8, column=2, padx=5, sticky="e")
 
 CTkToolTip(label, message="Choose and perform the driver initialization for a particular motor sensor.\nThe selection executes the reinit command.")
 
-
-initmodes = ["deinit", "async", "sensorless", "hall", "sincos", "resolver", "ssi", "biss", "biss32", "ssi32", "res", "encoder"]
+initmodes = ["Re-init !", "De-init !", "async", "sensorless", "hall", "sincos", "resolver", "ssi", "biss", "biss32", "ssi32", "res", "encoder"]
 
 def reinit(value) :
-    mode = initmodes.index(value) - 1
-    retval = my_node.executeSimple("reinit", str(mode))
-    if retval < 0:
-        find_nodes.MessageBox("Reinit resulted into error " + str(retval) + "\n" + codetostr.error2string(retval))
+    mode = initmodes.index(value) - 2
+    if mode == -2:
+        retval = my_node.executeSimple("reinit")
+    else:
+        retval = my_node.executeSimple("reinit", str(mode))
 
+    refresh_prest()
 
-#prestbox = customtkinter.CTkOptionMenu(app, dynamic_resizing=False, values=initmodes, command=reinit)
-prestbox = customtkinter.CTkComboBox(app, width=100, values=initmodes, command=reinit)
+    if retval == -1000:
+        find_nodes.MessageBox("Driver was deinitialized!")
+    elif retval != 0:
+        find_nodes.MessageBox("Driver initialization resulted with error " + str(retval) + "\n" + codetostr.error2string(retval))
+    else:
+        find_nodes.MessageBox("Driver initialization successful!")
+
+prestbox = customtkinter.CTkOptionMenu(app, width=100,  values=initmodes, command=reinit)
+#prestbox = customtkinter.CTkComboBox(app, width=100, values=initmodes, command=reinit)
 #prestbox.set("reinit")
 prestbox.grid(row=8, column=3, columnspan=2, pady=5)
+
+#reinit_button = customtkinter.CTkButton(app, text=f"Reinit !")
+#reinit_button.grid(row=9, column=2, columnspan=3, padx=(10, 0), sticky="nsew")
+
 
 ident_button = customtkinter.CTkButton(app, text=f"Automatic\nidentification ...", command = AutomaticIdentification)
 ident_button.grid(row=10, column=2, columnspan=3, rowspan=12, padx=(10,0), pady=10, sticky="nsew")
