@@ -62,8 +62,8 @@ def AutomaticIdentification():
                             " - Do not forget saving new values to flash before reboot !\n"
                             "\nADVANCED:\n"
                             " - In case of unstability, adjust the PID settings and/or 'iref' value.\n"
-                            " - 'identrun' of a back-driven motor can be done by setting acceleration to zero.\n"
                             " - If the rotor fails to spin up with 'identrun', adjust the acceleration, current and duration values.\n"
+                            " - 'identrun' of a back-driven motor can be done by setting acceleration to zero.\n"
                             " - 'identrun', 'identsat' and 'identsal' sends recorded data to SCOPE tool for visualisation.\n"
                             " - 'identsat' and 'identsal' are for reference only and do not store any values.\n")
 
@@ -176,6 +176,8 @@ app.top_frame = customtkinter.CTkFrame(app, fg_color="transparent")
 app.top_frame.grid(row=0, column=0, columnspan=8, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="sew")
 app.top_frame.grid_columnconfigure((3,4,5), weight=1)
 
+initmodes = ["Re-init !", "De-init !", "async", "sensorless", "hall", "sincos", "resolver", "ssi", "biss", "biss32", "ssi32", "res", "encoder"]
+initmodes_bldc = ["Re-init !", "De-init !", "auto", "sensorless", "hall"]
 
 app.tabview = 0
 
@@ -200,6 +202,13 @@ def refresh_prest() :
     prest = my_node.variable("/driver/prest")
     prestval = prest.get() & 0x0F
     prestbox.set(initmodes[prestval+2])
+
+    try:
+        my_node.variable("/driver/vcf")
+        prestbox.configure(values=initmodes)
+    except sxapi.error as e:
+        prestbox.configure(values=initmodes_bldc)
+
 
 def refresh() :
     for i in range(len(main_params)):
@@ -337,10 +346,12 @@ label.grid(row=8, column=2, padx=5, sticky="e")
 
 CTkToolTip(label, message="Choose and perform the driver initialization for a particular motor sensor.\nThe selection executes the reinit command.")
 
-initmodes = ["Re-init !", "De-init !", "async", "sensorless", "hall", "sincos", "resolver", "ssi", "biss", "biss32", "ssi32", "res", "encoder"]
-
 def reinit(value) :
-    mode = initmodes.index(value) - 2
+    try:
+        mode = initmodes.index(value) - 2
+    except ValueError:
+        mode = initmodes_bldc.index(value) - 2
+
     if mode == -2:
         retval = my_node.executeSimple("reinit")
     else:
@@ -355,7 +366,7 @@ def reinit(value) :
     else:
         find_nodes.MessageBox("Driver initialization successful!")
 
-prestbox = customtkinter.CTkOptionMenu(app, width=100,  values=initmodes, command=reinit)
+prestbox = customtkinter.CTkOptionMenu(app, width=100, command=reinit)
 #prestbox = customtkinter.CTkComboBox(app, width=100, values=initmodes, command=reinit)
 #prestbox.set("reinit")
 prestbox.grid(row=8, column=3, columnspan=2, pady=5)
