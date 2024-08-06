@@ -41,7 +41,7 @@ def stat2string(status_value):
             status_present = True
 
     if not status_present:
-        status_text = "no status"
+        status_text = "no warning"
 
     return status_text
 

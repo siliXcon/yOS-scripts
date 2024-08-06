@@ -894,9 +894,9 @@ app.cmd_frame.grid_rowconfigure(1, weight=2)
 app.namelabel = customtkinter.CTkLabel(app.cmd_frame, text="Actual command setpoint", corner_radius=5, fg_color=("gray78", "gray23"))
 app.namelabel.grid(row=0, column=0, columnspan=4, sticky="ew")
 
-app.umultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
-app.umultbar.grid(row=1, column=0, rowspan=3, padx=5, pady=5, sticky="ns")
-CTkToolTip(app.umultbar, message="Voltage multiplier level.")
+app.imultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
+app.imultbar.grid(row=1, column=0, rowspan=3, padx=5, pady=5, sticky="ns")
+CTkToolTip(app.imultbar, message="Current multiplier level.")
 
 app.checkbox_spd = customtkinter.CTkSwitch(master=app.cmd_frame, text="speed loop", state="disabled")
 app.checkbox_spd.grid(row=3, column=1, pady=5, padx=20, sticky="nw")
@@ -914,9 +914,9 @@ app.cmdbar = customtkinter.CTkSlider(app.cmd_frame, from_=-1, to=1, state="disab
 app.cmdbar.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
 CTkToolTip(app.cmdbar, message="Actual command level.")
 
-app.imultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
-app.imultbar.grid(row=1, column=3, rowspan=3, padx=5, pady=5, sticky="ns")
-CTkToolTip(app.imultbar, message="Current multiplier level.")
+app.umultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
+app.umultbar.grid(row=1, column=3, rowspan=3, padx=5, pady=5, sticky="ns")
+CTkToolTip(app.umultbar, message="Voltage multiplier level.")
 
 #app.rmultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
 #app.rmultbar.grid(row=0, column=4, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns")
