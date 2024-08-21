@@ -10,6 +10,7 @@ import os # for file explorer after logging ends
 from tkinter import filedialog
 from datetime import datetime
 from ctk_tooltip import *
+from messagebox import MessageBox
 
 # customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 # customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -506,7 +507,7 @@ def node_select_callback(value):
             app.nodeselect_button.configure(selected_color="green")
 
         except sxapi.error as e:
-            find_nodes.MessageBox("Could not bind to all the driver states!\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n" + str(e))
+            MessageBox(app, title="siliTune", message="Could not bind to all the driver states!\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n" + str(e))
 
 ################################################################################
 # create top frame

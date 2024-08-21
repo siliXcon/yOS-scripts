@@ -7,7 +7,7 @@ import codetostr
 
 from ctk_tooltip import *
 from ident import *
-
+from messagebox import MessageBox
 
 ################################################################################
 
@@ -227,11 +227,11 @@ def reinit(value) :
     refresh_prest()
 
     if retval == -1000:
-        find_nodes.MessageBox("Driver was deinitialized!")
+        MessageBox(app, title="siliTune", message="Driver was deinitialized!")
     elif retval != 0:
-        find_nodes.MessageBox("Driver initialization resulted with error " + str(retval) + "\n" + codetostr.error2string(retval))
+        MessageBox(app, title="siliTune", message="Driver initialization resulted with error " + str(retval) + "\n" + codetostr.error2string(retval))
     else:
-        find_nodes.MessageBox("Driver initialization successful!")
+        MessageBox(app, title="siliTune", message="Driver initialization successful!")
 
 prestbox = customtkinter.CTkOptionMenu(app, width=100, command=reinit)
 #prestbox = customtkinter.CTkComboBox(app, width=100, values=initmodes, command=reinit)
@@ -395,10 +395,10 @@ app.bottom_frame.grid_columnconfigure((1,2,3), weight=1)
 def save() :
     retval = my_node.executeSimple("save", "-y")
     if retval < 0:
-        find_nodes.MessageBox("Saving parameters resulted into error " + str(retval))
+        MessageBox(app, title="siliTune", message="Saving parameters resulted into error " + str(retval))
     else:
         refresh()
-        find_nodes.MessageBox("Saving of parameters was successful!")
+        MessageBox(app, title="siliTune", message="Saving of parameters was successful!")
 
 save_button = customtkinter.CTkButton(app.bottom_frame, text=f"Save to flash !\n(confirm changes)", fg_color="red", command=save)
 save_button.grid(row=1, column=1, padx=10, sticky="nsew")
@@ -407,10 +407,10 @@ CTkToolTip(save_button, message="Your new values will only live in the device un
 def load() :
     retval = my_node.executeSimple("load", "-y")
     if retval < 0:
-        find_nodes.MessageBox("Loading parameters resulted into error " + str(retval))
+        MessageBox(app, title="siliTune", message="Loading parameters resulted into error " + str(retval))
     else:
         refresh()
-        find_nodes.MessageBox("Loading was successful!")
+        MessageBox(app, title="siliTune", message="Loading was successful!")
 
 load_button = customtkinter.CTkButton(app.bottom_frame, text=f"Load from flash !\n(discard changes)", fg_color="green", command=load)
 load_button.grid(row=1, column=2, padx=10, sticky="nsew")
@@ -420,10 +420,10 @@ def restore() :
     #retval = my_node.executeSimple("restore", "-ry", "/driver") # doesn't work
     retval = my_node.executeSimple("restore", "-y")
     if retval < 0:
-        find_nodes.MessageBox("Restoring parameters resulted into error " + str(retval))
+        MessageBox(app, title="siliTune", message="Restoring parameters resulted into error " + str(retval))
     else:
         refresh()
-        find_nodes.MessageBox("Restoring default values was successful.\nDon't forget to save, if you plan to keep them!")
+        MessageBox(app, title="siliTune", message="Restoring default values was successful.\nDon't forget to save, if you plan to keep them!")
 
 restore_button = customtkinter.CTkButton(app.bottom_frame, text=f"Restore default values !\n(use factory settings)", command=restore)
 restore_button.grid(row=1, column=3, padx=10, sticky="nsew")
