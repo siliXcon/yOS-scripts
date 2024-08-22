@@ -4,10 +4,10 @@ import sxapi
 def MessageBox(message):
     app = customtkinter.CTk()
     app.attributes("-topmost", 1)
-    #app.eval("tk::PlaceWindow . center")
+    #app.eval("tk::PlaceWindow.center")
     x, y = app.winfo_pointerxy()
     app.geometry(f"+{x}+{y}")
-    app.title("siliSuite")
+    app.title("Find nodes")
     app.iconbitmap("siliUX/SiliXcon.ico")
     customtkinter.CTkLabel(app, text=message).pack(padx=20, pady=20)
     customtkinter.CTkButton(app, text=f"OK", command=app.destroy).pack(padx=20, pady=20)

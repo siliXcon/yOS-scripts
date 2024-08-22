@@ -28,7 +28,7 @@ def advSwitch():
         identsalButton.configure(state="normal")
         #currentBox.insert(0,"iref/4")
         accelBox.insert(0,"100")
-        durationBox.insert(0,"8000")
+        durationBox.insert(0,"4000")
     else:
         accelBox.delete(0, 100)
         durationBox.delete(0, 100)
@@ -101,8 +101,11 @@ def update_cb(state, res, stdout_data):
         retlabel.configure(text="Resulted with error " + str(res), fg_color="red")
         enableButtons(1)
         describe_error(res)
+    elif res > 0:
+        retlabel.configure(text="Succeeded with warning ("  + str(res) + ")", fg_color="green")
+        enableButtons(1)
     else:
-        retlabel.configure(text="Succeeded ("  + str(res) + ")" , fg_color="green")
+        retlabel.configure(text="Succeeded !", fg_color="green")
         enableButtons(1)
 
     if isinstance(stdout_data, str):
@@ -124,7 +127,11 @@ def identrun_cb(state, res, stdout_data):
 
     return update_cb(state, res, stdout_data)
 
-
+def spinup_cb(state, res, stdout_data):
+    #a firmware bug workaround: -11 is reported when success of 'spinup'
+    if res == -11:
+        res = 0
+    return update_cb(state, res, stdout_data)
 
 def identlin():
     if checkbox_nlin.get():
@@ -135,31 +142,29 @@ def identlin():
     if retval < 0:
         retlabel.configure(text="Could not start identlin, error " + str(retval), fg_color="red")
     else:
-        retlabel.configure(text="Started", fg_color=("gray78", "gray23"))
+        retlabel.configure(text="Identlin started", fg_color=("gray78", "gray23"))
         outputBox.delete("0.0", "end")
         enableButtons(0)
 
 def spinup():
-
     if currentBox.get() == "":
-        retval = my_node.execute("spinup", accelBox.get(), durationBox.get(), update=update_cb, timeout=10000)
+        retval = my_node.execute("spinup", accelBox.get(), durationBox.get(), update=spinup_cb, timeout=10000)
     else:
-        retval = my_node.execute("spinup", accelBox.get(), durationBox.get(), currentBox.get(), update=update_cb, timeout=10000)
+        retval = my_node.execute("spinup", accelBox.get(), durationBox.get(), currentBox.get(), update=spinup_cb, timeout=10000)
 
     if retval < 0:
-        retlabel.configure(text="Could not start spinup, error " + str(retval), fg_color="red")
+        retlabel.configure(text="Could not start spin-up, error " + str(retval), fg_color="red")
     else:
-        retlabel.configure(text="Started", fg_color=("gray78", "gray23"))
+        retlabel.configure(text="Spin-up started", fg_color=("gray78", "gray23"))
         outputBox.delete("0.0", "end")
         enableButtons(0)
 
 def identrun():
     if checkbox_scope.get():
         my_node.open("{scope}")
-
     checkbox_scope.deselect()
 
-    # TODO simplify with argument list !!
+    # TODO simplify this decission tree with argument list !!
     if checkbox_rscope.get():
         if checkbox_adv.get():
             if currentBox.get() == "":
@@ -177,32 +182,30 @@ def identrun():
         else:
             retval = my_node.execute("identrun", "-w", "-k", update=identrun_cb, timeout=10000)
 
-
     if retval < 0:
         retlabel.configure(text="Could not start identrun, error " + str(retval), fg_color="red")
     else:
-        retlabel.configure(text="Started", fg_color=("gray78", "gray23"))
+        retlabel.configure(text="Identrun started", fg_color=("gray78", "gray23"))
         outputBox.delete("0.0", "end")
         enableButtons(0)
 
 def identsat():
     if checkbox_scope.get():
         my_node.open("{scope}")
-
     checkbox_scope.deselect()
+
     retval = my_node.execute("identsat", "-w", update=update_cb, timeout=10000)
 
     if retval < 0:
         retlabel.configure(text="Could not start identsat, error " + str(retval), fg_color="red")
     else:
-        retlabel.configure(text="Started", fg_color=("gray78", "gray23"))
+        retlabel.configure(text="Identsat started", fg_color=("gray78", "gray23"))
         outputBox.delete("0.0", "end")
         enableButtons(0)
 
 def identsal():
     if checkbox_scope.get():
         my_node.open("{scope}")
-
     checkbox_scope.deselect()
 
     retval = my_node.execute("identsal", "-w", update=update_cb, timeout=10000)
@@ -210,7 +213,7 @@ def identsal():
     if retval < 0:
         retlabel.configure(text="Could not start identsal, error " + str(retval), fg_color="red")
     else:
-        retlabel.configure(text="Started", fg_color=("gray78", "gray23"))
+        retlabel.configure(text="Identsal started", fg_color=("gray78", "gray23"))
         outputBox.delete("0.0", "end")
         enableButtons(0)
 
@@ -310,7 +313,7 @@ def AutomaticIdentification(n):
     accelBox = customtkinter.CTkEntry(adv_frame, width=40, state="disabled")
     accelBox.grid(row=j, column=i+1, pady=5, padx=3, sticky="ew")
     customtkinter.CTkLabel(adv_frame, text="[rad/s/s]", text_color="grey").grid(row=j, column=i+2, sticky="w")
-    CTkToolTip(accelBox, message="Override the acceleration speed in synchronous spinup during identrun.")
+    CTkToolTip(accelBox, message="Define the acceleration for synchronous spin-up during identrun.")
 
     i = 2
     j = 1
@@ -318,7 +321,7 @@ def AutomaticIdentification(n):
     durationBox = customtkinter.CTkEntry(adv_frame, width=40, state="disabled")
     durationBox.grid(row=j, column=i+1, pady=2, padx=3, sticky="ew")
     customtkinter.CTkLabel(adv_frame, text="[ms]", text_color="grey").grid(row=j, column=i+2, sticky="w")
-    CTkToolTip(durationBox, message="Define the spinup time for the synchronous spinup.")
+    CTkToolTip(durationBox, message="Define the time of the synchronous spin-up during identrun.")
 
     i = 2
     j = 2
@@ -326,7 +329,7 @@ def AutomaticIdentification(n):
     currentBox = customtkinter.CTkEntry(adv_frame, width=40, state="disabled")
     currentBox.grid(row=j, column=i+1, pady=5, padx=3, sticky="ew")
     customtkinter.CTkLabel(adv_frame, text="[A]", text_color="grey").grid(row=j, column=i+2, sticky="w")
-    CTkToolTip(currentBox, message="Override the maximum current for the synchronous spinup (default iref/4).")
+    CTkToolTip(currentBox, message="Define the drive current for the synchronous spin-up (default is iref/4).")
 
     #customtkinter.CTkLabel(adv_frame, text="Steps", text_color="grey").grid(row=j, column=i, sticky="e")
     #cyclesBox = customtkinter.CTkEntry(adv_frame, width=40, state="disabled")
