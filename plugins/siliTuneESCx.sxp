@@ -129,17 +129,13 @@ nodeselect_button.grid(row=0, column=4, pady=5, sticky="w")
 icon_light=tkinter.PhotoImage(file="siliUX/light.png")
 icon_dark=tkinter.PhotoImage(file="siliUX/dark.png")
 
-apperance = 0
 def change_appearance_mode_event():
-    global apperance
-    if apperance:
-        customtkinter.set_appearance_mode("light")
+    if customtkinter.get_appearance_mode() == "Dark":
+        customtkinter.set_appearance_mode("Light")
         apperance_switch.configure(image=icon_dark)
-        apperance = 0
     else:
-        customtkinter.set_appearance_mode("dark")
+        customtkinter.set_appearance_mode("Dark")
         apperance_switch.configure(image=icon_light)
-        apperance = 1
 
 apperance_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=change_appearance_mode_event, image=icon_dark, width=5)
 apperance_switch.grid(row=0, column=5, padx=5, pady=5, sticky="e")
