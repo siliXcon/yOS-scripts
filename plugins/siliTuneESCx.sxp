@@ -66,8 +66,13 @@ def tabview_callback():
        params[i].get()
 
 def refresh_prest() :
-    prest = my_node.variable("/driver/prest")
-    prestval = prest.get() & 0x0F
+    try:
+        prest = my_node.variable("/driver/prest")
+        prestval = prest.get() & 0x0F
+    except sxapi.error as e:
+       MessageBox(app, title="siliTune", message="Could not access '/driver/prest' !\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n" + str(e))
+       return
+
     prestbox.set(initmodes[prestval+2])
 
     try:
