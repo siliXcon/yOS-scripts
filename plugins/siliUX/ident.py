@@ -92,24 +92,28 @@ def on_key_press(event):
     char_queue.put(event.char)
 
 def update_cb(state, res, stdout_data):
-    if state > 0:
-        retlabel.configure(text="Running !", fg_color="yellow")
-    elif state < 0:
+    if state < 0:
         retlabel.configure(text="Timed out !", fg_color="red")
         enableButtons(1)
-    elif res < 0:
-        retlabel.configure(text="Resulted with error " + str(res), fg_color="red")
-        enableButtons(1)
-        describe_error(res)
-    elif res > 0:
-        retlabel.configure(text="Succeeded with warning ("  + str(res) + ")", fg_color="green")
-        enableButtons(1)
+        return
+
+    elif state > 0:
+        retlabel.configure(text="Running !", fg_color="yellow")
+
     else:
-        retlabel.configure(text="Succeeded !", fg_color="green")
-        enableButtons(1)
+        if res < 0:
+            retlabel.configure(text="Resulted with error " + str(res), fg_color="red")
+        elif res > 0:
+            retlabel.configure(text="Succeeded with warning ("  + str(res) + ")", fg_color="green")
+        else:
+            retlabel.configure(text="Succeeded !", fg_color="green")
 
     if isinstance(stdout_data, str):
         outputBox.insert("end", stdout_data)
+
+    elif state==0:
+        enableButtons(1)
+        describe_error(res)
 
     elif not char_queue.empty():
         char_list = []
@@ -120,12 +124,51 @@ def update_cb(state, res, stdout_data):
     return None
 
 def identrun_cb(state, res, stdout_data):
-    if res == -1:
-         MessageBox(app, title="Automatic identification", message="ERROR: Flux linkage could not be found.\nPlease ensure that the rotor can freely move and optionally, adjust the acceleration and current.")
-    if res == 1:
-         MessageBox(app, title="Automatic identification", message="WARNING: Sensor was not identified !")
+    r = update_cb(state, res, stdout_data)
+    if state == 0 and not isinstance(stdout_data, str):
+        if res == -1:
+             MessageBox(app, title="Automatic identification", message="ERROR: Flux linkage could not be measured.\nPlease ensure that the rotor can freely move and optionally, adjust the acceleration and current.")
+        elif res == 1:
+             try:
+                #dummy pull (just to refresh the emgui values). TODO find way how to trigger pull on a directory!
+                my_node.variable("/driver/motor/psi").get()
+             except sxapi.error as e:
+                print(e)
 
-    return update_cb(state, res, stdout_data)
+             MessageBox(app, title="Automatic identification", message="WARNING: Sensor was not identified !")
+        elif res == 0:
+             try:
+                #dummy pull (just to refresh the emgui values). TODO find way how to trigger pull on a directory!
+                my_node.variable("/driver/motor/psi").get()
+                my_node.variable("/driver/rest/hvar").get()
+                my_node.variable("/driver/rest/rangle").get()
+                my_node.variable("/driver/rest/roff1").get()
+                my_node.variable("/driver/rest/roff2").get()
+                my_node.variable("/driver/rest/rpole").get()
+             except sxapi.error as e:
+                print(e)
+
+             MessageBox(app, title="Automatic identification", message="Identrun succeeded and values were updated.\nDo not forget to save your parameters to flash after the evaluation!")
+
+    return r
+
+def identlin_cb(state, res, stdout_data):
+    r = update_cb(state, res, stdout_data)
+    if state == 0 and not isinstance(stdout_data, str):
+        if res == 0:
+             try:
+                #dummy pull (just to refresh the emgui values). TODO find way how to trigger pull on a directory!
+                my_node.variable("/driver/motor/Rt").get()
+                my_node.variable("/driver/motor/Lq").get()
+                my_node.variable("/driver/motor/Ld").get()
+                my_node.variable("/driver/motor/Da").get()
+                my_node.variable("/driver/motor/Dc").get()
+             except sxapi.error as e:
+                print(e)
+
+             MessageBox(app, title="Automatic identification", message="Identlin succeeded and values were updated.\nDo not forget to save your parameters to flash after the evaluation!")
+
+    return r
 
 def spinup_cb(state, res, stdout_data):
     #a firmware bug workaround: -11 is reported when success of 'spinup'
@@ -135,9 +178,9 @@ def spinup_cb(state, res, stdout_data):
 
 def identlin():
     if checkbox_nlin.get():
-        retval = my_node.execute("identlin", "-n", update=update_cb)
+        retval = my_node.execute("identlin", "-n", update=identlin_cb)
     else:
-        retval = my_node.execute("identlin", update=update_cb)
+        retval = my_node.execute("identlin", update=identlin_cb)
 
     if retval < 0:
         retlabel.configure(text="Could not start identlin, error " + str(retval), fg_color="red")

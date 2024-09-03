@@ -18,8 +18,11 @@ class MessageBox(ctk.CTkToplevel):
 
         # Center the window
         self.update_idletasks()
+
+        parent.update()
         x = parent.winfo_x() + (parent.winfo_width() // 2) - (self.winfo_width() // 2)
         y = parent.winfo_y() + (parent.winfo_height() // 2) - (self.winfo_height() // 2)
+
         self.geometry(f"+{x}+{y}")
 
         # Make the dialog modal
