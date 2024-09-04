@@ -22,7 +22,7 @@ def advSwitch():
         durationBox.configure(state="normal")
         checkbox_nlin.configure(state="normal")
         checkbox_scope.configure(state="normal")
-        checkbox_rscope.configure(state="normal")
+        checkbox_visual.configure(state="normal")
         spinupButton.configure(state="normal")
         identsatButton.configure(state="normal")
         identsalButton.configure(state="normal")
@@ -38,7 +38,7 @@ def advSwitch():
         durationBox.configure(state="disabled")
         checkbox_nlin.configure(state="disabled")
         checkbox_scope.configure(state="disabled")
-        checkbox_rscope.configure(state="disabled")
+        checkbox_visual.configure(state="disabled")
         spinupButton.configure(state="disabled")
         identsatButton.configure(state="disabled")
         identsalButton.configure(state="disabled")
@@ -54,7 +54,7 @@ def enableButtons(enabled):
             durationBox.configure(state="normal")
             checkbox_nlin.configure(state="normal")
             checkbox_scope.configure(state="normal")
-            checkbox_rscope.configure(state="normal")
+            checkbox_visual.configure(state="normal")
             spinupButton.configure(state="normal")
             identsatButton.configure(state="normal")
             identsalButton.configure(state="normal")
@@ -67,7 +67,7 @@ def enableButtons(enabled):
         durationBox.configure(state="disabled")
         checkbox_nlin.configure(state="disabled")
         checkbox_scope.configure(state="disabled")
-        checkbox_rscope.configure(state="disabled")
+        checkbox_visual.configure(state="disabled")
         spinupButton.configure(state="disabled")
         identsatButton.configure(state="disabled")
         identsalButton.configure(state="disabled")
@@ -75,17 +75,17 @@ def enableButtons(enabled):
 
 def describe_error(error):
     if error == -101:
-        MessageBox(app, title="Automatic identification", message="ERROR: The driver is not initialized.\nPlease init with sensor of your chocice first (e.g. using 'init as:' in siliTune).")
+        MessageBox(window, title="Automatic identification", message="ERROR: The driver is not initialized.\nPlease init with sensor of your chocice first (e.g. using 'init as:' in siliTune).")
     elif error == -102:
-        MessageBox(app, title="Automatic identification", message="ERROR: The drive is active.\nPlease ensure that motor command is deactivated first (e.g. through 'stop' command).")
+        MessageBox(window, title="Automatic identification", message="ERROR: The drive is active.\nPlease ensure that motor command is deactivated first (e.g. through 'stop' command).")
     elif error == -103:
-        MessageBox(app, title="Automatic identification", message="ERROR: A limiter is active.\nPlease ensure that limiter thresholds are deactivated or wide enough for the identification.")
+        MessageBox(window, title="Automatic identification", message="ERROR: A limiter is active.\nPlease ensure that limiter thresholds are deactivated or wide enough for the identification.")
     elif error == -105:
-        MessageBox(app, title="Automatic identification", message="ERROR: The motor is not ready.\nPlease ensure that the motor is properly connected, free from load and standing still.")
+        MessageBox(window, title="Automatic identification", message="ERROR: The motor is not ready.\nPlease ensure that the motor is properly connected, free from load and standing still.")
     elif error == -110:
-        MessageBox(app, title="Automatic identification", message="ERROR: R_t (coil resistance) is not set.\nPlease set it manually or run the 'identlin' to measure first.")
+        MessageBox(window, title="Automatic identification", message="ERROR: R_t (coil resistance) is not set.\nPlease set it manually or run the 'identlin' to measure first.")
     elif error <= -10 and error >= -100:
-        MessageBox(app, title="Automatic identification", message="ERROR: Current control / inductance measurement error in stage " + str(-error) + "\nPlease adjust the PID settings / current reference.")
+        MessageBox(window, title="Automatic identification", message="ERROR: Current control / inductance measurement error in stage " + str(-error) + "\nPlease adjust the PID settings / current reference.")
 
 def on_key_press(event):
     # Put the character into the queue
@@ -127,7 +127,7 @@ def identrun_cb(state, res, stdout_data):
     r = update_cb(state, res, stdout_data)
     if state == 0 and not isinstance(stdout_data, str):
         if res == -1:
-             MessageBox(app, title="Automatic identification", message="ERROR: Flux linkage could not be measured.\nPlease ensure that the rotor can freely move and optionally, adjust the acceleration and current.")
+             MessageBox(window, title="Automatic identification", message="ERROR: Flux linkage could not be measured.\nPlease ensure that the rotor can freely move and optionally, adjust the acceleration and current.")
         elif res == 1:
              try:
                 #dummy pull (just to refresh the emgui values). TODO find way how to trigger pull on a directory!
@@ -135,7 +135,7 @@ def identrun_cb(state, res, stdout_data):
              except sxapi.error as e:
                 print(e)
 
-             MessageBox(app, title="Automatic identification", message="WARNING: Sensor was not identified !")
+             MessageBox(window, title="Automatic identification", message="WARNING: Sensor was not identified !")
         elif res == 0:
              try:
                 #dummy pull (just to refresh the emgui values). TODO find way how to trigger pull on a directory!
@@ -148,7 +148,7 @@ def identrun_cb(state, res, stdout_data):
              except sxapi.error as e:
                 print(e)
 
-             MessageBox(app, title="Automatic identification", message="Identrun succeeded and values were updated.\nDo not forget to save your parameters to flash after the evaluation!")
+             MessageBox(window, title="Automatic identification", message="Identrun succeeded and values were updated.\nDo not forget to save your parameters to flash after the evaluation!")
 
     return r
 
@@ -166,7 +166,7 @@ def identlin_cb(state, res, stdout_data):
              except sxapi.error as e:
                 print(e)
 
-             MessageBox(app, title="Automatic identification", message="Identlin succeeded and values were updated.\nDo not forget to save your parameters to flash after the evaluation!")
+             MessageBox(window, title="Automatic identification", message="Identlin succeeded and values were updated.\nDo not forget to save your parameters to flash after the evaluation!")
 
     return r
 
@@ -203,12 +203,12 @@ def spinup():
         enableButtons(0)
 
 def identrun():
-    if checkbox_scope.get():
+    if checkbox_scope.get() and checkbox_visual.get():
         my_node.open("{scope}")
-    checkbox_scope.deselect()
+        checkbox_scope.deselect()
 
     # TODO simplify this decission tree with argument list !!
-    if checkbox_rscope.get():
+    if checkbox_visual.get():
         if checkbox_adv.get():
             if currentBox.get() == "":
                 retval = my_node.execute("identrun", "-w", accelBox.get(), durationBox.get(), update=identrun_cb, timeout=10000)
@@ -219,11 +219,11 @@ def identrun():
     else:
         if checkbox_adv.get():
             if currentBox.get() == "":
-                retval = my_node.execute("identrun", "-w", "-k", accelBox.get(), durationBox.get(), update=identrun_cb, timeout=10000)
+                retval = my_node.execute("identrun", "-q", accelBox.get(), durationBox.get(), update=identrun_cb, timeout=10000)
             else:
-                retval = my_node.execute("identrun", "-w", "-k", accelBox.get(), durationBox.get(), currentBox.get(), update=identrun_cb, timeout=10000)
+                retval = my_node.execute("identrun", "-q", accelBox.get(), durationBox.get(), currentBox.get(), update=identrun_cb, timeout=10000)
         else:
-            retval = my_node.execute("identrun", "-w", "-k", update=identrun_cb, timeout=10000)
+            retval = my_node.execute("identrun", "-q", update=identrun_cb, timeout=10000)
 
     if retval < 0:
         retlabel.configure(text="Could not start identrun, error " + str(retval), fg_color="red")
@@ -233,11 +233,14 @@ def identrun():
         enableButtons(0)
 
 def identsat():
-    if checkbox_scope.get():
+    if checkbox_scope.get() and checkbox_visual.get():
         my_node.open("{scope}")
-    checkbox_scope.deselect()
+        checkbox_scope.deselect()
 
-    retval = my_node.execute("identsat", "-w", update=update_cb, timeout=10000)
+    if checkbox_visual.get():
+        retval = my_node.execute("identsat", "-w", update=update_cb, timeout=10000)
+    else:
+        retval = my_node.execute("identsat", "-q", update=update_cb, timeout=10000)
 
     if retval < 0:
         retlabel.configure(text="Could not start identsat, error " + str(retval), fg_color="red")
@@ -247,11 +250,14 @@ def identsat():
         enableButtons(0)
 
 def identsal():
-    if checkbox_scope.get():
+    if checkbox_scope.get() and checkbox_visual.get():
         my_node.open("{scope}")
-    checkbox_scope.deselect()
+        checkbox_scope.deselect()
 
-    retval = my_node.execute("identsal", "-w", update=update_cb, timeout=10000)
+    if checkbox_visual.get():
+        retval = my_node.execute("identsal", "-w", update=update_cb, timeout=10000)
+    else:
+        retval = my_node.execute("identsal", "-q", update=update_cb, timeout=10000)
 
     if retval < 0:
         retlabel.configure(text="Could not start identsal, error " + str(retval), fg_color="red")
@@ -263,26 +269,27 @@ def identsal():
 #to receive asynchronous callbacks from sxapi
 def poll_events():
     sxapi.poll()
-    app.after(100, poll_events)
+    window.after(100, poll_events)
 
-def AutomaticIdentification(n):
-    global my_node, app, char_queue, retlabel, outputBox, checkbox_adv, accelBox, currentBox, durationBox, checkbox_nlin, checkbox_scope, checkbox_rscope, identlinButton, identrunButton, identsatButton, identsalButton, spinupButton
+def AutomaticIdentification(n, parent):
+    global my_node, window, char_queue, retlabel, outputBox, checkbox_adv, accelBox, currentBox, durationBox, checkbox_nlin, checkbox_scope, checkbox_visual, identlinButton, identrunButton, identsatButton, identsalButton, spinupButton
 
     my_node = n
+    window = customtkinter.CTkToplevel()
 
-    app = customtkinter.CTk()
-    #app.attributes("-topmost", 1)
-    #app.eval("tk::PlaceWindow . center")
-    x, y = app.winfo_pointerxy()
-    app.geometry(f"{640}x{600}+{x}+{y}")
-    app.title("Automatic motor identification")
-    app.iconbitmap("siliUX/SiliXcon.ico")
-    #customtkinter.CTkLabel(app, text="ahoj").pack(padx=20, pady=20)
-    app.grid_rowconfigure((0), weight=1)
-    app.grid_columnconfigure((0,1,2,3), weight=1)
+    #window.attributes("-topmost", 1)
+    #window.eval("tk::PlaceWindow . center")
+    x, y = window.winfo_pointerxy()
+    window.geometry(f"{640}x{600}+{x}+{y}")
+    window.title("Automatic motor identification")
+    window.iconbitmap("siliUX/SiliXcon.ico")
+    #customtkinter.CTkLabel(window, text="ahoj").pack(padx=20, pady=20)
+    window.grid_rowconfigure((0), weight=1)
+    window.grid_columnconfigure((0,1,2,3), weight=1)
+    window.focus()
 
 
-    outputBox = customtkinter.CTkTextbox(app) #, state="disabled")
+    outputBox = customtkinter.CTkTextbox(window) #, state="disabled")
     outputBox.grid(row=0, column=0, columnspan=4, sticky="nsew", padx=10, pady=10)
     outputBox.bind("<Key>", on_key_press)
     char_queue = Queue()
@@ -306,19 +313,19 @@ def AutomaticIdentification(n):
                             " - 'identsat' and 'identsal' are for reference only and do not store any values.\n")
 
 
-    identlinButton = customtkinter.CTkButton(app, text=f"1. IdentLin ...", command=identlin,  border_width=2)
+    identlinButton = customtkinter.CTkButton(window, text=f"1. IdentLin ...", command=identlin,  border_width=2)
     identlinButton.grid(row=2, column=0, padx=10, pady=10)
     CTkToolTip(identlinButton, message="Measure the motor inductance (Lq, Ld) and resistance (Rt).\nOptionally, derating parameters (Da, Dc) can be evaulated too.")
 
-    identrunButton = customtkinter.CTkButton(app, text=f"2. IdentRun ...", command=identrun,  border_width=2)
+    identrunButton = customtkinter.CTkButton(window, text=f"2. IdentRun ...", command=identrun,  border_width=2)
     identrunButton.grid(row=2, column=1, padx=10, pady=10)
     CTkToolTip(identrunButton, message="Measure the motor KV (psi) and, mapping parameters of the selected shaft sensor.\nFor some types of sensors, identrun must be performed multiple times.")
 
 
-    checkbox_adv = customtkinter.CTkSwitch(app, text="Advanced", command=advSwitch)
+    checkbox_adv = customtkinter.CTkSwitch(window, text="Advanced", command=advSwitch)
     checkbox_adv.grid(row=2, column=2, padx=10, pady=10)
 
-    adv_frame = customtkinter.CTkFrame(app, fg_color="transparent", border_width=2)
+    adv_frame = customtkinter.CTkFrame(window, fg_color="transparent", border_width=2)
     adv_frame.grid(row=5, column=0, columnspan=4,padx=(10, 10), pady=(10, 10), sticky="sew")
     adv_frame.grid_columnconfigure((1,2,3,4,5,6,7,8,9,10), weight=1)
 
@@ -339,15 +346,15 @@ def AutomaticIdentification(n):
     checkbox_nlin.grid(row=0, column=1, padx=10, pady=5, sticky="w")
     CTkToolTip(checkbox_nlin, message="Attempt to find the inductance derating parameters during identlin.")
 
+    checkbox_visual = customtkinter.CTkCheckBox(adv_frame, text="Visualize result", state="disabled")
+    checkbox_visual.grid(row=1, column=1, padx=10, pady=2, sticky="w")
+    #checkbox_visual.select()
+    CTkToolTip(checkbox_visual, message="Collect and display detailed measurement data from the procedure.")
+
     checkbox_scope = customtkinter.CTkCheckBox(adv_frame, text="Start scope", state="disabled")
-    checkbox_scope.grid(row=1, column=1, padx=10, pady=2, sticky="w")
+    checkbox_scope.grid(row=2, column=1, padx=10, pady=2, sticky="w")
     checkbox_scope.select()
     CTkToolTip(checkbox_scope, message="Start an instance of the scope tool before relevant procedures.")
-
-    checkbox_rscope = customtkinter.CTkCheckBox(adv_frame, text="Reset scope", state="disabled")
-    checkbox_rscope.grid(row=2, column=1, padx=10, pady=2, sticky="w")
-    checkbox_rscope.select()
-    CTkToolTip(checkbox_rscope, message="Reset the scope before data plot.")
 
 
     i = 2
@@ -381,18 +388,11 @@ def AutomaticIdentification(n):
     #customtkinter.CTkLabel(adv_frame, text="[A]").grid(row=j, column=i+2, sticky="w")
     #CTkToolTip(cyclesBox, message="Override the procedure step count.")
 
-    retlabel = customtkinter.CTkLabel(app, text="Status bar", font=customtkinter.CTkFont(weight="bold"), corner_radius=5, compound="left", fg_color=("gray78", "gray23"))
+    retlabel = customtkinter.CTkLabel(window, text="Status bar", font=customtkinter.CTkFont(weight="bold"), corner_radius=5, compound="left", fg_color=("gray78", "gray23"))
     retlabel.grid(row=6, column=0, columnspan=4, padx=(10,10), pady=5, sticky="nsew")
     CTkToolTip(retlabel, message="The result and value of the lastly issued command.")
 
     #start the poll loop for async events
     poll_events()
 
-    app.mainloop()
-
-
-
-    identsalButton = customtkinter.CTkButton(adv_frame, text=f"IdentSal ...", width=5, command=identsal, state="disabled")
-    identsalButton.grid(row=1, column=10, padx=10, pady=10)
-    CTkToolTip(identsalButton, message="Measure and display the motor saliency (dependency of the inductances to the rotor electrical angle).")
-
+    window.mainloop()

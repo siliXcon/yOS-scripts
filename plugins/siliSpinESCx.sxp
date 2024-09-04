@@ -268,6 +268,6 @@ else :
 # Bind the mouse wheel event to the whole window
 app.bind("<MouseWheel>", on_mousewheel)
 
-MessageBox(app, title="siliSpin", message="WARNING: This tool actively controls the motor.\nPlease make necessary precautions to prevent an injury!")
+MessageBox(app, title="siliSpin", message="WARNING:\nThis tool actively controls the motor.\nPlease make necessary precautions to prevent an injury!")
 
 app.mainloop()
