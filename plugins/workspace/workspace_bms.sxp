@@ -1,4 +1,5 @@
 import subprocess
+
 subprocess.run("scope.cmd")
 sxapi.search()
 kontroler = sxapi.node(4)

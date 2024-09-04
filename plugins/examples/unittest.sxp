@@ -11,30 +11,30 @@ sxapi.print(" ")
 sxapi.print("--- Handling exceptions ---")
 v = None
 try:
-	sxapi.print(v)
+    sxapi.print(v)
 except sxapi.error as e:
-	sxapi.print(e.code, e.message)
-	# Another way to get the error message:
-	sxapi.print(str(e))
+    sxapi.print(e.code, e.message)
+    # Another way to get the error message:
+    sxapi.print(str(e))
 
 sxapi.print(" ")
 sxapi.print("--- Getting a node ---")
 # First of all, you have to to perform search if it has not been done before.
 # It returns a negative Integer if something was going wrong.
-if sxapi.search() < 0 :
-	exit()
+if sxapi.search() < 0:
+    exit()
 
 # Or, you can use try-except:
-#try:
-#	sxapi.search()
-#except sxapi.error as e:
-#	sxapi.print(str(e))
+# try:
+# 	sxapi.search()
+# except sxapi.error as e:
+# 	sxapi.print(str(e))
 
 # You can create a variable of NodeType that is associated with the node in the emGUI database.
 # You have to specify either its name or address. All of the following examples result in same behavior
 n1 = sxapi.node(0)
-n2 = sxapi.node(address = 0)
-n3 = sxapi.node(name = "AM-serpent")
+n2 = sxapi.node(address=0)
+n3 = sxapi.node(name="AM-serpent")
 n4 = sxapi.node("AM-serpent")
 
 # n1, ..., n4 are different NodeType objects that are associated with the same emGUI database's node
@@ -45,9 +45,9 @@ sxapi.print(str(n4))
 
 # This can be used to check whether a node has been taken or not
 try:
-	n5 = sxapi.node(23)
+    n5 = sxapi.node(23)
 except sxapi.error as e:
-	sxapi.print(str(e))	
+    sxapi.print(str(e))
 
 sxapi.print(" ")
 sxapi.print("--- Getting the node's info ---")
@@ -68,13 +68,13 @@ sxapi.print("--- Getting variables for a node ---")
 # You have to specify its path as a String. The following two variants result in same behavior.
 # Named parameters don't work here, i.e "v = n1.variable(path = "/driver/error")" failed.
 try:
-	var_swdt = n1.variable("/driver/debug/swdt")
-	var_ticks = n1("/vars/ticks")
-	var_maxtemp = n1("/permanents/total/maxtemp")
-	var_kr = n1("/driver/kr")
-	var_unexpected = n1("/unexpected/name")
+    var_swdt = n1.variable("/driver/debug/swdt")
+    var_ticks = n1("/vars/ticks")
+    var_maxtemp = n1("/permanents/total/maxtemp")
+    var_kr = n1("/driver/kr")
+    var_unexpected = n1("/unexpected/name")
 except sxapi.error as e:
-	sxapi.print(str(e))
+    sxapi.print(str(e))
 
 # These show the path of a variable (the path is a String)
 sxapi.print(var_swdt.path)
@@ -87,7 +87,7 @@ sxapi.print("--- Executing a command on the node ---")
 n1.executeSimple("set", "ticks", "0")
 
 # This will cause script to fail
-#sxapi.print(unexpected.path)
+# sxapi.print(unexpected.path)
 
 # You can get the type of a variable using cls() method.
 # The result is a tuple (type_code, type_name)
@@ -114,7 +114,7 @@ v3 = var_maxtemp()
 v4 = var_kr()
 
 # The type of a value can be Integer, String, Float, or List of one of the listed types
-sxapi.print("/driver/debug/swdt =", str(v1).strip('[]'), "Type:", str(type(v1)))
+sxapi.print("/driver/debug/swdt =", str(v1).strip("[]"), "Type:", str(type(v1)))
 sxapi.print("/vars/ticks =", v2, "Type:", str(type(v2)))
 sxapi.print("/permanents/total/maxtemp =", v3, "Type:", str(type(v3)))
 sxapi.print("driver/kr =", v4, "Type:", str(type(v4)))
@@ -131,7 +131,7 @@ sxapi.print(var_kr.path, "(flags) =", var_kr.flags())
 
 # Only Parameters have the listed features
 # This will cause script to fail
-#sxapi.print(var_swdt.path, "(default value) =", var_swdt.default())
+# sxapi.print(var_swdt.path, "(default value) =", var_swdt.default())
 
 sxapi.print(" ")
 sxapi.print("--- Setting the value of a variable ---")
@@ -143,61 +143,63 @@ import random
 # of the given variable. If you wish to set the value to the emGUI's database only,
 # use name_of_variable(value_to_set) construct.
 sxapi.print(var_kr.path, "(float) =", var_kr.get(), "(before)")
-if var_kr.set(random.random()):	
-	sxapi.print("The value was succefully set")
+if var_kr.set(random.random()):
+    sxapi.print("The value was succefully set")
 sxapi.print(var_kr.path, "(float) =", var_kr.get(), "(after)")
 
 sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(before)")
 if var_ticks.set(random.randint(0, 255)):
-	sxapi.print("The value was succefully set")
+    sxapi.print("The value was succefully set")
 sxapi.print(var_tick.path, "(uint8) =", var_ticks.get(), "(after)")
 
 # If you try to set the value that is out of range, script will not fail
 try:
-	sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(before)")
-	if var_ticks.set(400000000):
-		sxapi.print("The value was succefully set")
-	sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(after)")
+    sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(before)")
+    if var_ticks.set(400000000):
+        sxapi.print("The value was succefully set")
+    sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(after)")
 except sxapi.error as e:
-	sxapi.print(str(e))
+    sxapi.print(str(e))
 
 # If you try to set the value of unrelated type (i.e. String -> uint8), script will fail
-#try:
-#	sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(before)")
-#	if var_ticks.set("value"):
-#		sxapi.print("The value was succefully set")
-#	sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(after)")
-#except sxapi.error as e:
-#	sxapi.print(str(e))
+# try:
+# 	sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(before)")
+# 	if var_ticks.set("value"):
+# 		sxapi.print("The value was succefully set")
+# 	sxapi.print(var_ticks.path, "(uint8) =", var_ticks.get(), "(after)")
+# except sxapi.error as e:
+# 	sxapi.print(str(e))
 
 sxapi.print(" ")
 sxapi.print("--- Setting and getting in a loop ---")
 counter = 0
 bad_counter = 0
-while counter < 10 :
-	value = random.random()
-	if var_kr.set(value):
-		sxapi.print("The value", value, "was successfully set")
-		got_value = var_kr()
-		sxapi.print(var_kr.path, "=", got_value)
-		if round(value, 3) != round(got_value, 3):
-			sxapi.print("Set and got values are not equal")
-			bad_counter = bad_counter + 1
-	else :
-		sxapi.print("Something bad happened (", value, ")")
-		bad_counter = bad_counter + 1
-	counter = counter + 1
+while counter < 10:
+    value = random.random()
+    if var_kr.set(value):
+        sxapi.print("The value", value, "was successfully set")
+        got_value = var_kr()
+        sxapi.print(var_kr.path, "=", got_value)
+        if round(value, 3) != round(got_value, 3):
+            sxapi.print("Set and got values are not equal")
+            bad_counter = bad_counter + 1
+    else:
+        sxapi.print("Something bad happened (", value, ")")
+        bad_counter = bad_counter + 1
+    counter = counter + 1
 
-sxapi.print("Counter is equal to", counter, "Counter of failures is equal to", bad_counter)
+sxapi.print(
+    "Counter is equal to", counter, "Counter of failures is equal to", bad_counter
+)
 if bad_counter == 0:
-	sxapi.print("No issues tracked")
+    sxapi.print("No issues tracked")
 
 sxapi.print(" ")
 sxapi.print("--- Getting version of the module ---")
 try:
-	sxapi.print(sxapi.version())
+    sxapi.print(sxapi.version())
 except sxapi.error as e:
-	sxapi.print(str(e))
+    sxapi.print(str(e))
 
 sxapi.print(" ")
 sxapi.print("--- End of the script ---")

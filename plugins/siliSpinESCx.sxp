@@ -1,4 +1,4 @@
-sys.path.append('./siliUX')
+sys.path.append("./siliUX")
 
 import tkinter
 import math
@@ -11,6 +11,7 @@ from ctk_tooltip import *
 # customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 import find_nodes
+
 nodes, nodenames = find_nodes.find("esc")
 
 # configure grid layout (4x4)
@@ -21,7 +22,7 @@ app.attributes("-topmost", 1)
 x, y = app.winfo_pointerxy()
 app.geometry(f"{500}x{400}+{x-250}+{y}")
 app.grid_columnconfigure((0), weight=1)
-app.grid_rowconfigure((3,4), weight=1)
+app.grid_rowconfigure((3, 4), weight=1)
 app.attributes("-topmost", 0)
 app.iconbitmap("siliUX/SiliXcon.ico")
 
@@ -29,8 +30,10 @@ app.iconbitmap("siliUX/SiliXcon.ico")
 
 
 app.top_frame = customtkinter.CTkFrame(app, fg_color="transparent")
-app.top_frame.grid(row=0, column=0, columnspan=8, padx=(10, 10), pady=(10, 10), sticky="sew")
-app.top_frame.grid_columnconfigure((3,4,5), weight=1)
+app.top_frame.grid(
+    row=0, column=0, columnspan=8, padx=(10, 10), pady=(10, 10), sticky="sew"
+)
+app.top_frame.grid_columnconfigure((3, 4, 5), weight=1)
 
 
 def node_select_callback(value):
@@ -43,23 +46,31 @@ def node_select_callback(value):
     else:
         my_node = 0
 
-'''
+
+"""
 def show_emgui():
     sxapi.show()
 
 emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"emgui", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
 emgui_switch.grid(row=0, column=0, padx=(10,0))
-'''
+"""
 
-nodeselect_label = customtkinter.CTkLabel(app.top_frame, text="Select device to command:", font=customtkinter.CTkFont(size=15, weight="bold"))
+nodeselect_label = customtkinter.CTkLabel(
+    app.top_frame,
+    text="Select device to command:",
+    font=customtkinter.CTkFont(size=15, weight="bold"),
+)
 nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
 
-nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
-nodeselect_button.configure(values=nodenames  + ["NONE"])
+nodeselect_button = customtkinter.CTkSegmentedButton(
+    app.top_frame, command=node_select_callback
+)
+nodeselect_button.configure(values=nodenames + ["NONE"])
 nodeselect_button.grid(row=0, column=4, pady=5, sticky="w")
 
-icon_light=tkinter.PhotoImage(file="siliUX/light.png")
-icon_dark=tkinter.PhotoImage(file="siliUX/dark.png")
+icon_light = tkinter.PhotoImage(file="siliUX/light.png")
+icon_dark = tkinter.PhotoImage(file="siliUX/dark.png")
+
 
 def change_appearance_mode_event():
     if customtkinter.get_appearance_mode() == "Dark":
@@ -69,59 +80,84 @@ def change_appearance_mode_event():
         customtkinter.set_appearance_mode("Dark")
         apperance_switch.configure(image=icon_light)
 
-apperance_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=change_appearance_mode_event, image=icon_dark, width=5)
+
+apperance_switch = customtkinter.CTkButton(
+    app.top_frame,
+    text=f"",
+    command=change_appearance_mode_event,
+    image=icon_dark,
+    width=5,
+)
 apperance_switch.grid(row=0, column=5, padx=5, pady=5, sticky="e")
 
 ################################################################################
 
-modes = [ "FRW",
-          "VLT",
-          "CRT",
-          "VLF",
-          "VLB",
-          "SCR",
-          "TRQ",
-          "BCR",
-          "SBR",
-          "TBR",
-          "ABR",
-          "RES",
-          "RES",
-          "RES",
-          "SVC",
-          "SHR" ]
+modes = [
+    "FRW",
+    "VLT",
+    "CRT",
+    "VLF",
+    "VLB",
+    "SCR",
+    "TRQ",
+    "BCR",
+    "SBR",
+    "TBR",
+    "ABR",
+    "RES",
+    "RES",
+    "RES",
+    "SVC",
+    "SHR",
+]
 
 
 checkbox_follow = customtkinter.CTkCheckBox(app, text="Follow changes")
 checkbox_follow.grid(row=2, column=1, pady=5, padx=5, sticky="nw")
-CTkToolTip(checkbox_follow, message="Check to make the command follow the sliders (no need to hit the 'run' button)\nand automatically run when a preset is selected.")
+CTkToolTip(
+    checkbox_follow,
+    message="Check to make the command follow the sliders (no need to hit the 'run' button)\nand automatically run when a preset is selected.",
+)
 
-retlabel = customtkinter.CTkLabel(app, text="Status bar", font=customtkinter.CTkFont(weight="bold"), corner_radius=5, compound="left", fg_color=("gray78", "gray23"))
-retlabel.grid(row=6, column=0, columnspan=2, padx=(10,10), pady=5, sticky="nsew")
+retlabel = customtkinter.CTkLabel(
+    app,
+    text="Status bar",
+    font=customtkinter.CTkFont(weight="bold"),
+    corner_radius=5,
+    compound="left",
+    fg_color=("gray78", "gray23"),
+)
+retlabel.grid(row=6, column=0, columnspan=2, padx=(10, 10), pady=5, sticky="nsew")
 CTkToolTip(retlabel, message="The result and value of the lastly issued command.")
 
 
-def update_result(value, desc) :
+def update_result(value, desc):
     if value < 0:
-        retlabel.configure(text=desc + " resulted with error " + str(value), fg_color="red")
+        retlabel.configure(
+            text=desc + " resulted with error " + str(value), fg_color="red"
+        )
     else:
         retlabel.configure(text=desc + " succeeded", fg_color=("gray78", "gray23"))
+
 
 def tabview_callback():
     preset = app.tabview.tab(app.tabview.get()).preset
     preset.update()
 
-app.tabview = customtkinter.CTkTabview(app, width=200, height=200, command=tabview_callback)
-app.tabview.grid(row=2, column=0, rowspan=4, padx=10, pady=(0,5), sticky="nsew")
+
+app.tabview = customtkinter.CTkTabview(
+    app, width=200, height=200, command=tabview_callback
+)
+app.tabview.grid(row=2, column=0, rowspan=4, padx=10, pady=(0, 5), sticky="nsew")
 
 
 class preset_tab:
 
-    def __init__(self, number, initval) :
+    def __init__(self, number, initval):
 
         tab = app.tabview.add(str(number))
         tab.grid_rowconfigure((21), weight=1)
-        tab.grid_columnconfigure((0,1,2,3), weight=1)
+        tab.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
         self.cmd_var = tkinter.DoubleVar()
         self.cmd_var.trace_add("write", self.update)
@@ -131,77 +167,143 @@ class preset_tab:
         self.modebox.grid(row=0, column=0, columnspan=3, padx=10, pady=10)
         CTkToolTip(self.modebox, message="Choose the control mode for this preset.")
 
-        self.cmdlabel0 = customtkinter.CTkEntry(tab, font=customtkinter.CTkFont(size=16, weight="bold"), width=80, textvariable=self.cmd_var)
+        self.cmdlabel0 = customtkinter.CTkEntry(
+            tab,
+            font=customtkinter.CTkFont(size=16, weight="bold"),
+            width=80,
+            textvariable=self.cmd_var,
+        )
         self.cmdlabel0.grid(row=0, column=3, padx=10, pady=10, sticky="we")
         CTkToolTip(self.cmdlabel0, message="Type-in the command level manually.")
 
-        self.cmdbar0 = customtkinter.CTkSlider(tab, from_=-1, to=1, progress_color="transparent", height=30, variable=self.cmd_var)
+        self.cmdbar0 = customtkinter.CTkSlider(
+            tab,
+            from_=-1,
+            to=1,
+            progress_color="transparent",
+            height=30,
+            variable=self.cmd_var,
+        )
         self.cmdbar0.grid(row=1, column=0, padx=5, columnspan=4, sticky="ew")
         self.cmdbar0.set(initval)
         CTkToolTip(self.cmdbar0, message="Choose the command level for this preset.")
 
-        self.imultlabel = customtkinter.CTkLabel(tab, text="imult\n1", font=customtkinter.CTkFont(weight="bold")) #, height=80)
+        self.imultlabel = customtkinter.CTkLabel(
+            tab, text="imult\n1", font=customtkinter.CTkFont(weight="bold")
+        )  # , height=80)
         self.imultlabel.grid(row=20, column=0, padx=5)
-        self.imultbar = customtkinter.CTkSlider(tab, from_=0, to=1, progress_color="transparent", orientation="vertical", command = lambda value : [self.imultlabel.configure(text="imult\n"+str(round(value,2))), self.update()])
+        self.imultbar = customtkinter.CTkSlider(
+            tab,
+            from_=0,
+            to=1,
+            progress_color="transparent",
+            orientation="vertical",
+            command=lambda value: [
+                self.imultlabel.configure(text="imult\n" + str(round(value, 2))),
+                self.update(),
+            ],
+        )
         self.imultbar.grid(row=21, column=0, rowspan=2, pady=5, sticky="ns")
         self.imultbar.set(1)
-        CTkToolTip(self.imultbar, message="Current multiplier.\nSlide to adjust the torque generating current,\nor keep at maximum to use the entire range.")
+        CTkToolTip(
+            self.imultbar,
+            message="Current multiplier.\nSlide to adjust the torque generating current,\nor keep at maximum to use the entire range.",
+        )
 
-        self.rmultlabel = customtkinter.CTkLabel(tab, text="rmult\n1", font=customtkinter.CTkFont(weight="bold")) #, height=80)
+        self.rmultlabel = customtkinter.CTkLabel(
+            tab, text="rmult\n1", font=customtkinter.CTkFont(weight="bold")
+        )  # , height=80)
         self.rmultlabel.grid(row=20, column=1, padx=5)
-        self.rmultbar = customtkinter.CTkSlider(tab, from_=0, to=1, progress_color="transparent", orientation="vertical", command = lambda value : [self.rmultlabel.configure(text="rmult\n"+str(round(value,2))), self.update()])
+        self.rmultbar = customtkinter.CTkSlider(
+            tab,
+            from_=0,
+            to=1,
+            progress_color="transparent",
+            orientation="vertical",
+            command=lambda value: [
+                self.rmultlabel.configure(text="rmult\n" + str(round(value, 2))),
+                self.update(),
+            ],
+        )
         self.rmultbar.grid(row=21, column=1, rowspan=2, pady=5, sticky="ns")
         self.rmultbar.set(1)
-        CTkToolTip(self.rmultbar, message="Current multiplier in volage brake mode.\nSlide to adjust the torque generating current in voltage brake,\nor keep at maximum to use the entire range.")
+        CTkToolTip(
+            self.rmultbar,
+            message="Current multiplier in volage brake mode.\nSlide to adjust the torque generating current in voltage brake,\nor keep at maximum to use the entire range.",
+        )
 
-        self.umultlabel = customtkinter.CTkLabel(tab, text="umult\n1", font=customtkinter.CTkFont(weight="bold")) #, height=80)
+        self.umultlabel = customtkinter.CTkLabel(
+            tab, text="umult\n1", font=customtkinter.CTkFont(weight="bold")
+        )  # , height=80)
         self.umultlabel.grid(row=20, column=2, padx=5)
-        self.umultbar = customtkinter.CTkSlider(tab, from_=0, to=1, progress_color="transparent", orientation="vertical", command = lambda value : [self.umultlabel.configure(text="umult\n"+str(round(value,2))), self.update()])
+        self.umultbar = customtkinter.CTkSlider(
+            tab,
+            from_=0,
+            to=1,
+            progress_color="transparent",
+            orientation="vertical",
+            command=lambda value: [
+                self.umultlabel.configure(text="umult\n" + str(round(value, 2))),
+                self.update(),
+            ],
+        )
         self.umultbar.grid(row=21, column=2, rowspan=2, pady=5, sticky="ns")
         self.umultbar.set(1)
-        CTkToolTip(self.umultbar, message="Volage multiplier.\nSlide to adjust the available voltage for the torque generation,\nor keep at maximum to use the entire range.")
+        CTkToolTip(
+            self.umultbar,
+            message="Volage multiplier.\nSlide to adjust the available voltage for the torque generation,\nor keep at maximum to use the entire range.",
+        )
 
-        self.zero_btn = customtkinter.CTkButton(tab, text="Set zero", command = lambda : self.cmdbar0.set(0.0))
+        self.zero_btn = customtkinter.CTkButton(
+            tab, text="Set zero", command=lambda: self.cmdbar0.set(0.0)
+        )
         self.zero_btn.grid(row=20, column=3, padx=5, pady=10, sticky="w")
 
-        self.checkbox_spd = customtkinter.CTkSwitch(tab, text="speed loop", command=self.update)
+        self.checkbox_spd = customtkinter.CTkSwitch(
+            tab, text="speed loop", command=self.update
+        )
         self.checkbox_spd.grid(row=21, column=3, padx=10, pady=10, sticky="w")
         CTkToolTip(self.checkbox_spd, message="Check to engage the speed control loop.")
 
-        self.checkbox_pos = customtkinter.CTkSwitch(tab, text="position loop", command=self.update)
+        self.checkbox_pos = customtkinter.CTkSwitch(
+            tab, text="position loop", command=self.update
+        )
         self.checkbox_pos.grid(row=22, column=3, padx=10, pady=10, sticky="sw")
-        CTkToolTip(self.checkbox_pos, message="Check to engage the position control loop.")
+        CTkToolTip(
+            self.checkbox_pos, message="Check to engage the position control loop."
+        )
 
-        #remember the object within the tab for easy accessing from outside
+        # remember the object within the tab for easy accessing from outside
         tab.preset = self
 
-    def run(self) :
+    def run(self):
         mode = modes.index(self.modebox.get())
-        if self.checkbox_spd.get() :
-           mode = mode | 0x10
-        if self.checkbox_pos.get() :
-           mode = mode | 0x20
+        if self.checkbox_spd.get():
+            mode = mode | 0x10
+        if self.checkbox_pos.get():
+            mode = mode | 0x20
 
         args = ["run"]
-        args.append(str(round(self.cmdbar0.get(),4)))
+        args.append(str(round(self.cmdbar0.get(), 4)))
         args.append(str(mode))
         imult = self.imultbar.get()
         umult = self.umultbar.get()
         rmult = self.rmultbar.get()
 
         if imult != 1 or umult != 1 or rmult != 1:
-            args.append(str(round(imult,2)))
+            args.append(str(round(imult, 2)))
         if umult != 1 or rmult != 1:
-            args.append(str(round(umult,2)))
+            args.append(str(round(umult, 2)))
         if rmult != 1:
-            args.append(str(round(rmult,2)))
+            args.append(str(round(rmult, 2)))
 
         retval = my_node.executeSimple(*args)
-        update_result(retval, ' '.join(args))
+        update_result(retval, " ".join(args))
 
     def update(self, *args):
-        if checkbox_follow.get() :
-           self.run()
+        if checkbox_follow.get():
+            self.run()
+
 
 preset_tab(1, 0.1)
 preset_tab(2, 0.2)
@@ -215,28 +317,45 @@ preset_tab(9, 0.9)
 preset_tab(10, 1.0)
 
 
-
 def run():
-   preset = app.tabview.tab(app.tabview.get()).preset
-   preset.run()
+    preset = app.tabview.tab(app.tabview.get()).preset
+    preset.run()
 
-runbutton = customtkinter.CTkButton(app, text="Run !", command=run, image=tkinter.PhotoImage(file="siliUX/joystick.png"))
-runbutton.grid(row=3, column=1, padx=(5,10), pady=5, sticky="nsew")
+
+runbutton = customtkinter.CTkButton(
+    app, text="Run !", command=run, image=tkinter.PhotoImage(file="siliUX/joystick.png")
+)
+runbutton.grid(row=3, column=1, padx=(5, 10), pady=5, sticky="nsew")
 CTkToolTip(runbutton, message="Hit to issue the command preset.")
 
-def stop():
-   update_result(my_node.executeSimple("stop"), "stop")
 
-stopbutton = customtkinter.CTkButton(app, text="Stop !", fg_color="red", command=stop, image=tkinter.PhotoImage(file="siliUX/stop.png"))
-stopbutton.grid(row=4, column=1, padx=(5,10), pady=5, sticky="nsew")
+def stop():
+    update_result(my_node.executeSimple("stop"), "stop")
+
+
+stopbutton = customtkinter.CTkButton(
+    app,
+    text="Stop !",
+    fg_color="red",
+    command=stop,
+    image=tkinter.PhotoImage(file="siliUX/stop.png"),
+)
+stopbutton.grid(row=4, column=1, padx=(5, 10), pady=5, sticky="nsew")
 CTkToolTip(stopbutton, message="Hit to force the freewheeling mode.")
 
-def release():
-   update_result(my_node.executeSimple("run"), "release")
 
-releasebutton = customtkinter.CTkButton(app, text="Release !", fg_color="green", command=release)
-releasebutton.grid(row=5, column=1, padx=(5,10), pady=5, sticky="nsew")
-CTkToolTip(releasebutton, message="Hit to give back the control (to the user application).")
+def release():
+    update_result(my_node.executeSimple("run"), "release")
+
+
+releasebutton = customtkinter.CTkButton(
+    app, text="Release !", fg_color="green", command=release
+)
+releasebutton.grid(row=5, column=1, padx=(5, 10), pady=5, sticky="nsew")
+CTkToolTip(
+    releasebutton, message="Hit to give back the control (to the user application)."
+)
+
 
 def on_mousewheel(event):
     preset = app.tabview.tab(app.tabview.get()).preset
@@ -254,20 +373,25 @@ def on_mousewheel(event):
         # Update the DoubleVar
         preset.cmd_var.set(new_value)
 
+
 ################################################################################
 # start the loop !
 
-#if a single node is fetched, load it automatically
+# if a single node is fetched, load it automatically
 if len(nodenames) == 1:
     nodeselect_button.set(nodenames[0])
     node_select_callback(nodenames[0])
-else :
+else:
     app.nodeselect_button.set("NONE")
     node_select_callback("NONE")
 
 # Bind the mouse wheel event to the whole window
 app.bind("<MouseWheel>", on_mousewheel)
 
-MessageBox(app, title="siliSpin", message="WARNING:\nThis tool actively controls the motor.\nPlease make necessary precautions to prevent an injury!")
+MessageBox(
+    app,
+    title="siliSpin",
+    message="WARNING:\nThis tool actively controls the motor.\nPlease make necessary precautions to prevent an injury!",
+)
 
 app.mainloop()

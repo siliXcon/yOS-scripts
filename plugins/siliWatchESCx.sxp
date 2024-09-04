@@ -1,12 +1,11 @@
-
-sys.path.append('./siliUX')
+sys.path.append("./siliUX")
 
 import tkinter
 import math
 import customtkinter
 import codetostr
 import csv
-import os # for file explorer after logging ends
+import os  # for file explorer after logging ends
 from tkinter import filedialog
 from datetime import datetime
 from ctk_tooltip import *
@@ -17,6 +16,7 @@ from messagebox import MessageBox
 
 
 import find_nodes
+
 nodes, nodenames = find_nodes.find("esc")
 
 ################################################################################
@@ -26,7 +26,8 @@ logfile = None
 writer = None
 log_count = 0
 
-#NOTE the values are global only for the purpose of logging. Otherwise, values can exist only locally, within the update functions.
+
+# NOTE the values are global only for the purpose of logging. Otherwise, values can exist only locally, within the update functions.
 class value:
     # updated in group 3
     voltage = 0
@@ -39,52 +40,62 @@ class value:
     motorvoltage = 0
     motcurrentrms = 0
     motvoltagerms = 0
-    #updated in group 2
+    # updated in group 2
     rpm = 0
     imult = 0
     umult = 0
     cmd = 0
     mode = 0
-    #updated in group 1
+    # updated in group 1
     power = 0
     status = 0
     limit = 0
     error = 0
     totallimit = 0
     enable = 0
-    #updated in group 0
+    # updated in group 0
     temp = 0
     ptctemp = 0
     rthermistor = 0
 
+
 log_group = [
-            "battery and motor currents",
-            "battery and motor voltages",
-            "total motor current and voltage",
-            "rms motor current and voltage",
-            "motor speed",
-            "command and mode",
-            "command multipliers",
-            "power throughput",
-            "error, stat, limit and totallimit",
-            "temperatures",
-        ]
+    "battery and motor currents",
+    "battery and motor voltages",
+    "total motor current and voltage",
+    "rms motor current and voltage",
+    "motor speed",
+    "command and mode",
+    "command multipliers",
+    "power throughput",
+    "error, stat, limit and totallimit",
+    "temperatures",
+]
 
 log_group_header = [
-            ["/driver/supply/currentf [A]", "/driver/motor/currentqf [A]", "/driver/motor/currentdf [A]"],
-            ["/driver/supply/voltage [V]", "/driver/motor/voltageq [V]", "/driver/motor/voltaged [V]"],
-            ["total motor current [A]", "total motor voltage [V]"],
-            ["RMS motor current [A]", "RMS motor voltage [V]"],
-            ["/driver/motor/rpmf [rpm]"],
-            ["/driver/command", "/driver/mode"],
-            ["/driver/imult", "/driver/umult"],
-            ["/driver/powerf"],
-            ["/driver/error", "/driver/stat", "/driver/limit", "/driver/totallimit"],
-            ["/driver/temp", "/driver/ptctemp", "/driver/motor/rthermistor"],
-        ]
+    [
+        "/driver/supply/currentf [A]",
+        "/driver/motor/currentqf [A]",
+        "/driver/motor/currentdf [A]",
+    ],
+    [
+        "/driver/supply/voltage [V]",
+        "/driver/motor/voltageq [V]",
+        "/driver/motor/voltaged [V]",
+    ],
+    ["total motor current [A]", "total motor voltage [V]"],
+    ["RMS motor current [A]", "RMS motor voltage [V]"],
+    ["/driver/motor/rpmf [rpm]"],
+    ["/driver/command", "/driver/mode"],
+    ["/driver/imult", "/driver/umult"],
+    ["/driver/powerf"],
+    ["/driver/error", "/driver/stat", "/driver/limit", "/driver/totallimit"],
+    ["/driver/temp", "/driver/ptctemp", "/driver/motor/rthermistor"],
+]
 
 
 log_switches = []
+
 
 def log_group_cb(group):
     if logfile and writer:
@@ -93,58 +104,58 @@ def log_group_cb(group):
         max_group = -1
 
         # updated in group 3 (fastest)
-        if (log_switches[0].get() == 1) :
+        if log_switches[0].get() == 1:
             row.append(value.current)
             row.append(value.currentq)
             row.append(value.currentd)
-            max_group=max(max_group, 3)
-        if (log_switches[1].get() == 1) :
+            max_group = max(max_group, 3)
+        if log_switches[1].get() == 1:
             row.append(value.voltage)
             row.append(value.voltageq)
             row.append(value.voltaged)
-            max_group=max(max_group, 3)
-        if (log_switches[2].get() == 1) :
+            max_group = max(max_group, 3)
+        if log_switches[2].get() == 1:
             row.append(value.motorcurrent)
             row.append(value.motorvoltage)
-            max_group=max(max_group, 3)
-        if (log_switches[3].get() == 1) :
+            max_group = max(max_group, 3)
+        if log_switches[3].get() == 1:
             row.append(value.motcurrentrms)
             row.append(value.motvoltagerms)
-            max_group=max(max_group, 3)
+            max_group = max(max_group, 3)
 
-        #updated in group 2
-        if (log_switches[4].get() == 1) :
+        # updated in group 2
+        if log_switches[4].get() == 1:
             row.append(value.rpm)
-            max_group=max(max_group, 2)     
-        if (log_switches[5].get() == 1) :
+            max_group = max(max_group, 2)
+        if log_switches[5].get() == 1:
             row.append(value.cmd)
             row.append(value.mode)
-            max_group=max(max_group, 2)
-        if (log_switches[6].get() == 1) :
+            max_group = max(max_group, 2)
+        if log_switches[6].get() == 1:
             row.append(value.imult)
             row.append(value.umult)
-            max_group=max(max_group, 2)
+            max_group = max(max_group, 2)
 
-        #updated in group 1
-        if (log_switches[7].get() == 1) :
+        # updated in group 1
+        if log_switches[7].get() == 1:
             row.append(value.power)
-            max_group=max(max_group, 1)
-        if (log_switches[8].get() == 1) :
+            max_group = max(max_group, 1)
+        if log_switches[8].get() == 1:
             row.append(value.error)
             row.append(value.status)
             row.append(value.limit)
             row.append(value.totallimit)
-            max_group=max(max_group, 1)
+            max_group = max(max_group, 1)
 
-        #updated in group 0
-        if (log_switches[9].get() == 1) :
+        # updated in group 0
+        if log_switches[9].get() == 1:
             row.append(value.temp)
             row.append(value.ptctemp)
             row.append(value.rthermistor)
-            max_group=max(max_group, 0)
+            max_group = max(max_group, 0)
 
         # log at the frequency of the selected group that updates the fastest
-        if group!=max_group:
+        if group != max_group:
             return
 
         writer.writerow(row)
@@ -162,6 +173,7 @@ update_group1_id = None
 update_group2_id = None
 update_group3_id = None
 
+
 def cancel_updates():
     app.nodeselect_button.configure(selected_color="red")
     if update_group0_id:
@@ -173,30 +185,31 @@ def cancel_updates():
     if update_group3_id:
         app.after_cancel(update_group3_id)
 
+
 def update_group0():
     try:
         value.temp = drivertemp.get()
-        app.templabel.configure(text=str(round(value.temp,1))+"\N{DEGREE SIGN}C")
+        app.templabel.configure(text=str(round(value.temp, 1)) + "\N{DEGREE SIGN}C")
 
         value.ptctemp = ptctemp.get()
-        if math.isnan(value.ptctemp) :
+        if math.isnan(value.ptctemp):
             app.ptctemplabel.configure(text=str("N/A"))
-        elif math.isinf(value.ptctemp) :
+        elif math.isinf(value.ptctemp):
             app.ptctemplabel.configure(text=str("INF"))
-        else :
+        else:
             app.ptctemplabel.configure(text=str(int(value.ptctemp)))
 
         value.rthermistor = rthermistor.get()
-        if math.isnan(value.rthermistor) :
+        if math.isnan(value.rthermistor):
             app.ohmlabel.configure(text=str("N/A"))
-        elif math.isinf(value.rthermistor) :
+        elif math.isinf(value.rthermistor):
             app.ohmlabel.configure(text=str("INF"))
-        else :
-            app.ohmlabel.configure(text=str(int(value.rthermistor))+" ohms")
+        else:
+            app.ohmlabel.configure(text=str(int(value.rthermistor)) + " ohms")
 
-        app.energylabel.configure(text=str(int(driverenergy.get()))+"J")
-        app.odolabel.configure(text=str(motorodo.get())+" revs")
-        app.coulomblabel.configure(text=str(int(supplycap.get()))+"mAh")
+        app.energylabel.configure(text=str(int(driverenergy.get())) + "J")
+        app.odolabel.configure(text=str(motorodo.get()) + " revs")
+        app.coulomblabel.configure(text=str(int(supplycap.get())) + "mAh")
 
         global iref
         iref = driveriref.get()
@@ -206,14 +219,14 @@ def update_group0():
         update_group0_id = app.after(567, update_group0)
 
     except sxapi.error as e:
-         cancel_updates()
-         raise e
+        cancel_updates()
+        raise e
 
 
 def update_group1():
     try:
         value.power = driverpower.get()
-        app.pwrlabel.configure(text=str(int(value.power))+"W")
+        app.pwrlabel.configure(text=str(int(value.power)) + "W")
 
         value.status = driverstat.get()
         app.stattext.delete("0.0", "end")  # delete all text
@@ -263,30 +276,34 @@ def update_group1():
         update_group1_id = app.after(456, update_group1)
 
     except sxapi.error as e:
-         cancel_updates()
-         raise e
+        cancel_updates()
+        raise e
 
-modes = [   "FRW",
-            "VLT",
-            "CRT",
-            "VLF",
-            "VLB",
-            "SCR",
-            "TRQ",
-            "BCR",
-            "SBR",
-            "TBR",
-            "ABR",
-            "RES",
-            "RES",
-            "RES",
-            "SVC",
-            "SHR"  ]
+
+modes = [
+    "FRW",
+    "VLT",
+    "CRT",
+    "VLF",
+    "VLB",
+    "SCR",
+    "TRQ",
+    "BCR",
+    "SBR",
+    "TBR",
+    "ABR",
+    "RES",
+    "RES",
+    "RES",
+    "SVC",
+    "SHR",
+]
+
 
 def update_group2():
     try:
         value.rpm = motorrpm.get()
-        app.rpmlabel.configure(text=" " + str(int(value.rpm))+"\n RPM")
+        app.rpmlabel.configure(text=" " + str(int(value.rpm)) + "\n RPM")
 
         value.imult = driverimult.get()
         app.imultbar.set(value.imult)
@@ -297,20 +314,22 @@ def update_group2():
         app.cmdbar.set(value.cmd)
 
         value.mode = drivermode.get()
-        app.modelabel.configure(text=" " + modes[value.mode&15] + " " + str(round(value.cmd, 2)))
+        app.modelabel.configure(
+            text=" " + modes[value.mode & 15] + " " + str(round(value.cmd, 2))
+        )
 
         app.checkbox_pos.configure(state="enabled")
         app.checkbox_spd.configure(state="enabled")
 
-        if value.mode&0x10:
-           app.checkbox_spd.select()
+        if value.mode & 0x10:
+            app.checkbox_spd.select()
         else:
-           app.checkbox_spd.deselect()
+            app.checkbox_spd.deselect()
 
-        if value.mode&0x20:
-           app.checkbox_pos.select()
+        if value.mode & 0x20:
+            app.checkbox_pos.select()
         else:
-           app.checkbox_pos.deselect()
+            app.checkbox_pos.deselect()
 
         app.checkbox_pos.configure(state="disabled")
         app.checkbox_spd.configure(state="disabled")
@@ -320,57 +339,92 @@ def update_group2():
         update_group2_id = app.after(345, update_group2)
 
     except sxapi.error as e:
-         cancel_updates()
-         raise e
+        cancel_updates()
+        raise e
+
 
 def update_group3():
     try:
         value.voltage = supplyvoltage.get()
         value.current = supplycurrent.get()
 
-        app.battlabel.configure(text=" " + str(round(value.voltage,2)) + "V\n "+str(round(value.current,2)) + "A")
+        app.battlabel.configure(
+            text=" "
+            + str(round(value.voltage, 2))
+            + "V\n "
+            + str(round(value.current, 2))
+            + "A"
+        )
 
         value.currentq = motorcurrentq.get()
         value.voltageq = motorvoltageq.get()
 
-        app.torquelabel.configure(text=str(round(value.voltageq,2)) + "V\n"+str(round(value.currentq,1)) + "A")
+        app.torquelabel.configure(
+            text=str(round(value.voltageq, 2))
+            + "V\n"
+            + str(round(value.currentq, 1))
+            + "A"
+        )
 
-        if motorcurrentd and motorvoltaged: #VECTOR
+        if motorcurrentd and motorvoltaged:  # VECTOR
             value.currentd = motorcurrentd.get()
             value.voltaged = motorvoltaged.get()
-            value.motcurrent = math.sqrt(value.currentq*value.currentq + value.currentd*value.currentd)
-            value.motvoltage = math.sqrt(value.voltageq*value.voltageq + value.voltaged*value.voltaged) * 1.73205 #sqrt3
-            app.fluxlabel.configure(text=str(round(value.voltaged,2)) + "V\n"+str(round(value.currentd,1)) + "A")
+            value.motcurrent = math.sqrt(
+                value.currentq * value.currentq + value.currentd * value.currentd
+            )
+            value.motvoltage = (
+                math.sqrt(
+                    value.voltageq * value.voltageq + value.voltaged * value.voltaged
+                )
+                * 1.73205
+            )  # sqrt3
+            app.fluxlabel.configure(
+                text=str(round(value.voltaged, 2))
+                + "V\n"
+                + str(round(value.currentd, 1))
+                + "A"
+            )
 
-        else: #BLDC
+        else:  # BLDC
             value.currentd = 0.0
             value.voltaged = 0.0
             value.motcurrent = value.currentq
             value.motvoltage = value.voltageq
             app.fluxlabel.configure(text="N/A")
 
-        value.motcurrentrms = value.motcurrent/1.41
-        value.motvoltagerms = value.motvoltage/1.41
-        app.motcurrentlabel.configure(text=str(round(value.motcurrent,2)) + "A / " + str(round(value.motcurrentrms,2)) + "Arms")
+        value.motcurrentrms = value.motcurrent / 1.41
+        value.motvoltagerms = value.motvoltage / 1.41
+        app.motcurrentlabel.configure(
+            text=str(round(value.motcurrent, 2))
+            + "A / "
+            + str(round(value.motcurrentrms, 2))
+            + "Arms"
+        )
         app.motcurrentbar.configure(progress_color="green")
 
-        app.motvoltagelabel.configure(text=str(round(value.motvoltage,2)) + "V / " + str(round(value.motvoltagerms,2)) + "Vrms")
+        app.motvoltagelabel.configure(
+            text=str(round(value.motvoltage, 2))
+            + "V / "
+            + str(round(value.motvoltagerms, 2))
+            + "Vrms"
+        )
         app.motvoltagebar.configure(progress_color="yellow")
 
         if value.voltage:
-           app.motvoltagebar.set(value.motvoltage / value.voltage)
+            app.motvoltagebar.set(value.motvoltage / value.voltage)
 
         if iref:
-           app.batcurrentbar.set(value.current / iref)
-           app.motcurrentbar.set(value.motcurrent / iref)
+            app.batcurrentbar.set(value.current / iref)
+            app.motcurrentbar.set(value.motcurrent / iref)
 
         log_group_cb(3)
         global update_group3_id
         update_group3_id = app.after(234, update_group3)
 
     except sxapi.error as e:
-         cancel_updates()
-         raise e
+        cancel_updates()
+        raise e
+
 
 ################################################################################
 # make the main window and node select callback
@@ -403,26 +457,26 @@ def node_select_callback(value):
     app.errorlabel.configure(fg_color="transparent")
     app.motcurrentbar.configure(progress_color="grey")
     app.motvoltagebar.configure(progress_color="grey")
-    #app.term_button.configure(state="disabled")
-    #app.scope_button.configure(state="disabled")
+    # app.term_button.configure(state="disabled")
+    # app.scope_button.configure(state="disabled")
 
     if value in nodenames:
         global my_node
         my_node = nodes[nodenames.index(value)]
-        #app.term_button.configure(state="enabled")
-        #app.scope_button.configure(state="enabled")
+        # app.term_button.configure(state="enabled")
+        # app.scope_button.configure(state="enabled")
 
         try:
-            #handle some of the exceptions - some variables are named differently in esc3 and esc5
+            # handle some of the exceptions - some variables are named differently in esc3 and esc5
             global driverpower
             try:
-                driverpower = my_node.variable("/driver/power") #power at esc3
+                driverpower = my_node.variable("/driver/power")  # power at esc3
             except sxapi.error as e:
-                driverpower = my_node.variable("/driver/powerf") #powerf at esc5
+                driverpower = my_node.variable("/driver/powerf")  # powerf at esc5
 
-            #TODO add support for esc4 and esc6 !
+            # TODO add support for esc4 and esc6 !
 
-            #group0
+            # group0
             global drivertemp
             drivertemp = my_node.variable("/driver/temp")
             global ptctemp
@@ -442,7 +496,7 @@ def node_select_callback(value):
 
             update_group0()
 
-            #group1
+            # group1
             global driverenable
             driverenable = my_node.variable("/driver/enable")
             global driverstat
@@ -454,7 +508,7 @@ def node_select_callback(value):
 
             update_group1()
 
-            #group2
+            # group2
             global drivercmd
             drivercmd = my_node.variable("/driver/cmd")
             global drivermode
@@ -464,32 +518,31 @@ def node_select_callback(value):
 
             global driverimult
             try:
-                driverimult = my_node.variable("/driver/iqmult") #VECTOR
+                driverimult = my_node.variable("/driver/iqmult")  # VECTOR
             except sxapi.error as e:
-                driverimult = my_node.variable("/driver/imult") #BLDC
+                driverimult = my_node.variable("/driver/imult")  # BLDC
 
             global driverumult
             try:
-                driverumult = my_node.variable("/driver/uqmult") #VECTOR
+                driverumult = my_node.variable("/driver/uqmult")  # VECTOR
             except sxapi.error as e:
-                driverumult = my_node.variable("/driver/umult") #BLDC
+                driverumult = my_node.variable("/driver/umult")  # BLDC
 
             update_group2()
 
-            #group3
+            # group3
             global supplycurrent
             supplycurrent = my_node.variable("/driver/supply/currentf")
             global supplyvoltage
             supplyvoltage = my_node.variable("/driver/supply/voltage")
 
-
             global motorcurrentq
             global motorcurrentd
             try:
-                motorcurrentq = my_node.variable("/driver/motor/currentqf") #VECTOR
+                motorcurrentq = my_node.variable("/driver/motor/currentqf")  # VECTOR
                 motorcurrentd = my_node.variable("/driver/motor/currentdf")
             except sxapi.error as e:
-                motorcurrentq = my_node.variable("/driver/motor/current") #BLDC
+                motorcurrentq = my_node.variable("/driver/motor/current")  # BLDC
                 motorcurrentd = 0
 
             global motorvoltageq
@@ -503,47 +556,77 @@ def node_select_callback(value):
 
             update_group3()
 
-
             app.nodeselect_button.configure(selected_color="green")
 
         except sxapi.error as e:
-            MessageBox(app, title="siliWatch", message="Could not bind to all the driver states!\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n" + str(e))
+            MessageBox(
+                app,
+                title="siliWatch",
+                message="Could not bind to all the driver states!\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n"
+                + str(e),
+            )
+
 
 ################################################################################
 # create top frame
 
 app.top_frame = customtkinter.CTkFrame(app, fg_color="transparent")
-app.top_frame.grid(row=0, column=0, columnspan=8, padx=(10, 10), pady=(10, 10), sticky="sew")
-app.top_frame.grid_columnconfigure((3,4,5), weight=1)
+app.top_frame.grid(
+    row=0, column=0, columnspan=8, padx=(10, 10), pady=(10, 10), sticky="sew"
+)
+app.top_frame.grid_columnconfigure((3, 4, 5), weight=1)
+
 
 def show_emgui():
     sxapi.show()
 
-emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"emgui", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
-emgui_switch.grid(row=0, column=0, padx=(10,0))
+
+emgui_switch = customtkinter.CTkButton(
+    app.top_frame,
+    text=f"emgui",
+    command=show_emgui,
+    image=tkinter.PhotoImage(file="siliUX/main.png"),
+    width=5,
+)
+emgui_switch.grid(row=0, column=0, padx=(10, 0))
+
 
 def open_scope():
     my_node.open("{scope} -t")
 
-scope_button = customtkinter.CTkButton(app.top_frame, text="scope", command=open_scope, image=tkinter.PhotoImage(file="siliUX/scope.png"), width=5)
-scope_button.grid(row=0, column=1, padx=(10,0), sticky="w")
 
-#def open_term():
+scope_button = customtkinter.CTkButton(
+    app.top_frame,
+    text="scope",
+    command=open_scope,
+    image=tkinter.PhotoImage(file="siliUX/scope.png"),
+    width=5,
+)
+scope_button.grid(row=0, column=1, padx=(10, 0), sticky="w")
+
+# def open_term():
 #    my_node.open("{term}")
 
-#term_button = customtkinter.CTkButton(app.top_frame, text="term", command=open_term, image=tkinter.PhotoImage(file="siliUX/term.png"), width=5)
-#term_button.grid(row=0, column=2, padx=(10,0))
+# term_button = customtkinter.CTkButton(app.top_frame, text="term", command=open_term, image=tkinter.PhotoImage(file="siliUX/term.png"), width=5)
+# term_button.grid(row=0, column=2, padx=(10,0))
 
 
-app.nodeselect_label = customtkinter.CTkLabel(app.top_frame, text="Select device to watch:", font=customtkinter.CTkFont(size=15, weight="bold"))
+app.nodeselect_label = customtkinter.CTkLabel(
+    app.top_frame,
+    text="Select device to watch:",
+    font=customtkinter.CTkFont(size=15, weight="bold"),
+)
 app.nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
 
-app.nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
+app.nodeselect_button = customtkinter.CTkSegmentedButton(
+    app.top_frame, command=node_select_callback
+)
 app.nodeselect_button.grid(row=0, column=4, sticky="w")
 app.nodeselect_button.configure(values=nodenames + ["NONE"])
 
-icon_light=tkinter.PhotoImage(file="siliUX/light.png")
-icon_dark=tkinter.PhotoImage(file="siliUX/dark.png")
+icon_light = tkinter.PhotoImage(file="siliUX/light.png")
+icon_dark = tkinter.PhotoImage(file="siliUX/dark.png")
+
 
 def change_appearance_mode_event():
     if customtkinter.get_appearance_mode() == "Dark":
@@ -553,7 +636,14 @@ def change_appearance_mode_event():
         customtkinter.set_appearance_mode("Dark")
         apperance_switch.configure(image=icon_light)
 
-apperance_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=change_appearance_mode_event, image=icon_dark, width=5)
+
+apperance_switch = customtkinter.CTkButton(
+    app.top_frame,
+    text=f"",
+    command=change_appearance_mode_event,
+    image=icon_dark,
+    width=5,
+)
 apperance_switch.grid(row=0, column=5, padx=5, pady=5, sticky="e")
 
 ################################################################################
@@ -571,76 +661,85 @@ app.sidebar_frame.grid_rowconfigure(1, weight=1)
 def log_swcheck_event():
     count = 0
     for i in range(len(log_group)):
-         if log_switches[i].get() == 1 :
-               count = count + 1
+        if log_switches[i].get() == 1:
+            count = count + 1
     if count:
         app.logctl_button.configure(state="enabled")
     else:
         app.logctl_button.configure(state="disabled")
+
 
 def log_selectall_event():
     for i in range(len(log_group)):
         log_switches[i].select()
     app.logctl_button.configure(state="enabled")
 
+
 def log_selectnone_event():
     for i in range(len(log_group)):
         log_switches[i].deselect()
     app.logctl_button.configure(state="disabled")
+
 
 def log_open_event():
     global logfile_path
 
     if logfile_path:
         # Construct the command to open the file explorer
-        if os.name == 'nt':  # Windows
+        if os.name == "nt":  # Windows
             os.startfile(logfile_path)
-        elif os.name == 'posix':  # macOS and Linux
+        elif os.name == "posix":  # macOS and Linux
             os.system(f'open "{logfile_path}"')
+
 
 def log_ctl_event(value):
     global logfile_path, logfile, writer, log_count
 
-    if logfile and value=="Stop":
-        #app.entry.configure(state="normal")
+    if logfile and value == "Stop":
+        # app.entry.configure(state="normal")
         for i in range(len(log_group)):
             log_switches[i].configure(state="normal")
 
         logfile.close()
         logfile = 0
         app.logctl_button.configure(selected_color="green")
-        app.showfile_button.configure(state="enabled", text=f"Show " + os.path.basename(logfile_path))
+        app.showfile_button.configure(
+            state="enabled", text=f"Show " + os.path.basename(logfile_path)
+        )
         app.delimiter.configure(state="enabled")
         app.selectall.configure(state="enabled")
         app.selectnone.configure(state="enabled")
 
-    elif value=="Record":
-        logfile_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
+    elif value == "Record":
+        logfile_path = filedialog.asksaveasfilename(
+            defaultextension=".csv",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+        )
 
-        #user cancelled the file selection dialog
+        # user cancelled the file selection dialog
         if not logfile_path:
             app.logctl_button.set("Stop")
             return
 
         try:
-            logfile = open(logfile_path, mode='w', newline='')
+            logfile = open(logfile_path, mode="w", newline="")
 
-        #file could not be opened
+        # file could not be opened
         except Exception as e:
             app.logctl_button.set("Stop")
             return
 
         if app.delimiter.get() == 1:
-            writer = csv.writer(logfile, delimiter=';')
+            writer = csv.writer(logfile, delimiter=";")
         else:
             writer = csv.writer(logfile)
-        #app.entry.configure(state="readonly")
+        # app.entry.configure(state="readonly")
 
-        row = ['timestamp']
+        row = ["timestamp"]
         for i in range(len(log_group)):
-             log_switches[i].configure(state="disabled")
-             if log_switches[i].get() == 1 :
-                 for j in range(len(log_group_header[i])):
+            log_switches[i].configure(state="disabled")
+            if log_switches[i].get() == 1:
+                for j in range(len(log_group_header[i])):
                     row.append(log_group_header[i][j])
 
         writer.writerow(row)
@@ -652,44 +751,74 @@ def log_ctl_event(value):
         app.selectnone.configure(state="disabled")
 
 
-app.scrollable_frame = customtkinter.CTkScrollableFrame(app.sidebar_frame, label_text="Background data recording")
+app.scrollable_frame = customtkinter.CTkScrollableFrame(
+    app.sidebar_frame, label_text="Background data recording"
+)
 app.scrollable_frame.grid(row=1, column=0, columnspan=2, pady=5, sticky="nsew")
 app.scrollable_frame.grid_columnconfigure(1, weight=0)
 
 
-#app.logctl_button = customtkinter.CTkButton(app.scrollable_frame, text=f"Record ...", width=5, command=log_ctl_event, fg_color="green", state="disabled")
-app.logctl_button = customtkinter.CTkSegmentedButton(app.scrollable_frame, command=log_ctl_event)
-app.logctl_button.configure(values=["Stop", "Record"], selected_color="green", state="disabled")
+# app.logctl_button = customtkinter.CTkButton(app.scrollable_frame, text=f"Record ...", width=5, command=log_ctl_event, fg_color="green", state="disabled")
+app.logctl_button = customtkinter.CTkSegmentedButton(
+    app.scrollable_frame, command=log_ctl_event
+)
+app.logctl_button.configure(
+    values=["Stop", "Record"], selected_color="green", state="disabled"
+)
 app.logctl_button.set("Stop")
 app.logctl_button.grid(row=0, column=0, pady=5, padx=5)
 
 
-app.logcountlabel = customtkinter.CTkLabel(app.scrollable_frame, text="0 samples", font=customtkinter.CTkFont(size=15, weight="bold"))
+app.logcountlabel = customtkinter.CTkLabel(
+    app.scrollable_frame,
+    text="0 samples",
+    font=customtkinter.CTkFont(size=15, weight="bold"),
+)
 app.logcountlabel.grid(row=0, column=1, padx=5, sticky="nsew")
 CTkToolTip(app.logcountlabel, message="Samples recorded")
 
-app.delimiter = customtkinter.CTkSwitch(master=app.scrollable_frame, text="use semicolon delimiter")
+app.delimiter = customtkinter.CTkSwitch(
+    master=app.scrollable_frame, text="use semicolon delimiter"
+)
 app.delimiter.grid(row=1, column=0, columnspan=2, pady=5, padx=5, sticky="nw")
 
-app.showfile_button = customtkinter.CTkButton(app.scrollable_frame, text=f"Show recorded data", command=log_open_event, state="disabled")
+app.showfile_button = customtkinter.CTkButton(
+    app.scrollable_frame,
+    text=f"Show recorded data",
+    command=log_open_event,
+    state="disabled",
+)
 app.showfile_button.grid(row=2, column=0, columnspan=2, pady=5, padx=5)
 
-#app.entry = customtkinter.CTkEntry(app.scrollable_frame)
-#app.entry.grid(row=1, column=0, columnspan=2, pady=5, sticky="we")
-#app.entry.insert(0, "log.csv")
-#CTkToolTip(app.entry, message="File name to record to.")
+# app.entry = customtkinter.CTkEntry(app.scrollable_frame)
+# app.entry.grid(row=1, column=0, columnspan=2, pady=5, sticky="we")
+# app.entry.insert(0, "log.csv")
+# CTkToolTip(app.entry, message="File name to record to.")
 
 for i in range(len(log_group)):
-    switch = customtkinter.CTkCheckBox(master=app.scrollable_frame, text=log_group[i], command=log_swcheck_event)
+    switch = customtkinter.CTkCheckBox(
+        master=app.scrollable_frame, text=log_group[i], command=log_swcheck_event
+    )
     switch.grid(row=i + 5, column=0, columnspan=2, pady=5, sticky="w")
     log_switches.append(switch)
 
-app.selectall = customtkinter.CTkButton(app.scrollable_frame, text=f"Select all", width=5, command=log_selectall_event, border_width=3)
-app.selectall.grid(row=33, column=0,  pady=5, sticky="w")
+app.selectall = customtkinter.CTkButton(
+    app.scrollable_frame,
+    text=f"Select all",
+    width=5,
+    command=log_selectall_event,
+    border_width=3,
+)
+app.selectall.grid(row=33, column=0, pady=5, sticky="w")
 
-app.selectnone = customtkinter.CTkButton(app.scrollable_frame, text=f"Select none", width=5, command=log_selectnone_event, border_width=3)
-app.selectnone.grid(row=34, column=0,  pady=5, sticky="w")
-
+app.selectnone = customtkinter.CTkButton(
+    app.scrollable_frame,
+    text=f"Select none",
+    width=5,
+    command=log_selectnone_event,
+    border_width=3,
+)
+app.selectnone.grid(row=34, column=0, pady=5, sticky="w")
 
 
 ################################################################################
@@ -699,69 +828,111 @@ app.tabview = customtkinter.CTkTabview(app.sidebar_frame, width=200, height=200)
 app.tabview.grid(row=0, column=0, columnspan=2, pady=5, sticky="nsew")
 
 
-
 def plot_plot(val, index):
-    if val=="battery current":
+    if val == "battery current":
         my_node.executeSimple("plot", "-p" + str(index), "/driver/supply/currentf")
-    if val=="motor currents":
-        if motorcurrentd and motorvoltaged: #VECTOR
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/currentqf", "/driver/motor/currentdf")
-        else: #BLDC
+    if val == "motor currents":
+        if motorcurrentd and motorvoltaged:  # VECTOR
+            my_node.executeSimple(
+                "plot",
+                "-p" + str(index),
+                "/driver/motor/currentqf",
+                "/driver/motor/currentdf",
+            )
+        else:  # BLDC
             my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/current")
-    if val=="unfiltered motor currents":
-        if motorcurrentd and motorvoltaged: #VECTOR
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/currentq", "/driver/motor/currentd")
-        else: #BLDC
+    if val == "unfiltered motor currents":
+        if motorcurrentd and motorvoltaged:  # VECTOR
+            my_node.executeSimple(
+                "plot",
+                "-p" + str(index),
+                "/driver/motor/currentq",
+                "/driver/motor/currentd",
+            )
+        else:  # BLDC
             my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/current")
-    if val=="motor current references":
-        if motorcurrentd and motorvoltaged: #VECTOR
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/Iqref", "/driver/debug_core/Idref")
-        else: #BLDC
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/currentr") # TODO !
-    if val=="battery voltage":
+    if val == "motor current references":
+        if motorcurrentd and motorvoltaged:  # VECTOR
+            my_node.executeSimple(
+                "plot",
+                "-p" + str(index),
+                "/driver/debug_core/Iqref",
+                "/driver/debug_core/Idref",
+            )
+        else:  # BLDC
+            my_node.executeSimple(
+                "plot", "-p" + str(index), "/driver/debug_core/currentr"
+            )  # TODO !
+    if val == "battery voltage":
         my_node.executeSimple("plot", "-p" + str(index), "/driver/supply/voltage")
-    if val=="motor voltages":
-        if motorcurrentd and motorvoltaged: #VECTOR
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/voltageq", "/driver/motor/voltaged")
-        else: #BLDC
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/voltage", "/driver/motor/duty")
-    if val=="motor voltage references":
-        if motorcurrentd and motorvoltaged: #VECTOR
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/Uqref", "/driver/debug_core/Udref")
-        else: #BLDC
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/dutyr") # TODO !
-    if val=="power":
+    if val == "motor voltages":
+        if motorcurrentd and motorvoltaged:  # VECTOR
+            my_node.executeSimple(
+                "plot",
+                "-p" + str(index),
+                "/driver/motor/voltageq",
+                "/driver/motor/voltaged",
+            )
+        else:  # BLDC
+            my_node.executeSimple(
+                "plot", "-p" + str(index), "/driver/motor/voltage", "/driver/motor/duty"
+            )
+    if val == "motor voltage references":
+        if motorcurrentd and motorvoltaged:  # VECTOR
+            my_node.executeSimple(
+                "plot",
+                "-p" + str(index),
+                "/driver/debug_core/Uqref",
+                "/driver/debug_core/Udref",
+            )
+        else:  # BLDC
+            my_node.executeSimple(
+                "plot", "-p" + str(index), "/driver/debug_core/dutyr"
+            )  # TODO !
+    if val == "power":
         my_node.executeSimple("plot", "-p" + str(index), "/driver/power")
-    if val=="motor speed":
+    if val == "motor speed":
         my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/rpmf")
-    if val=="tempreatures":
-        my_node.executeSimple("plot", "-p" + str(index), "/driver/temp", "/driver/ptctemp")
-    if val=="motor temperature (resistance)":
+    if val == "tempreatures":
+        my_node.executeSimple(
+            "plot", "-p" + str(index), "/driver/temp", "/driver/ptctemp"
+        )
+    if val == "motor temperature (resistance)":
         my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/rthermistor")
-    if val=="stat and limit":
-        my_node.executeSimple("plot", "-p" + str(index), "/driver/stat", "/driver/limit")
-    if val=="totallimit":
+    if val == "stat and limit":
+        my_node.executeSimple(
+            "plot", "-p" + str(index), "/driver/stat", "/driver/limit"
+        )
+    if val == "totallimit":
         my_node.executeSimple("plot", "-p" + str(index), "/driver/totallimit")
-    if val=="command and mode":
+    if val == "command and mode":
         my_node.executeSimple("plot", "-p" + str(index), "/driver/cmd", "/driver/mode")
-    if val=="command multipliers":
-        my_node.executeSimple("plot", "-p" + str(index), "/driver/iqmult", "/driver/uqmult")
+    if val == "command multipliers":
+        my_node.executeSimple(
+            "plot", "-p" + str(index), "/driver/iqmult", "/driver/uqmult"
+        )
 
-    #always do autoscale
-    my_node.executeSimple("legend", "-p" + str(index), "-c24", "13", "0") # a bug workaround: YOS only sends payload in multiply of 4 bytes, we must send a dummy zero
+    # always do autoscale
+    my_node.executeSimple(
+        "legend", "-p" + str(index), "-c24", "13", "0"
+    )  # a bug workaround: YOS only sends payload in multiply of 4 bytes, we must send a dummy zero
+
 
 class plot_tab:
     index = 0
     user_event = None
+
     def erase_event(self):
         my_node.executeSimple("legend", "-p" + str(self.index), "-c20", "99", "113")
 
     def autoset_event(self):
-        my_node.executeSimple("legend", "-p" + str(self.index), "-c24", "13", "0") # a bug workaround: YOS only sends payload in multiply of 4 bytes, we must send a dummy zero
+        my_node.executeSimple(
+            "legend", "-p" + str(self.index), "-c24", "13", "0"
+        )  # a bug workaround: YOS only sends payload in multiply of 4 bytes, we must send a dummy zero
 
     def state_update(self):
         plot_state = my_node.executeSimple("period", "-p" + str(self.index), "-g", "-c")
-        self.clear_button.configure(text="Clear\n" + str((plot_state>>16)&7))
+        self.clear_button.configure(text="Clear\n" + str((plot_state >> 16) & 7))
 
     def clear_event(self):
         my_node.executeSimple("plot", "-p" + str(self.index), "-c")
@@ -777,32 +948,72 @@ class plot_tab:
         plot_plot(val, self.index)
         self.state_update()
 
-    def __init__(self, name, idx, vals) :
+    def __init__(self, name, idx, vals):
         app.tabview.add(name)
-        app.tabview.tab(name).grid_columnconfigure((0,1,2,3), weight=1)
+        app.tabview.tab(name).grid_columnconfigure((0, 1, 2, 3), weight=1)
         self.index = idx
-        self.valuemenu = customtkinter.CTkOptionMenu(app.tabview.tab(name), dynamic_resizing=False, values=vals, command=self.plot_event)
+        self.valuemenu = customtkinter.CTkOptionMenu(
+            app.tabview.tab(name),
+            dynamic_resizing=False,
+            values=vals,
+            command=self.plot_event,
+        )
         self.valuemenu.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
         self.valuemenu.set("Plot a topic ...")
         CTkToolTip(self.valuemenu, message="Choose group of variables to plot.")
-        self.periodbox = customtkinter.CTkComboBox(app.tabview.tab(name), values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"], command=self.period_event)
+        self.periodbox = customtkinter.CTkComboBox(
+            app.tabview.tab(name),
+            values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"],
+            command=self.period_event,
+        )
         self.periodbox.set("10 ms")
         self.periodbox.grid(row=1, column=0, columnspan=3, padx=10, pady=10)
         CTkToolTip(self.periodbox, message="Choose a sampling period for this plot.")
-        self.clear_button = customtkinter.CTkButton(app.tabview.tab(name), text="Clear", command=self.clear_event, border_width=2, width=5)
+        self.clear_button = customtkinter.CTkButton(
+            app.tabview.tab(name),
+            text="Clear",
+            command=self.clear_event,
+            border_width=2,
+            width=5,
+        )
         self.clear_button.grid(row=0, column=3, rowspan=2, padx=5, pady=5)
         CTkToolTip(self.clear_button, message="Clear the plot (stop sampling service).")
-        self.release_button = customtkinter.CTkButton(app.tabview.tab(name), text="Release", command=self.erase_event, width=5)
-        self.release_button.grid(row=2, column=2, columnspan=2, padx=5, pady=5, sticky="w")
+        self.release_button = customtkinter.CTkButton(
+            app.tabview.tab(name), text="Release", command=self.erase_event, width=5
+        )
+        self.release_button.grid(
+            row=2, column=2, columnspan=2, padx=5, pady=5, sticky="w"
+        )
         CTkToolTip(self.release_button, message="Release this plot from the scope.")
-        self.autoset_button = customtkinter.CTkButton(app.tabview.tab(name), text="Autoscale", command=self.autoset_event, width=5)
-        self.autoset_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="e")
-        CTkToolTip(self.autoset_button, message="Auto-scale this plot according to the acutal data.")
+        self.autoset_button = customtkinter.CTkButton(
+            app.tabview.tab(name), text="Autoscale", command=self.autoset_event, width=5
+        )
+        self.autoset_button.grid(
+            row=2, column=0, columnspan=2, padx=5, pady=5, sticky="e"
+        )
+        CTkToolTip(
+            self.autoset_button,
+            message="Auto-scale this plot according to the acutal data.",
+        )
 
-plot_groups = ["battery current", "motor currents", "unfiltered motor currents", "motor current references",
-    "battery voltage", "motor voltages", "motor voltage references",
-    "power", "motor speed", "tempreatures", "motor temperature (resistance)",
-    "stat and limit", "totallimit", "command and mode", "command multipliers"]
+
+plot_groups = [
+    "battery current",
+    "motor currents",
+    "unfiltered motor currents",
+    "motor current references",
+    "battery voltage",
+    "motor voltages",
+    "motor voltage references",
+    "power",
+    "motor speed",
+    "tempreatures",
+    "motor temperature (resistance)",
+    "stat and limit",
+    "totallimit",
+    "command and mode",
+    "command multipliers",
+]
 
 plot0 = plot_tab("plot0", 0, plot_groups)
 plot1 = plot_tab("plot1", 1, plot_groups)
@@ -818,33 +1029,61 @@ app.drv_frame.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 app.drv_frame.grid_columnconfigure(1, weight=1)
 app.drv_frame.grid_rowconfigure(1, weight=1)
 
-app.namelabel = customtkinter.CTkLabel(app.drv_frame, text="Power stage",  corner_radius=5, fg_color=("gray78", "gray23"))
+app.namelabel = customtkinter.CTkLabel(
+    app.drv_frame, text="Power stage", corner_radius=5, fg_color=("gray78", "gray23")
+)
 app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
-app.templabel = customtkinter.CTkLabel(app.drv_frame, text="0\N{DEGREE SIGN}C", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/temp.png"), compound="left")
+app.templabel = customtkinter.CTkLabel(
+    app.drv_frame,
+    text="0\N{DEGREE SIGN}C",
+    font=customtkinter.CTkFont(size=20, weight="bold"),
+    image=tkinter.PhotoImage(file="siliUX/temp.png"),
+    compound="left",
+)
 app.templabel.grid(row=1, column=0, rowspan=3, padx=0, sticky="w")
 CTkToolTip(app.templabel, message="Average temperature.")
 
-app.pwrlabel = customtkinter.CTkLabel(app.drv_frame, text="0W", pady=5, font=customtkinter.CTkFont(size=40, weight="bold"), image=tkinter.PhotoImage(file="siliUX/transistor.png"), compound="left")
+app.pwrlabel = customtkinter.CTkLabel(
+    app.drv_frame,
+    text="0W",
+    pady=5,
+    font=customtkinter.CTkFont(size=40, weight="bold"),
+    image=tkinter.PhotoImage(file="siliUX/transistor.png"),
+    compound="left",
+)
 app.pwrlabel.grid(row=1, column=1)
 CTkToolTip(app.pwrlabel, message="Total power throughput.")
 
-app.energylabel = customtkinter.CTkLabel(app.drv_frame, text="0J", image=tkinter.PhotoImage(file="siliUX/counter.png"), compound="left")
+app.energylabel = customtkinter.CTkLabel(
+    app.drv_frame,
+    text="0J",
+    image=tkinter.PhotoImage(file="siliUX/counter.png"),
+    compound="left",
+)
 app.energylabel.grid(row=2, column=1)
 CTkToolTip(app.energylabel, message="Transferred energy since reboot.")
 
-app.ptctemplabel = customtkinter.CTkLabel(app.drv_frame, text="0", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/templimit.png"), compound="left")
-app.ptctemplabel.grid(row=1, column=2, rowspan=3, padx=(0,20), sticky="e")
+app.ptctemplabel = customtkinter.CTkLabel(
+    app.drv_frame,
+    text="0",
+    font=customtkinter.CTkFont(size=20, weight="bold"),
+    image=tkinter.PhotoImage(file="siliUX/templimit.png"),
+    compound="left",
+)
+app.ptctemplabel.grid(row=1, column=2, rowspan=3, padx=(0, 20), sticky="e")
 CTkToolTip(app.ptctemplabel, message="Peak temperature sensor state.")
 
-#TODO consider other widget to indicate enable state (e.g. icon)
+# TODO consider other widget to indicate enable state (e.g. icon)
 app.enablebar = customtkinter.CTkProgressBar(app.drv_frame, orientation="horizontal")
 app.enablebar.grid(row=3, column=1, padx=5, pady=5, sticky="ns")
-app.enablebar.configure(progress_color="black", fg_color="black") #, mode="indeterminate")
+app.enablebar.configure(
+    progress_color="black", fg_color="black"
+)  # , mode="indeterminate")
 app.enablebar.set(1)
 CTkToolTip(app.enablebar, message="Power transistor switching state.")
 
-#app.enablebar.start()
+# app.enablebar.start()
 
 ################################################################################
 # create limter/stat/error view frame
@@ -854,28 +1093,56 @@ app.limiter_frame.grid(row=2, column=1, rowspan=2, padx=5, pady=5, sticky="nsew"
 app.limiter_frame.grid_columnconfigure((0, 1, 2), weight=1)
 app.limiter_frame.grid_rowconfigure(2, weight=1)
 
-app.namelabel = customtkinter.CTkLabel(app.limiter_frame, text="Protection and derating", corner_radius=5, fg_color=("gray78", "gray23"))
+app.namelabel = customtkinter.CTkLabel(
+    app.limiter_frame,
+    text="Protection and derating",
+    corner_radius=5,
+    fg_color=("gray78", "gray23"),
+)
 app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
-app.errorlabel = customtkinter.CTkLabel(app.limiter_frame, text="error\n0", corner_radius=5, image=tkinter.PhotoImage(file="siliUX/stop.png"), width=120, compound="left")
+app.errorlabel = customtkinter.CTkLabel(
+    app.limiter_frame,
+    text="error\n0",
+    corner_radius=5,
+    image=tkinter.PhotoImage(file="siliUX/stop.png"),
+    width=120,
+    compound="left",
+)
 app.errorlabel.grid(row=1, column=0, padx=5, pady=5, sticky="nw")
 app.errortext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.errortext.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 CTkToolTip(app.errorlabel, message="Driver critical error.")
 
-app.statlabel = customtkinter.CTkLabel(app.limiter_frame, text="stat\n0", corner_radius=5, image=tkinter.PhotoImage(file="siliUX/warning.png"), width=120, compound="left")
+app.statlabel = customtkinter.CTkLabel(
+    app.limiter_frame,
+    text="stat\n0",
+    corner_radius=5,
+    image=tkinter.PhotoImage(file="siliUX/warning.png"),
+    width=120,
+    compound="left",
+)
 app.statlabel.grid(row=1, column=1, padx=5, pady=5, sticky="nw")
 app.stattext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.stattext.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
 CTkToolTip(app.statlabel, message="Driver status (warning) indication.")
 
-app.limitlabel = customtkinter.CTkLabel(app.limiter_frame, text="limit\n0", corner_radius=5, image=tkinter.PhotoImage(file="siliUX/limiter.png"), width=120, compound="left")
+app.limitlabel = customtkinter.CTkLabel(
+    app.limiter_frame,
+    text="limit\n0",
+    corner_radius=5,
+    image=tkinter.PhotoImage(file="siliUX/limiter.png"),
+    width=120,
+    compound="left",
+)
 app.limitlabel.grid(row=1, column=2, padx=5, pady=5, sticky="nw")
 app.limittext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.limittext.grid(row=2, column=2, padx=5, pady=5, sticky="nsew")
 CTkToolTip(app.limitlabel, message="Driver limit (derating) indication.")
 
-app.totallimitbar = customtkinter.CTkProgressBar(app.limiter_frame, height=20, progress_color="black")
+app.totallimitbar = customtkinter.CTkProgressBar(
+    app.limiter_frame, height=20, progress_color="black"
+)
 app.totallimitbar.grid(row=3, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
 app.totallimitbar.set(1)
 CTkToolTip(app.totallimitbar, message="Total driver limitation.")
@@ -888,26 +1155,48 @@ app.cmd_frame.grid(row=4, column=1, padx=5, pady=5, sticky="nsew")
 app.cmd_frame.grid_columnconfigure(2, weight=1)
 app.cmd_frame.grid_rowconfigure(1, weight=2)
 
-app.namelabel = customtkinter.CTkLabel(app.cmd_frame, text="Actual command setpoint", corner_radius=5, fg_color=("gray78", "gray23"))
+app.namelabel = customtkinter.CTkLabel(
+    app.cmd_frame,
+    text="Actual command setpoint",
+    corner_radius=5,
+    fg_color=("gray78", "gray23"),
+)
 app.namelabel.grid(row=0, column=0, columnspan=4, sticky="ew")
 
 app.imultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
 app.imultbar.grid(row=1, column=0, rowspan=3, padx=5, pady=5, sticky="ns")
 CTkToolTip(app.imultbar, message="Current multiplier level.")
 
-app.checkbox_spd = customtkinter.CTkSwitch(master=app.cmd_frame, text="speed loop", state="disabled")
+app.checkbox_spd = customtkinter.CTkSwitch(
+    master=app.cmd_frame, text="speed loop", state="disabled"
+)
 app.checkbox_spd.grid(row=3, column=1, pady=5, padx=20, sticky="nw")
-app.checkbox_pos = customtkinter.CTkSwitch(master=app.cmd_frame, text="position loop", state="disabled")
+app.checkbox_pos = customtkinter.CTkSwitch(
+    master=app.cmd_frame, text="position loop", state="disabled"
+)
 app.checkbox_pos.grid(row=3, column=2, pady=5, padx=20, sticky="nw")
 
-app.modelabel = customtkinter.CTkLabel(app.cmd_frame, text=" UNK", font=customtkinter.CTkFont(size=40, weight="bold"), image=tkinter.PhotoImage(file="siliUX/joystick.png"), compound="left")
+app.modelabel = customtkinter.CTkLabel(
+    app.cmd_frame,
+    text=" UNK",
+    font=customtkinter.CTkFont(size=40, weight="bold"),
+    image=tkinter.PhotoImage(file="siliUX/joystick.png"),
+    compound="left",
+)
 app.modelabel.grid(row=1, column=0, columnspan=3, pady=5)
 CTkToolTip(app.modelabel, message="Actual control mode.")
 
-#app.cmdlabel = customtkinter.CTkLabel(app.cmd_frame, text="0.0", font=customtkinter.CTkFont(size=40, weight="bold"))
-#app.cmdlabel.grid(row=0, column=0, columnspan=2)
+# app.cmdlabel = customtkinter.CTkLabel(app.cmd_frame, text="0.0", font=customtkinter.CTkFont(size=40, weight="bold"))
+# app.cmdlabel.grid(row=0, column=0, columnspan=2)
 
-app.cmdbar = customtkinter.CTkSlider(app.cmd_frame, from_=-1, to=1, state="disabled", progress_color="transparent", height=30)
+app.cmdbar = customtkinter.CTkSlider(
+    app.cmd_frame,
+    from_=-1,
+    to=1,
+    state="disabled",
+    progress_color="transparent",
+    height=30,
+)
 app.cmdbar.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
 CTkToolTip(app.cmdbar, message="Actual command level.")
 
@@ -915,8 +1204,8 @@ app.umultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical
 app.umultbar.grid(row=1, column=3, rowspan=3, padx=5, pady=5, sticky="ns")
 CTkToolTip(app.umultbar, message="Voltage multiplier level.")
 
-#app.rmultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
-#app.rmultbar.grid(row=0, column=4, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns")
+# app.rmultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
+# app.rmultbar.grid(row=0, column=4, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns")
 
 
 ################################################################################
@@ -927,17 +1216,40 @@ app.battery_frame.grid(row=1, column=2, rowspan=2, padx=5, pady=5, sticky="nsew"
 app.battery_frame.grid_columnconfigure(0, weight=1)
 app.battery_frame.grid_rowconfigure(1, weight=1)
 
-app.namelabel = customtkinter.CTkLabel(app.battery_frame, text="Supply (DC)", corner_radius=5, fg_color=("gray78", "gray23"))
+app.namelabel = customtkinter.CTkLabel(
+    app.battery_frame,
+    text="Supply (DC)",
+    corner_radius=5,
+    fg_color=("gray78", "gray23"),
+)
 app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
-app.battlabel = customtkinter.CTkLabel(app.battery_frame, text="0.0V\n0.0A", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/battery.png"), compound="left")
-app.battlabel.grid(row=1, column=0, pady=10, padx=(30,0), sticky="w")
+app.battlabel = customtkinter.CTkLabel(
+    app.battery_frame,
+    text="0.0V\n0.0A",
+    font=customtkinter.CTkFont(size=20, weight="bold"),
+    image=tkinter.PhotoImage(file="siliUX/battery.png"),
+    compound="left",
+)
+app.battlabel.grid(row=1, column=0, pady=10, padx=(30, 0), sticky="w")
 
-app.coulomblabel = customtkinter.CTkLabel(app.battery_frame, text="0mAh", image=tkinter.PhotoImage(file="siliUX/counter.png"), compound="left")
+app.coulomblabel = customtkinter.CTkLabel(
+    app.battery_frame,
+    text="0mAh",
+    image=tkinter.PhotoImage(file="siliUX/counter.png"),
+    compound="left",
+)
 app.coulomblabel.grid(row=2, column=0)
 CTkToolTip(app.coulomblabel, message="DC capacity transferred since last reboot.")
 
-app.batcurrentbar = customtkinter.CTkSlider(app.battery_frame, from_=-1, to=1, state="disabled", progress_color="transparent", height=30)
+app.batcurrentbar = customtkinter.CTkSlider(
+    app.battery_frame,
+    from_=-1,
+    to=1,
+    state="disabled",
+    progress_color="transparent",
+    height=30,
+)
 app.batcurrentbar.grid(row=3, column=0, padx=(10, 10), pady=(10, 10), sticky="ns")
 CTkToolTip(app.batcurrentbar, message="Relative DC current indicator.")
 
@@ -948,41 +1260,71 @@ app.motor_frame = customtkinter.CTkFrame(app)
 app.motor_frame.grid(row=3, column=2, rowspan=2, padx=5, pady=5, sticky="nsew")
 app.motor_frame.grid_columnconfigure(0, weight=1)
 app.motor_frame.grid_columnconfigure(1, weight=1)
-app.motor_frame.grid_rowconfigure((1,3,5,7,11), weight=1)
+app.motor_frame.grid_rowconfigure((1, 3, 5, 7, 11), weight=1)
 
-app.namelabel = customtkinter.CTkLabel(app.motor_frame, text="Motor (AC)", corner_radius=5, fg_color=("gray78", "gray23"))
+app.namelabel = customtkinter.CTkLabel(
+    app.motor_frame, text="Motor (AC)", corner_radius=5, fg_color=("gray78", "gray23")
+)
 app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
-app.rpmlabel = customtkinter.CTkLabel(app.motor_frame, text="0\nRPM", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/motor.png"), compound="left")
+app.rpmlabel = customtkinter.CTkLabel(
+    app.motor_frame,
+    text="0\nRPM",
+    font=customtkinter.CTkFont(size=20, weight="bold"),
+    image=tkinter.PhotoImage(file="siliUX/motor.png"),
+    compound="left",
+)
 app.rpmlabel.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
-app.fluxlabel = customtkinter.CTkLabel(app.motor_frame, text="0A\0V", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/flux.png"), compound="top")
+app.fluxlabel = customtkinter.CTkLabel(
+    app.motor_frame,
+    text="0A\0V",
+    font=customtkinter.CTkFont(size=20, weight="bold"),
+    image=tkinter.PhotoImage(file="siliUX/flux.png"),
+    compound="top",
+)
 app.fluxlabel.grid(row=3, column=0, sticky="nsew")
 CTkToolTip(app.fluxlabel, message="D-axis (flux) current and voltage.")
 
-app.torquelabel = customtkinter.CTkLabel(app.motor_frame, text="0A\0V", font=customtkinter.CTkFont(size=20, weight="bold"), image=tkinter.PhotoImage(file="siliUX/torque.png"), compound="top")
+app.torquelabel = customtkinter.CTkLabel(
+    app.motor_frame,
+    text="0A\0V",
+    font=customtkinter.CTkFont(size=20, weight="bold"),
+    image=tkinter.PhotoImage(file="siliUX/torque.png"),
+    compound="top",
+)
 app.torquelabel.grid(row=3, column=1, sticky="nsew")
 CTkToolTip(app.torquelabel, message="Q-axis (torque) current and voltage.")
 
 app.motvoltagelabel = customtkinter.CTkLabel(app.motor_frame, text="0V / 0Vrms")
-app.motvoltagelabel.grid(row=5, column=0, columnspan=2, pady=(0,0))
+app.motvoltagelabel.grid(row=5, column=0, columnspan=2, pady=(0, 0))
 CTkToolTip(app.motvoltagelabel, message="Stator voltage (magnitude and RMS).")
 
 app.motvoltagebar = customtkinter.CTkProgressBar(app.motor_frame, height=10)
 app.motvoltagebar.grid(row=6, column=0, columnspan=2, pady=(0, 10), sticky="ns")
 
 app.motcurrentlabel = customtkinter.CTkLabel(app.motor_frame, text="0A / 0Arms")
-app.motcurrentlabel.grid(row=7, column=0, columnspan=2, pady=(10,0))
+app.motcurrentlabel.grid(row=7, column=0, columnspan=2, pady=(10, 0))
 CTkToolTip(app.motcurrentlabel, message="Stator current (magnitude and RMS).")
 
 app.motcurrentbar = customtkinter.CTkProgressBar(app.motor_frame, height=10)
 app.motcurrentbar.grid(row=9, column=0, columnspan=2, pady=(0, 0), sticky="ns")
 
-app.odolabel = customtkinter.CTkLabel(app.motor_frame, text="0 revs", image=tkinter.PhotoImage(file="siliUX/counter.png"), compound="top")
+app.odolabel = customtkinter.CTkLabel(
+    app.motor_frame,
+    text="0 revs",
+    image=tkinter.PhotoImage(file="siliUX/counter.png"),
+    compound="top",
+)
 app.odolabel.grid(row=11, column=0, pady=15)
 CTkToolTip(app.odolabel, message="Number of electrical revolutions since reboot.")
 
-app.ohmlabel = customtkinter.CTkLabel(app.motor_frame, text="0 ohms", image=tkinter.PhotoImage(file="siliUX/ohm.png"), compound="top" )
+app.ohmlabel = customtkinter.CTkLabel(
+    app.motor_frame,
+    text="0 ohms",
+    image=tkinter.PhotoImage(file="siliUX/ohm.png"),
+    compound="top",
+)
 app.ohmlabel.grid(row=11, column=1, pady=15)
 CTkToolTip(app.ohmlabel, message="Resistance of the motor temperature sensor.")
 
@@ -990,7 +1332,7 @@ CTkToolTip(app.ohmlabel, message="Resistance of the motor temperature sensor.")
 ################################################################################
 # start the loop !
 
-#if a single node is fetched, load it automatically
+# if a single node is fetched, load it automatically
 if len(nodenames) == 1:
     app.nodeselect_button.set(nodenames[0])
     node_select_callback(nodenames[0])

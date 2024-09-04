@@ -1,10 +1,11 @@
 import customtkinter
 import sxapi
 
+
 def MessageBox(message):
     app = customtkinter.CTk()
     app.attributes("-topmost", 1)
-    #app.eval("tk::PlaceWindow.center")
+    # app.eval("tk::PlaceWindow.center")
     x, y = app.winfo_pointerxy()
     app.geometry(f"+{x}+{y}")
     app.title("Find nodes")
@@ -34,10 +35,14 @@ def find(family):
     nodenames = []
 
     for i in range(nodeCount):
-        newNode = sxapi.node(i, iomode=3) # TODO explore other iomode options for better responsiveness and safety
+        newNode = sxapi.node(
+            i, iomode=3
+        )  # TODO explore other iomode options for better responsiveness and safety
         if newNode.hwid().decode()[:3] == family:
             nodes.append(newNode)
-            nodenames.append(newNode.name.decode() + " (" + newNode.address.decode() + ")")
+            nodenames.append(
+                newNode.name.decode() + " (" + newNode.address.decode() + ")"
+            )
 
     if len(nodes) < 1:
         MessageBox("None of the nodes is an " + family + " member!")

@@ -15,20 +15,21 @@ class CTkToolTip(Toplevel):
     """
 
     def __init__(
-            self,
-            widget: any = None,
-            message: str = None,
-            delay: float = 0.2,
-            follow: bool = True,
-            x_offset: int = +20,
-            y_offset: int = +10,
-            bg_color: str = None,
-            corner_radius: int = 10,
-            border_width: int = 0,
-            border_color: str = None,
-            alpha: float = 0.95,
-            padding: tuple = (10, 2),
-            **message_kwargs):
+        self,
+        widget: any = None,
+        message: str = None,
+        delay: float = 0.2,
+        follow: bool = True,
+        x_offset: int = +20,
+        y_offset: int = +10,
+        bg_color: str = None,
+        corner_radius: int = 10,
+        border_width: int = 0,
+        border_color: str = None,
+        alpha: float = 0.95,
+        padding: tuple = (10, 2),
+        **message_kwargs,
+    ):
 
         super().__init__()
 
@@ -41,15 +42,16 @@ class CTkToolTip(Toplevel):
 
         if sys.platform.startswith("win"):
             self.transparent_color = self.widget._apply_appearance_mode(
-                customtkinter.ThemeManager.theme["CTkToplevel"]["fg_color"])
+                customtkinter.ThemeManager.theme["CTkToplevel"]["fg_color"]
+            )
             self.attributes("-transparentcolor", self.transparent_color)
             self.transient()
         elif sys.platform.startswith("darwin"):
-            self.transparent_color = 'systemTransparent'
+            self.transparent_color = "systemTransparent"
             self.attributes("-transparent", True)
             self.transient(self.master)
         else:
-            self.transparent_color = '#000001'
+            self.transparent_color = "#000001"
             corner_radius = 0
             self.transient()
 
@@ -71,17 +73,24 @@ class CTkToolTip(Toplevel):
         self.alpha = alpha
         self.border_width = border_width
         self.padding = padding
-        self.bg_color = customtkinter.ThemeManager.theme["CTkFrame"]["fg_color"] if bg_color is None else bg_color
+        self.bg_color = (
+            customtkinter.ThemeManager.theme["CTkFrame"]["fg_color"]
+            if bg_color is None
+            else bg_color
+        )
         self.border_color = border_color
         self.disable = False
 
         # visibility status of the ToolTip inside|outside|visible
         self.status = "outside"
         self.last_moved = 0
-        self.attributes('-alpha', self.alpha)
+        self.attributes("-alpha", self.alpha)
 
         if sys.platform.startswith("win"):
-            if self.widget._apply_appearance_mode(self.bg_color) == self.transparent_color:
+            if (
+                self.widget._apply_appearance_mode(self.bg_color)
+                == self.transparent_color
+            ):
                 self.transparent_color = "#000001"
                 self.config(background=self.transparent_color)
                 self.attributes("-transparentcolor", self.transparent_color)
@@ -90,21 +99,32 @@ class CTkToolTip(Toplevel):
         self.transparent_frame = Frame(self, bg=self.transparent_color)
         self.transparent_frame.pack(padx=0, pady=0, fill="both", expand=True)
 
-        self.frame = customtkinter.CTkFrame(self.transparent_frame, bg_color=self.transparent_color,
-                                            corner_radius=self.corner_radius,
-                                            border_width=self.border_width, fg_color=self.bg_color,
-                                            border_color=self.border_color)
+        self.frame = customtkinter.CTkFrame(
+            self.transparent_frame,
+            bg_color=self.transparent_color,
+            corner_radius=self.corner_radius,
+            border_width=self.border_width,
+            fg_color=self.bg_color,
+            border_color=self.border_color,
+        )
         self.frame.pack(padx=0, pady=0, fill="both", expand=True)
 
-        self.message_label = customtkinter.CTkLabel(self.frame, textvariable=self.messageVar, **message_kwargs)
-        self.message_label.pack(fill="both", padx=self.padding[0] + self.border_width,
-                                pady=self.padding[1] + self.border_width, expand=True)
+        self.message_label = customtkinter.CTkLabel(
+            self.frame, textvariable=self.messageVar, **message_kwargs
+        )
+        self.message_label.pack(
+            fill="both",
+            padx=self.padding[0] + self.border_width,
+            pady=self.padding[1] + self.border_width,
+            expand=True,
+        )
 
         if self.widget.winfo_name() != "tk":
             if self.frame.cget("fg_color") == self.widget.cget("bg_color"):
                 if not bg_color:
                     self._top_fg_color = self.frame._apply_appearance_mode(
-                        customtkinter.ThemeManager.theme["CTkFrame"]["top_fg_color"])
+                        customtkinter.ThemeManager.theme["CTkFrame"]["top_fg_color"]
+                    )
                     if self._top_fg_color != self.transparent_color:
                         self.frame.configure(fg_color=self._top_fg_color)
 
@@ -150,7 +170,9 @@ class CTkToolTip(Toplevel):
         # Calculate the offset based on available space and text width to avoid going off-screen on the right side
         offset_x = self.x_offset
         if space_on_right < text_width + 20:  # Adjust the threshold as needed
-            offset_x = -text_width - 20  # Negative offset when space is limited on the right side
+            offset_x = (
+                -text_width - 20
+            )  # Negative offset when space is limited on the right side
 
         # Offsets the ToolTip using the coordinates od an event as an origin
         self.geometry(f"+{event.x_root + offset_x}+{event.y_root + self.y_offset}")
@@ -163,7 +185,8 @@ class CTkToolTip(Toplevel):
         Hides the ToolTip temporarily.
         """
 
-        if self.disable: return
+        if self.disable:
+            return
         self.status = "outside"
         self.withdraw()
 
@@ -201,12 +224,16 @@ class CTkToolTip(Toplevel):
         """
         return self.messageVar.get()
 
-    def configure(self, message: str = None, delay: float = None, bg_color: str = None, **kwargs):
+    def configure(
+        self, message: str = None, delay: float = None, bg_color: str = None, **kwargs
+    ):
         """
         Set new message or configure the label parameters.
         """
-        if delay: self.delay = delay
-        if bg_color: self.frame.configure(fg_color=bg_color)
+        if delay:
+            self.delay = delay
+        if bg_color:
+            self.frame.configure(fg_color=bg_color)
 
         self.messageVar.set(message)
         self.message_label.configure(**kwargs)

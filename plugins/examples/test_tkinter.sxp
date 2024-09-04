@@ -1,29 +1,39 @@
-
-'''
+"""
 import sys
 print(sys.path)
-'''
+"""
 
 from tkinter import *
 from tkinter import ttk
+
 
 def set_variable(*args):
     try:
         value = float(v_value.get())
         if sxapi.setState(v_name.get(), value):
-            result.set(v_name.get() + " is set to " + str(format(sxapi.getState(v_name.get())[0], '3.2f')))
+            result.set(
+                v_name.get()
+                + " is set to "
+                + str(format(sxapi.getState(v_name.get())[0], "3.2f"))
+            )
             d_v_value.set(sxapi.getState(v_name.get())[0])
     except ValueError:
         pass
-    
+
+
 def set_variable_slider(*args):
     try:
         if len(v_name.get()) > 0:
             if sxapi.setState(v_name.get(), d_v_value.get()):
-                result.set(v_name.get() + " is set to " + str(format(sxapi.getState(v_name.get())[0], '3.2f')))
-                v_value.set(str(format(sxapi.getState(v_name.get())[0], '3.2f')))
+                result.set(
+                    v_name.get()
+                    + " is set to "
+                    + str(format(sxapi.getState(v_name.get())[0], "3.2f"))
+                )
+                v_value.set(str(format(sxapi.getState(v_name.get())[0], "3.2f")))
     except ValueError:
         pass
+
 
 root = Tk()
 root.title("Plugin #1")
@@ -43,17 +53,33 @@ v_name_entry.grid(column=2, row=1, sticky=(W, E))
 v_value_entry = ttk.Entry(mainframe, width=7, textvariable=v_value)
 v_value_entry.grid(column=2, row=2, sticky=(W, E))
 
-ttk.Label(mainframe, text="Name of a state variable", padding="0 0 7 0").grid(column=1, row=1, sticky=(W, E))
-ttk.Label(mainframe, text="The value of the state variable", padding="0 0 7 0").grid(column=1, row=2, sticky=(W, E))
-ttk.Label(mainframe, textvariable=result, padding="0 0 7 0").grid(column=1, row=3, sticky=(W, E))
+ttk.Label(mainframe, text="Name of a state variable", padding="0 0 7 0").grid(
+    column=1, row=1, sticky=(W, E)
+)
+ttk.Label(mainframe, text="The value of the state variable", padding="0 0 7 0").grid(
+    column=1, row=2, sticky=(W, E)
+)
+ttk.Label(mainframe, textvariable=result, padding="0 0 7 0").grid(
+    column=1, row=3, sticky=(W, E)
+)
 
-ttk.Button(mainframe, text="Set", command=set_variable).grid(column=2, row=3, sticky=(W,E))
+ttk.Button(mainframe, text="Set", command=set_variable).grid(
+    column=2, row=3, sticky=(W, E)
+)
 
-scale = ttk.Scale(mainframe, orient=HORIZONTAL, variable=d_v_value, from_=0.0, to=100.0, command=set_variable_slider).grid(column=1, row=4, sticky=(W, E))
+scale = ttk.Scale(
+    mainframe,
+    orient=HORIZONTAL,
+    variable=d_v_value,
+    from_=0.0,
+    to=100.0,
+    command=set_variable_slider,
+).grid(column=1, row=4, sticky=(W, E))
 
-for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
+for child in mainframe.winfo_children():
+    child.grid_configure(padx=5, pady=5)
 
 v_name_entry.focus()
-root.bind('<Return>', set_variable)
+root.bind("<Return>", set_variable)
 
 root.mainloop()

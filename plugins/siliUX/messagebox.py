@@ -1,5 +1,6 @@
 import customtkinter as ctk
 
+
 class MessageBox(ctk.CTkToplevel):
     def __init__(self, parent, title="Message", message=""):
         super().__init__(parent)

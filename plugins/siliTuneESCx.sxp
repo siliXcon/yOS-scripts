@@ -1,4 +1,4 @@
-sys.path.append('./siliUX')
+sys.path.append("./siliUX")
 
 import tkinter
 import math
@@ -12,6 +12,7 @@ from messagebox import MessageBox
 ################################################################################
 
 import find_nodes
+
 nodes, nodenames = find_nodes.find("esc")
 
 # configure grid layout (4x4)
@@ -22,7 +23,7 @@ app.attributes("-topmost", 1)
 x, y = app.winfo_pointerxy()
 app.geometry(f"{700}x{450}+{x-350}+{y}")
 app.grid_columnconfigure(6, weight=1)
-app.grid_rowconfigure((20,21,22), weight=1)
+app.grid_rowconfigure((20, 21, 22), weight=1)
 app.attributes("-topmost", 0)
 app.iconbitmap("siliUX/SiliXcon.ico")
 
@@ -35,18 +36,35 @@ supply_params = []
 pid_params = []
 rest_params = []
 dac_params = []
-#limiter_params = []
+# limiter_params = []
 limiter2_params = []
 
 
 app.top_frame = customtkinter.CTkFrame(app, fg_color="transparent")
-app.top_frame.grid(row=0, column=0, columnspan=8, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="sew")
-app.top_frame.grid_columnconfigure((3,4,5), weight=1)
+app.top_frame.grid(
+    row=0, column=0, columnspan=8, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="sew"
+)
+app.top_frame.grid_columnconfigure((3, 4, 5), weight=1)
 
-initmodes = ["Re-init !", "De-init !", "async", "sensorless", "hall", "sincos", "resolver", "ssi", "biss", "biss32", "ssi32", "res", "encoder"]
+initmodes = [
+    "Re-init !",
+    "De-init !",
+    "async",
+    "sensorless",
+    "hall",
+    "sincos",
+    "resolver",
+    "ssi",
+    "biss",
+    "biss32",
+    "ssi32",
+    "res",
+    "encoder",
+]
 initmodes_bldc = ["Re-init !", "De-init !", "auto", "sensorless", "hall"]
 
 app.tabview = 0
+
 
 def tabview_callback():
     if app.tabview.get() == "Motor":
@@ -63,17 +81,23 @@ def tabview_callback():
         params = limiter2_params
 
     for i in range(len(params)):
-       params[i].get()
+        params[i].get()
 
-def refresh_prest() :
+
+def refresh_prest():
     try:
         prest = my_node.variable("/driver/prest")
         prestval = prest.get() & 0x0F
     except sxapi.error as e:
-       MessageBox(app, title="siliTune", message="Could not access '/driver/prest' !\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n" + str(e))
-       return
+        MessageBox(
+            app,
+            title="siliTune",
+            message="Could not access '/driver/prest' !\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n"
+            + str(e),
+        )
+        return
 
-    prestbox.set(initmodes[prestval+2])
+    prestbox.set(initmodes[prestval + 2])
 
     try:
         my_node.variable("/driver/vcf")
@@ -82,12 +106,13 @@ def refresh_prest() :
         prestbox.configure(values=initmodes_bldc)
 
 
-def refresh() :
+def refresh():
     for i in range(len(main_params)):
         main_params[i].get()
 
     refresh_prest()
     tabview_callback()
+
 
 def node_select_callback(value):
     global my_node
@@ -100,39 +125,61 @@ def node_select_callback(value):
     else:
         my_node = 0
 
+
 def show_emgui():
     sxapi.show()
 
-emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"emgui", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
-emgui_switch.grid(row=0, column=0, padx=(10,0))
+
+emgui_switch = customtkinter.CTkButton(
+    app.top_frame,
+    text=f"emgui",
+    command=show_emgui,
+    image=tkinter.PhotoImage(file="siliUX/main.png"),
+    width=5,
+)
+emgui_switch.grid(row=0, column=0, padx=(10, 0))
+
 
 def open_term():
     my_node.open("{term}")
 
-term_button = customtkinter.CTkButton(app.top_frame, text="term", command=open_term, image=tkinter.PhotoImage(file="siliUX/term.png"), width=5)
-term_button.grid(row=0, column=1, padx=(10,0))
+
+term_button = customtkinter.CTkButton(
+    app.top_frame,
+    text="term",
+    command=open_term,
+    image=tkinter.PhotoImage(file="siliUX/term.png"),
+    width=5,
+)
+term_button.grid(row=0, column=1, padx=(10, 0))
 
 
-
-nodeselect_label = customtkinter.CTkLabel(app.top_frame, text="Select device to tune:", font=customtkinter.CTkFont(size=15, weight="bold"))
+nodeselect_label = customtkinter.CTkLabel(
+    app.top_frame,
+    text="Select device to tune:",
+    font=customtkinter.CTkFont(size=15, weight="bold"),
+)
 nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
 
-nodeselect_button = customtkinter.CTkSegmentedButton(app.top_frame, command=node_select_callback)
+nodeselect_button = customtkinter.CTkSegmentedButton(
+    app.top_frame, command=node_select_callback
+)
 nodeselect_button.configure(values=nodenames + ["NONE"])
 nodeselect_button.grid(row=0, column=4, pady=5, sticky="w")
 
-#nodeselect_button.bind('<ButtonPress>', node_select_callback)
+# nodeselect_button.bind('<ButtonPress>', node_select_callback)
 
-#CTkToolTip(nodeselect_button, message="Choose the node you want to bind to. Click the node again to refresh the values.")
+# CTkToolTip(nodeselect_button, message="Choose the node you want to bind to. Click the node again to refresh the values.")
 
 
 # another button might be confusing. User can refresh the values by clicking on the node name.
-#refresh_button = customtkinter.CTkButton(app.top_frame, text="", image=tkinter.PhotoImage(file="siliUX/pull.png"), fg_color="green", width=5)
-#refresh_button.grid(row=0, column=3, sticky="w")
+# refresh_button = customtkinter.CTkButton(app.top_frame, text="", image=tkinter.PhotoImage(file="siliUX/pull.png"), fg_color="green", width=5)
+# refresh_button.grid(row=0, column=3, sticky="w")
 
 
-icon_light=tkinter.PhotoImage(file="siliUX/light.png")
-icon_dark=tkinter.PhotoImage(file="siliUX/dark.png")
+icon_light = tkinter.PhotoImage(file="siliUX/light.png")
+icon_dark = tkinter.PhotoImage(file="siliUX/dark.png")
+
 
 def change_appearance_mode_event():
     if customtkinter.get_appearance_mode() == "Dark":
@@ -142,8 +189,16 @@ def change_appearance_mode_event():
         customtkinter.set_appearance_mode("Dark")
         apperance_switch.configure(image=icon_light)
 
-apperance_switch = customtkinter.CTkButton(app.top_frame, text=f"", command=change_appearance_mode_event, image=icon_dark, width=5)
+
+apperance_switch = customtkinter.CTkButton(
+    app.top_frame,
+    text=f"",
+    command=change_appearance_mode_event,
+    image=icon_dark,
+    width=5,
+)
 apperance_switch.grid(row=0, column=5, padx=5, pady=5, sticky="e")
+
 
 ################################################################################
 class param_edit:
@@ -151,30 +206,36 @@ class param_edit:
     def __init__(self, frame, row, col, size, scale, path, unit, tip):
 
         self.path = path
-        parts = path.split('/')
-        name = parts[-1] if parts else ''
+        parts = path.split("/")
+        name = parts[-1] if parts else ""
 
-        label = customtkinter.CTkLabel(frame, text=name, font=customtkinter.CTkFont(size=size, weight="bold"))
+        label = customtkinter.CTkLabel(
+            frame, text=name, font=customtkinter.CTkFont(size=size, weight="bold")
+        )
         label.grid(row=row, column=col, padx=5, sticky="e")
         CTkToolTip(label, message=tip)
 
-        #TODO depending on the type/scale, also consider integer/double
+        # TODO depending on the type/scale, also consider integer/double
         self.scale = scale
         if scale:
             self.entry_var = tkinter.DoubleVar()
         else:
             self.entry_var = tkinter.StringVar()
 
-        self.valueBox = customtkinter.CTkEntry(frame, width=50, textvariable=self.entry_var)
-        self.valueBox.grid(row=row, column=col+1, pady=5)
+        self.valueBox = customtkinter.CTkEntry(
+            frame, width=50, textvariable=self.entry_var
+        )
+        self.valueBox.grid(row=row, column=col + 1, pady=5)
 
-        self.valueBox.bind('<Return>', self.on_set)
-        self.valueBox.bind('<FocusOut>', self.on_set)
-        self.valueBox.bind('<Escape>', self.get)
-        self.valueBox.bind('<KeyPress>', self.on_modified)
+        self.valueBox.bind("<Return>", self.on_set)
+        self.valueBox.bind("<FocusOut>", self.on_set)
+        self.valueBox.bind("<Escape>", self.get)
+        self.valueBox.bind("<KeyPress>", self.on_modified)
 
-        unit = customtkinter.CTkLabel(frame, text=unit, font=customtkinter.CTkFont(size=size, weight="bold"))
-        unit.grid(row=row, column=col+2, padx=5, sticky="w")
+        unit = customtkinter.CTkLabel(
+            frame, text=unit, font=customtkinter.CTkFont(size=size, weight="bold")
+        )
+        unit.grid(row=row, column=col + 2, padx=5, sticky="w")
 
     def on_modified(self, *args):
         self.valueBox.configure(text_color="blue")
@@ -182,11 +243,11 @@ class param_edit:
     def on_set(self, *args):
         variable = my_node.variable(self.path)
 
-        if self.scale :
-            #get with conversion (to local number)
+        if self.scale:
+            # get with conversion (to local number)
             variable.set(self.entry_var.get() / self.scale)
-        else :
-            #parse from the text, all conversion happens in the SXAPI (we do not work with scales here)
+        else:
+            # parse from the text, all conversion happens in the SXAPI (we do not work with scales here)
             variable.parse(self.entry_var.get())
         self.get()
 
@@ -195,26 +256,88 @@ class param_edit:
         try:
             variable = my_node.variable(self.path)
 
-            if self.scale :
+            if self.scale:
                 self.entry_var.set(variable.get() * self.scale)
-            else :
+            else:
                 self.entry_var.set(variable.get())
 
         except sxapi.error as e:
             self.entry_var.set("N/A")
 
-main_params.append(param_edit(app, 3, 2, 15, 0, "/driver/ipeak", "[A]", "Peak current threshold. An intervention takes place once the phase current crosses this threshold and the 'over-current condition' is signalled."))
-main_params.append(param_edit(app, 4, 2, 15, 0, "/driver/iref", "[A]", "Reference phase current. This is the most fundamental constant that defines the maximum stator current magnitude in all control modes."))
-main_params.append(param_edit(app, 5, 2, 15, 0, "/driver/irefr", "[A]", "Reference phase current in voltage braking modes. Set to zero to use 'iref' (as a default)."))
-main_params.append(param_edit(app, 6, 2, 15, 0, "/driver/uref", "[V]", "Reference phase voltage for torque genrating axis. Set to zero to use the entire available voltage (as a default)."))
-main_params.append(param_edit(app, 7, 2, 15, 0, "/driver/rref", "[RPM]", "Reference motor speed for speed control modes. Set to zero to use the entire available speed range (as a default)."))
 
-label = customtkinter.CTkLabel(app, text="init as", font=customtkinter.CTkFont(size=15, weight="bold"))
+main_params.append(
+    param_edit(
+        app,
+        3,
+        2,
+        15,
+        0,
+        "/driver/ipeak",
+        "[A]",
+        "Peak current threshold. An intervention takes place once the phase current crosses this threshold and the 'over-current condition' is signalled.",
+    )
+)
+main_params.append(
+    param_edit(
+        app,
+        4,
+        2,
+        15,
+        0,
+        "/driver/iref",
+        "[A]",
+        "Reference phase current. This is the most fundamental constant that defines the maximum stator current magnitude in all control modes.",
+    )
+)
+main_params.append(
+    param_edit(
+        app,
+        5,
+        2,
+        15,
+        0,
+        "/driver/irefr",
+        "[A]",
+        "Reference phase current in voltage braking modes. Set to zero to use 'iref' (as a default).",
+    )
+)
+main_params.append(
+    param_edit(
+        app,
+        6,
+        2,
+        15,
+        0,
+        "/driver/uref",
+        "[V]",
+        "Reference phase voltage for torque genrating axis. Set to zero to use the entire available voltage (as a default).",
+    )
+)
+main_params.append(
+    param_edit(
+        app,
+        7,
+        2,
+        15,
+        0,
+        "/driver/rref",
+        "[RPM]",
+        "Reference motor speed for speed control modes. Set to zero to use the entire available speed range (as a default).",
+    )
+)
+
+label = customtkinter.CTkLabel(
+    app, text="init as", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=8, column=2, padx=5, sticky="e")
 
-CTkToolTip(label, message="Choose and perform the driver initialization for a particular motor sensor.\nThe selection executes the reinit command.")
+CTkToolTip(
+    label,
+    message="Choose and perform the driver initialization for a particular motor sensor.\nThe selection executes the reinit command.",
+)
 
-def reinit(value) :
+
+def reinit(value):
     try:
         mode = initmodes.index(value) - 2
     except ValueError:
@@ -230,112 +353,355 @@ def reinit(value) :
     if retval == -1000:
         MessageBox(app, title="siliTune", message="Driver was deinitialized!")
     elif retval != 0:
-        MessageBox(app, title="siliTune", message="Driver initialization resulted with error " + str(retval) + "\n" + codetostr.error2string(retval))
+        MessageBox(
+            app,
+            title="siliTune",
+            message="Driver initialization resulted with error "
+            + str(retval)
+            + "\n"
+            + codetostr.error2string(retval),
+        )
     else:
         MessageBox(app, title="siliTune", message="Driver initialization successful!")
 
+
 prestbox = customtkinter.CTkOptionMenu(app, width=100, command=reinit)
-#prestbox = customtkinter.CTkComboBox(app, width=100, values=initmodes, command=reinit)
-#prestbox.set("reinit")
+# prestbox = customtkinter.CTkComboBox(app, width=100, values=initmodes, command=reinit)
+# prestbox.set("reinit")
 prestbox.grid(row=8, column=3, columnspan=2, pady=5)
 
-#reinit_button = customtkinter.CTkButton(app, text=f"Reinit !")
-#reinit_button.grid(row=9, column=2, columnspan=3, padx=(10, 0), sticky="nsew")
+# reinit_button = customtkinter.CTkButton(app, text=f"Reinit !")
+# reinit_button.grid(row=9, column=2, columnspan=3, padx=(10, 0), sticky="nsew")
 
 
 def ident():
     AutomaticIdentification(my_node, app)
 
-ident_button = customtkinter.CTkButton(app, text=f"Automatic\nidentification ...", command = ident)
-ident_button.grid(row=10, column=2, columnspan=3, rowspan=12, padx=(10,0), pady=10, sticky="nsew")
+
+ident_button = customtkinter.CTkButton(
+    app, text=f"Automatic\nidentification ...", command=ident
+)
+ident_button.grid(
+    row=10, column=2, columnspan=3, rowspan=12, padx=(10, 0), pady=10, sticky="nsew"
+)
 
 ################################################################################
 
-app.tabview = customtkinter.CTkTabview(app, width=200, height=200, command=tabview_callback)
+app.tabview = customtkinter.CTkTabview(
+    app, width=200, height=200, command=tabview_callback
+)
 app.tabview.grid(row=2, column=6, rowspan=20, padx=10, sticky="nsew")
 
 tab = app.tabview.add("Motor")
-tab.grid_columnconfigure((1,2,3,15,16,17,35,36,37), weight=1)
+tab.grid_columnconfigure((1, 2, 3, 15, 16, 17, 35, 36, 37), weight=1)
 
-label = customtkinter.CTkLabel(tab, text="Speed limit", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Speed limit", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=1, columnspan=3, padx=5, sticky="we")
-motor_params.append(param_edit(tab, 2, 1, 12, 0, "/driver/limiter/rpos", "[RPM]", "Maximum positive motor speed. <0:disable>"))
-motor_params.append(param_edit(tab, 3, 1, 12, 0, "/driver/limiter/rneg", "[RPM]", "Maximum negative motor speed. <0:disable>"))
-motor_params.append(param_edit(tab, 4, 1, 12, 0, "/driver/limiter/rdec", "[RPM]", "Speed limiter decrement rate."))
-motor_params.append(param_edit(tab, 5, 1, 12, 0, "/driver/limiter/rgain", "", "Speed limiter time sensitivity."))
+motor_params.append(
+    param_edit(
+        tab,
+        2,
+        1,
+        12,
+        0,
+        "/driver/limiter/rpos",
+        "[RPM]",
+        "Maximum positive motor speed. <0:disable>",
+    )
+)
+motor_params.append(
+    param_edit(
+        tab,
+        3,
+        1,
+        12,
+        0,
+        "/driver/limiter/rneg",
+        "[RPM]",
+        "Maximum negative motor speed. <0:disable>",
+    )
+)
+motor_params.append(
+    param_edit(
+        tab,
+        4,
+        1,
+        12,
+        0,
+        "/driver/limiter/rdec",
+        "[RPM]",
+        "Speed limiter decrement rate.",
+    )
+)
+motor_params.append(
+    param_edit(
+        tab, 5, 1, 12, 0, "/driver/limiter/rgain", "", "Speed limiter time sensitivity."
+    )
+)
 
-label = customtkinter.CTkLabel(tab, text="Topology", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Topology", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=15, columnspan=3, padx=5, sticky="we")
-motor_params.append(param_edit(tab, 2, 15, 12, 0, "/driver/motor/pp", "[pairs]", "pole pair count"))
-picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/motor.png"), compound="left")
-picture.grid(row=3, column=15, rowspan=10, columnspan=3,  padx=10, pady=10, sticky="nsew")
+motor_params.append(
+    param_edit(tab, 2, 15, 12, 0, "/driver/motor/pp", "[pairs]", "pole pair count")
+)
+picture = customtkinter.CTkLabel(
+    tab, text="", image=tkinter.PhotoImage(file="siliUX/motor.png"), compound="left"
+)
+picture.grid(
+    row=3, column=15, rowspan=10, columnspan=3, padx=10, pady=10, sticky="nsew"
+)
 
 
-label = customtkinter.CTkLabel(tab, text="Temperature limit", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Temperature limit", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=35, columnspan=3, padx=5, sticky="we")
-motor_params.append(param_edit(tab, 2, 35, 12, 0, "/driver/limiter/mtemplo", "[Ohm]", "Motor temperature low threshold. <0:disable>"))
-motor_params.append(param_edit(tab, 3, 35, 12, 0, "/driver/limiter/mtemphi", "[Ohm]", "Motor temperature high threshold. <0:disable>"))
-motor_params.append(param_edit(tab, 4, 35, 12, 0, "/driver/limiter/mtempgain", "", "Motor temperature limiter time sensitivity."))
-
+motor_params.append(
+    param_edit(
+        tab,
+        2,
+        35,
+        12,
+        0,
+        "/driver/limiter/mtemplo",
+        "[Ohm]",
+        "Motor temperature low threshold. <0:disable>",
+    )
+)
+motor_params.append(
+    param_edit(
+        tab,
+        3,
+        35,
+        12,
+        0,
+        "/driver/limiter/mtemphi",
+        "[Ohm]",
+        "Motor temperature high threshold. <0:disable>",
+    )
+)
+motor_params.append(
+    param_edit(
+        tab,
+        4,
+        35,
+        12,
+        0,
+        "/driver/limiter/mtempgain",
+        "",
+        "Motor temperature limiter time sensitivity.",
+    )
+)
 
 
 ################################################################################
 
 tab = app.tabview.add("Battery")
-tab.grid_columnconfigure((1,2,3,15,16,17,35,36,37), weight=1)
+tab.grid_columnconfigure((1, 2, 3, 15, 16, 17, 35, 36, 37), weight=1)
 
-picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/battery.png"), compound="left")
+picture = customtkinter.CTkLabel(
+    tab, text="", image=tkinter.PhotoImage(file="siliUX/battery.png"), compound="left"
+)
 picture.grid(row=1, column=20, rowspan=10, padx=10, pady=10, sticky="nsew")
 
-label = customtkinter.CTkLabel(tab, text="Current limit", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Current limit", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=1, columnspan=3, padx=5, sticky="we")
-supply_params.append(param_edit(tab, 2, 1, 12, 0, "/driver/limiter/ibpos", "[A]", "Maximum battery discharge current. <0:disable>"))
-supply_params.append(param_edit(tab, 3, 1, 12, 0, "/driver/limiter/ibneg", "[A]", "Maximum battery charge current. Use negative number. <0:disable>"))
-supply_params.append(param_edit(tab, 4, 1, 12, 0, "/driver/limiter/ibgain", "", "Battery current limiter time sensitivity."))
+supply_params.append(
+    param_edit(
+        tab,
+        2,
+        1,
+        12,
+        0,
+        "/driver/limiter/ibpos",
+        "[A]",
+        "Maximum battery discharge current. <0:disable>",
+    )
+)
+supply_params.append(
+    param_edit(
+        tab,
+        3,
+        1,
+        12,
+        0,
+        "/driver/limiter/ibneg",
+        "[A]",
+        "Maximum battery charge current. Use negative number. <0:disable>",
+    )
+)
+supply_params.append(
+    param_edit(
+        tab,
+        4,
+        1,
+        12,
+        0,
+        "/driver/limiter/ibgain",
+        "",
+        "Battery current limiter time sensitivity.",
+    )
+)
 
-label = customtkinter.CTkLabel(tab, text="Voltage limit", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Voltage limit", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=15, columnspan=3, padx=5, sticky="we")
-supply_params.append(param_edit(tab, 2, 15, 12, 0, "/driver/limiter/ubmax", "[V]", "Maximum battery voltage. <0:disable>"))
-supply_params.append(param_edit(tab, 3, 15, 12, 0, "/driver/limiter/ubmin", "[V]", "Minimum battery voltage. <0:disable>"))
-supply_params.append(param_edit(tab, 4, 15, 12, 0, "/driver/limiter/ubgain", "", "Battery voltage limiter time sensitivity."))
+supply_params.append(
+    param_edit(
+        tab,
+        2,
+        15,
+        12,
+        0,
+        "/driver/limiter/ubmax",
+        "[V]",
+        "Maximum battery voltage. <0:disable>",
+    )
+)
+supply_params.append(
+    param_edit(
+        tab,
+        3,
+        15,
+        12,
+        0,
+        "/driver/limiter/ubmin",
+        "[V]",
+        "Minimum battery voltage. <0:disable>",
+    )
+)
+supply_params.append(
+    param_edit(
+        tab,
+        4,
+        15,
+        12,
+        0,
+        "/driver/limiter/ubgain",
+        "",
+        "Battery voltage limiter time sensitivity.",
+    )
+)
 
-label = customtkinter.CTkLabel(tab, text="Precharge", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Precharge", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=35, columnspan=3, padx=5, sticky="we")
-supply_params.append(param_edit(tab, 2, 35, 12, 0, "/driver/supply/pchg1", "[V]", "Precharge voltage the controller tries to reach at initialization after booting. <0:disable>"))
-supply_params.append(param_edit(tab, 3, 35, 12, 0, "/driver/supply/pchg2", "[V]", "Precharge voltage the controller tries to reach at manually requested initialization. <0:disable>"))
-supply_params.append(param_edit(tab, 4, 35, 12, 0, "/driver/supply/pchgtim", "[ms]", "The maximum duration of the precharge phase (absolute value). <0:disable>"))
+supply_params.append(
+    param_edit(
+        tab,
+        2,
+        35,
+        12,
+        0,
+        "/driver/supply/pchg1",
+        "[V]",
+        "Precharge voltage the controller tries to reach at initialization after booting. <0:disable>",
+    )
+)
+supply_params.append(
+    param_edit(
+        tab,
+        3,
+        35,
+        12,
+        0,
+        "/driver/supply/pchg2",
+        "[V]",
+        "Precharge voltage the controller tries to reach at manually requested initialization. <0:disable>",
+    )
+)
+supply_params.append(
+    param_edit(
+        tab,
+        4,
+        35,
+        12,
+        0,
+        "/driver/supply/pchgtim",
+        "[ms]",
+        "The maximum duration of the precharge phase (absolute value). <0:disable>",
+    )
+)
 
 ################################################################################
 
 tab = app.tabview.add("PID")
-tab.grid_columnconfigure((1,2,3,15,16,17,35,36,37), weight=1)
+tab.grid_columnconfigure((1, 2, 3, 15, 16, 17, 35, 36, 37), weight=1)
 
-label = customtkinter.CTkLabel(tab, text="Q-current", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Q-current", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=1, columnspan=3, padx=5, sticky="we")
-pid_params.append(param_edit(tab, 2, 1, 12, 0, "/driver/pid_iq/P", "", "Q-axis porportional term"))
-pid_params.append(param_edit(tab, 3, 1, 12, 0, "/driver/pid_iq/I", "", "Q-axis integral term"))
+pid_params.append(
+    param_edit(tab, 2, 1, 12, 0, "/driver/pid_iq/P", "", "Q-axis porportional term")
+)
+pid_params.append(
+    param_edit(tab, 3, 1, 12, 0, "/driver/pid_iq/I", "", "Q-axis integral term")
+)
 
-label = customtkinter.CTkLabel(tab, text="D-current", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="D-current", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=4, column=1, columnspan=3, padx=5, sticky="we")
-pid_params.append(param_edit(tab, 5, 1, 12, 0, "/driver/pid_id/P", "", "D-axis proportional term"))
-pid_params.append(param_edit(tab, 6, 1, 12, 0, "/driver/pid_id/I", "", "Q-axis integral term"))
+pid_params.append(
+    param_edit(tab, 5, 1, 12, 0, "/driver/pid_id/P", "", "D-axis proportional term")
+)
+pid_params.append(
+    param_edit(tab, 6, 1, 12, 0, "/driver/pid_id/I", "", "Q-axis integral term")
+)
 
-label = customtkinter.CTkLabel(tab, text="Speed loop", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Speed loop", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=15, columnspan=3, padx=5, sticky="we")
-pid_params.append(param_edit(tab, 2, 15, 12, 0, "/driver/pid_speed/P", "", "porportional term"))
-pid_params.append(param_edit(tab, 3, 15, 12, 0, "/driver/pid_speed/I", "", "integral term"))
-pid_params.append(param_edit(tab, 4, 15, 12, 0, "/driver/pid_speed/D", "", "derivative term"))
-pid_params.append(param_edit(tab, 5, 15, 12, 0, "/driver/pid_speed/Td", "", "derivative filtering term"))
+pid_params.append(
+    param_edit(tab, 2, 15, 12, 0, "/driver/pid_speed/P", "", "porportional term")
+)
+pid_params.append(
+    param_edit(tab, 3, 15, 12, 0, "/driver/pid_speed/I", "", "integral term")
+)
+pid_params.append(
+    param_edit(tab, 4, 15, 12, 0, "/driver/pid_speed/D", "", "derivative term")
+)
+pid_params.append(
+    param_edit(
+        tab, 5, 15, 12, 0, "/driver/pid_speed/Td", "", "derivative filtering term"
+    )
+)
 
-label = customtkinter.CTkLabel(tab, text="Position loop", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Position loop", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=30, columnspan=3, padx=5, sticky="we")
-pid_params.append(param_edit(tab, 2, 30, 12, 0, "/driver/pid_position/P", "", "porportional term"))
-pid_params.append(param_edit(tab, 3, 30, 12, 0, "/driver/pid_position/I", "", "integral term"))
-pid_params.append(param_edit(tab, 4, 30, 12, 0, "/driver/pid_position/D", "", "derivative term"))
-pid_params.append(param_edit(tab, 5, 30, 12, 0, "/driver/pid_position/Td", "", "derivative filtering term"))
+pid_params.append(
+    param_edit(tab, 2, 30, 12, 0, "/driver/pid_position/P", "", "porportional term")
+)
+pid_params.append(
+    param_edit(tab, 3, 30, 12, 0, "/driver/pid_position/I", "", "integral term")
+)
+pid_params.append(
+    param_edit(tab, 4, 30, 12, 0, "/driver/pid_position/D", "", "derivative term")
+)
+pid_params.append(
+    param_edit(
+        tab, 5, 30, 12, 0, "/driver/pid_position/Td", "", "derivative filtering term"
+    )
+)
 
-picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/pid.png"), compound="left")
-picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+picture = customtkinter.CTkLabel(
+    tab, text="", image=tkinter.PhotoImage(file="siliUX/pid.png"), compound="left"
+)
+picture.grid(
+    row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew"
+)
 
 ################################################################################
 
@@ -343,105 +709,295 @@ picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, stic
 ################################################################################
 
 tab = app.tabview.add("DAC")
-tab.grid_columnconfigure((1,2,3,15,16,17,35,36,37), weight=1)
+tab.grid_columnconfigure((1, 2, 3, 15, 16, 17, 35, 36, 37), weight=1)
 
-label = customtkinter.CTkLabel(tab, text="Flux weakening", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Flux weakening", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=1, columnspan=3, padx=5, sticky="we")
-dac_params.append(param_edit(tab, 2, 1, 12, 0, "/driver/dac/fwc", "[.iref]", "Maximum d-axis current for field weakening. <0:disable>"))
-dac_params.append(param_edit(tab, 3, 1, 12, 0, "/driver/dac/fwm", "[.uref]", "Flux weakening engage threshold."))
-dac_params.append(param_edit(tab, 4, 1, 12, 0, "/driver/dac/fwr", "[.uref]", "Flux weakening release threshold."))
-dac_params.append(param_edit(tab, 5, 1, 12, 0, "/driver/dac/fwd", "", "Flux weakening integrator gain."))
+dac_params.append(
+    param_edit(
+        tab,
+        2,
+        1,
+        12,
+        0,
+        "/driver/dac/fwc",
+        "[.iref]",
+        "Maximum d-axis current for field weakening. <0:disable>",
+    )
+)
+dac_params.append(
+    param_edit(
+        tab,
+        3,
+        1,
+        12,
+        0,
+        "/driver/dac/fwm",
+        "[.uref]",
+        "Flux weakening engage threshold.",
+    )
+)
+dac_params.append(
+    param_edit(
+        tab,
+        4,
+        1,
+        12,
+        0,
+        "/driver/dac/fwr",
+        "[.uref]",
+        "Flux weakening release threshold.",
+    )
+)
+dac_params.append(
+    param_edit(
+        tab, 5, 1, 12, 0, "/driver/dac/fwd", "", "Flux weakening integrator gain."
+    )
+)
 
-label = customtkinter.CTkLabel(tab, text="Reluctance torque", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Reluctance torque", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=15, columnspan=3, padx=5, sticky="we")
-dac_params.append(param_edit(tab, 2, 15, 12, 0, "/driver/dac/dxc", "[.iref]", "Maximum d-axis current for reluctance torque generation. <0:disable>"))
-dac_params.append(param_edit(tab, 3, 15, 12, 0, "/driver/dac/mtk", "", "The MTPA feedback gain. <0:direct map>"))
+dac_params.append(
+    param_edit(
+        tab,
+        2,
+        15,
+        12,
+        0,
+        "/driver/dac/dxc",
+        "[.iref]",
+        "Maximum d-axis current for reluctance torque generation. <0:disable>",
+    )
+)
+dac_params.append(
+    param_edit(
+        tab,
+        3,
+        15,
+        12,
+        0,
+        "/driver/dac/mtk",
+        "",
+        "The MTPA feedback gain. <0:direct map>",
+    )
+)
 
-label = customtkinter.CTkLabel(tab, text="Compensation", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Compensation", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=35, columnspan=3, padx=5, sticky="we")
-dac_params.append(param_edit(tab, 2, 35, 12, 0, "/driver/dac/tcc", "[.iref]", "Maximum d-axis current for the DC compensation. <0:disable>"))
-dac_params.append(param_edit(tab, 3, 35, 12, 0, "/driver/dac/tdg", "", "Battery current compensator DC gain."))
-dac_params.append(param_edit(tab, 4, 35, 12, 0, "/driver/dac/tqf", "", "Torque compensator Q-axis feedthrough ratio. <0:disable>"))
+dac_params.append(
+    param_edit(
+        tab,
+        2,
+        35,
+        12,
+        0,
+        "/driver/dac/tcc",
+        "[.iref]",
+        "Maximum d-axis current for the DC compensation. <0:disable>",
+    )
+)
+dac_params.append(
+    param_edit(
+        tab, 3, 35, 12, 0, "/driver/dac/tdg", "", "Battery current compensator DC gain."
+    )
+)
+dac_params.append(
+    param_edit(
+        tab,
+        4,
+        35,
+        12,
+        0,
+        "/driver/dac/tqf",
+        "",
+        "Torque compensator Q-axis feedthrough ratio. <0:disable>",
+    )
+)
 
-picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/flux.png"), compound="left")
-picture.grid(row=5, column=15, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+picture = customtkinter.CTkLabel(
+    tab, text="", image=tkinter.PhotoImage(file="siliUX/flux.png"), compound="left"
+)
+picture.grid(
+    row=5, column=15, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew"
+)
 
 ################################################################################
 
 tab = app.tabview.add("Advanced")
-tab.grid_columnconfigure((1,2,3,15,16,17,35,36,37), weight=1)
+tab.grid_columnconfigure((1, 2, 3, 15, 16, 17, 35, 36, 37), weight=1)
 
-label = customtkinter.CTkLabel(tab, text="REST", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="REST", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=1, columnspan=3, padx=5, sticky="we")
-limiter2_params.append(param_edit(tab, 2, 1, 12, 0, "/driver/rest/hinv", "", "UVW hall sensor polarity inversion."))
-limiter2_params.append(param_edit(tab, 3, 1, 12, 1000000, "/driver/rest/edc", "[us]", "The estimator sensor latency compensation."))
+limiter2_params.append(
+    param_edit(
+        tab, 2, 1, 12, 0, "/driver/rest/hinv", "", "UVW hall sensor polarity inversion."
+    )
+)
+limiter2_params.append(
+    param_edit(
+        tab,
+        3,
+        1,
+        12,
+        1000000,
+        "/driver/rest/edc",
+        "[us]",
+        "The estimator sensor latency compensation.",
+    )
+)
 
-label = customtkinter.CTkLabel(tab, text="Sensorless", font=customtkinter.CTkFont(size=15, weight="bold"))
+label = customtkinter.CTkLabel(
+    tab, text="Sensorless", font=customtkinter.CTkFont(size=15, weight="bold")
+)
 label.grid(row=1, column=15, columnspan=3, padx=5, sticky="we")
-limiter2_params.append(param_edit(tab, 2, 15, 12, 0, "/driver/rest/omega", "[erad/s]", "Asynchronous field speed."))
-limiter2_params.append(param_edit(tab, 3, 15, 12, 0, "/driver/rest/assl", "[rpm]", "Auto-sensorless engage threshold. <0:disable>"))
-limiter2_params.append(param_edit(tab, 4, 15, 12, 0, "/driver/rest/assh", "[rpm]", "Auto-sensorless release threshold. <0:disable>"))
+limiter2_params.append(
+    param_edit(
+        tab, 2, 15, 12, 0, "/driver/rest/omega", "[erad/s]", "Asynchronous field speed."
+    )
+)
+limiter2_params.append(
+    param_edit(
+        tab,
+        3,
+        15,
+        12,
+        0,
+        "/driver/rest/assl",
+        "[rpm]",
+        "Auto-sensorless engage threshold. <0:disable>",
+    )
+)
+limiter2_params.append(
+    param_edit(
+        tab,
+        4,
+        15,
+        12,
+        0,
+        "/driver/rest/assh",
+        "[rpm]",
+        "Auto-sensorless release threshold. <0:disable>",
+    )
+)
 
-picture = customtkinter.CTkLabel(tab, text="", image=tkinter.PhotoImage(file="siliUX/rest.png"), compound="left")
-picture.grid(row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew")
+picture = customtkinter.CTkLabel(
+    tab, text="", image=tkinter.PhotoImage(file="siliUX/rest.png"), compound="left"
+)
+picture.grid(
+    row=2, column=35, rowspan=10, columnspan=20, padx=10, pady=10, sticky="nsew"
+)
 
 
 ################################################################################
 
 app.bottom_frame = customtkinter.CTkFrame(app, fg_color="transparent")
-app.bottom_frame.grid(row=22, column=0, columnspan=8, rowspan=2, pady=(5,15),  sticky="s")
-app.bottom_frame.grid_columnconfigure((1,2,3), weight=1)
+app.bottom_frame.grid(
+    row=22, column=0, columnspan=8, rowspan=2, pady=(5, 15), sticky="s"
+)
+app.bottom_frame.grid_columnconfigure((1, 2, 3), weight=1)
 
 
-def save() :
+def save():
     retval = my_node.executeSimple("save", "-y")
     if retval < 0:
-        MessageBox(app, title="siliTune", message="Saving parameters resulted into error " + str(retval))
+        MessageBox(
+            app,
+            title="siliTune",
+            message="Saving parameters resulted into error " + str(retval),
+        )
     else:
         refresh()
-        MessageBox(app, title="siliTune", message="Saving of parameters was successful!")
+        MessageBox(
+            app, title="siliTune", message="Saving of parameters was successful!"
+        )
 
-save_button = customtkinter.CTkButton(app.bottom_frame, text=f"Save to flash !\n(confirm changes)", fg_color="red", command=save)
+
+save_button = customtkinter.CTkButton(
+    app.bottom_frame,
+    text=f"Save to flash !\n(confirm changes)",
+    fg_color="red",
+    command=save,
+)
 save_button.grid(row=1, column=1, padx=10, sticky="nsew")
-CTkToolTip(save_button, message="Your new values will only live in the device until the next power cycle.\nIf you want to make them stay permanently, use this button.")
+CTkToolTip(
+    save_button,
+    message="Your new values will only live in the device until the next power cycle.\nIf you want to make them stay permanently, use this button.",
+)
 
-def load() :
+
+def load():
     retval = my_node.executeSimple("load", "-y")
     if retval < 0:
-        MessageBox(app, title="siliTune", message="Loading parameters resulted into error " + str(retval))
+        MessageBox(
+            app,
+            title="siliTune",
+            message="Loading parameters resulted into error " + str(retval),
+        )
     else:
         refresh()
         MessageBox(app, title="siliTune", message="Loading was successful!")
 
-load_button = customtkinter.CTkButton(app.bottom_frame, text=f"Load from flash !\n(discard changes)", fg_color="green", command=load)
-load_button.grid(row=1, column=2, padx=10, sticky="nsew")
-CTkToolTip(load_button, message="The previous values may be restored with this button (unless you've already saved the new ones).")
 
-def restore() :
-    #retval = my_node.executeSimple("restore", "-ry", "/driver") # doesn't work
+load_button = customtkinter.CTkButton(
+    app.bottom_frame,
+    text=f"Load from flash !\n(discard changes)",
+    fg_color="green",
+    command=load,
+)
+load_button.grid(row=1, column=2, padx=10, sticky="nsew")
+CTkToolTip(
+    load_button,
+    message="The previous values may be restored with this button (unless you've already saved the new ones).",
+)
+
+
+def restore():
+    # retval = my_node.executeSimple("restore", "-ry", "/driver") # doesn't work
     retval = my_node.executeSimple("restore", "-y")
     if retval < 0:
-        MessageBox(app, title="siliTune", message="Restoring parameters resulted into error " + str(retval))
+        MessageBox(
+            app,
+            title="siliTune",
+            message="Restoring parameters resulted into error " + str(retval),
+        )
     else:
         refresh()
-        MessageBox(app, title="siliTune", message="Restoring default values was successful.\nDon't forget to save, if you plan to keep them!")
+        MessageBox(
+            app,
+            title="siliTune",
+            message="Restoring default values was successful.\nDon't forget to save, if you plan to keep them!",
+        )
 
-restore_button = customtkinter.CTkButton(app.bottom_frame, text=f"Restore default values !\n(use factory settings)", command=restore)
+
+restore_button = customtkinter.CTkButton(
+    app.bottom_frame,
+    text=f"Restore default values !\n(use factory settings)",
+    command=restore,
+)
 restore_button.grid(row=1, column=3, padx=10, sticky="nsew")
-CTkToolTip(restore_button, message="Return to the original, factory settings for this power cycle.")
+CTkToolTip(
+    restore_button,
+    message="Return to the original, factory settings for this power cycle.",
+)
 
 ################################################################################
 # start the loop !
 
-#if a single node is fetched, load it automatically
+# if a single node is fetched, load it automatically
 if len(nodenames) == 1:
     nodeselect_button.set(nodenames[0])
     node_select_callback(nodenames[0])
-else :
+else:
     nodeselect_button.set("NONE")
     node_select_callback("NONE")
-
-
 
 
 app.mainloop()

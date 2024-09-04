@@ -1,6 +1,7 @@
-sys.path.append('./plugins/siliUX')
+sys.path.append("./plugins/siliUX")
 
 import os, find_nodes
+
 find_nodes.find("esc")
 
 silixcon_dir = os.path.dirname(os.path.abspath(__file__))
