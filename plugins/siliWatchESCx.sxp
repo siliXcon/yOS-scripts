@@ -1,21 +1,16 @@
-sys.path.append("./siliUX")
-
-import tkinter
-import math
-import customtkinter
-import codetostr
-import csv
+import tkinter, customtkinter, math, csv
 import os  # for file explorer after logging ends
 from tkinter import filedialog
 from datetime import datetime
-from ctk_tooltip import *
-from messagebox import MessageBox
+from siliUX import codetostr
+from siliUX import find_nodes
+from siliUX.messagebox import *
+from siliUX.ctk_tooltip import *
 
-# customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
-# customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+lib_dir = os.path.dirname(__file__) + "/siliUX/"
 
-
-import find_nodes
+def icon(name):
+    return tkinter.PhotoImage(file=lib_dir + name)
 
 nodes, nodenames = find_nodes.find("esc")
 
@@ -429,9 +424,6 @@ def update_group3():
 ################################################################################
 # make the main window and node select callback
 
-# configure grid layout (4x4)
-# https://www.pythontutorial.net/tkinter/tkinter-grid/
-
 app = customtkinter.CTk()
 app.title("siliWatch (ESCx)")
 app.attributes("-topmost", 1)
@@ -441,7 +433,7 @@ app.grid_columnconfigure(1, weight=1)
 app.grid_columnconfigure((2, 3), weight=0)
 app.grid_rowconfigure(3, weight=1)
 app.grid_rowconfigure(4, weight=1)
-app.iconbitmap("siliUX/SiliXcon.ico")
+app.iconbitmap(lib_dir + "SiliXcon.ico")
 app.attributes("-topmost", 0)
 
 
@@ -585,7 +577,7 @@ emgui_switch = customtkinter.CTkButton(
     app.top_frame,
     text=f"emgui",
     command=show_emgui,
-    image=tkinter.PhotoImage(file="siliUX/main.png"),
+    image=icon("main.png"),
     width=5,
 )
 emgui_switch.grid(row=0, column=0, padx=(10, 0))
@@ -599,7 +591,7 @@ scope_button = customtkinter.CTkButton(
     app.top_frame,
     text="scope",
     command=open_scope,
-    image=tkinter.PhotoImage(file="siliUX/scope.png"),
+    image=icon("scope.png"),
     width=5,
 )
 scope_button.grid(row=0, column=1, padx=(10, 0), sticky="w")
@@ -607,7 +599,7 @@ scope_button.grid(row=0, column=1, padx=(10, 0), sticky="w")
 # def open_term():
 #    my_node.open("{term}")
 
-# term_button = customtkinter.CTkButton(app.top_frame, text="term", command=open_term, image=tkinter.PhotoImage(file="siliUX/term.png"), width=5)
+# term_button = customtkinter.CTkButton(app.top_frame, text="term", command=open_term, image=icon("term.png"), width=5)
 # term_button.grid(row=0, column=2, padx=(10,0))
 
 
@@ -624,8 +616,8 @@ app.nodeselect_button = customtkinter.CTkSegmentedButton(
 app.nodeselect_button.grid(row=0, column=4, sticky="w")
 app.nodeselect_button.configure(values=nodenames + ["NONE"])
 
-icon_light = tkinter.PhotoImage(file="siliUX/light.png")
-icon_dark = tkinter.PhotoImage(file="siliUX/dark.png")
+icon_light = icon("light.png")
+icon_dark = icon("dark.png")
 
 
 def change_appearance_mode_event():
@@ -647,8 +639,8 @@ apperance_switch = customtkinter.CTkButton(
 apperance_switch.grid(row=0, column=5, padx=5, pady=5, sticky="e")
 
 ################################################################################
-
 # create sidebar frame with widgets
+
 app.sidebar_frame = customtkinter.CTkFrame(app, fg_color="transparent")
 app.sidebar_frame.grid(row=1, column=0, rowspan=4, padx=5, pady=5, sticky="nsew")
 app.sidebar_frame.grid_rowconfigure(1, weight=1)
@@ -656,7 +648,6 @@ app.sidebar_frame.grid_rowconfigure(1, weight=1)
 
 ################################################################################
 # create scrollable frame - logging
-
 
 def log_swcheck_event():
     count = 0
@@ -1038,7 +1029,7 @@ app.templabel = customtkinter.CTkLabel(
     app.drv_frame,
     text="0\N{DEGREE SIGN}C",
     font=customtkinter.CTkFont(size=20, weight="bold"),
-    image=tkinter.PhotoImage(file="siliUX/temp.png"),
+    image=icon("temp.png"),
     compound="left",
 )
 app.templabel.grid(row=1, column=0, rowspan=3, padx=0, sticky="w")
@@ -1049,7 +1040,7 @@ app.pwrlabel = customtkinter.CTkLabel(
     text="0W",
     pady=5,
     font=customtkinter.CTkFont(size=40, weight="bold"),
-    image=tkinter.PhotoImage(file="siliUX/transistor.png"),
+    image=icon("transistor.png"),
     compound="left",
 )
 app.pwrlabel.grid(row=1, column=1)
@@ -1058,7 +1049,7 @@ CTkToolTip(app.pwrlabel, message="Total power throughput.")
 app.energylabel = customtkinter.CTkLabel(
     app.drv_frame,
     text="0J",
-    image=tkinter.PhotoImage(file="siliUX/counter.png"),
+    image=icon("counter.png"),
     compound="left",
 )
 app.energylabel.grid(row=2, column=1)
@@ -1068,7 +1059,7 @@ app.ptctemplabel = customtkinter.CTkLabel(
     app.drv_frame,
     text="0",
     font=customtkinter.CTkFont(size=20, weight="bold"),
-    image=tkinter.PhotoImage(file="siliUX/templimit.png"),
+    image=icon("templimit.png"),
     compound="left",
 )
 app.ptctemplabel.grid(row=1, column=2, rowspan=3, padx=(0, 20), sticky="e")
@@ -1105,7 +1096,7 @@ app.errorlabel = customtkinter.CTkLabel(
     app.limiter_frame,
     text="error\n0",
     corner_radius=5,
-    image=tkinter.PhotoImage(file="siliUX/stop.png"),
+    image=icon("stop.png"),
     width=120,
     compound="left",
 )
@@ -1118,7 +1109,7 @@ app.statlabel = customtkinter.CTkLabel(
     app.limiter_frame,
     text="stat\n0",
     corner_radius=5,
-    image=tkinter.PhotoImage(file="siliUX/warning.png"),
+    image=icon("warning.png"),
     width=120,
     compound="left",
 )
@@ -1131,7 +1122,7 @@ app.limitlabel = customtkinter.CTkLabel(
     app.limiter_frame,
     text="limit\n0",
     corner_radius=5,
-    image=tkinter.PhotoImage(file="siliUX/limiter.png"),
+    image=icon("limiter.png"),
     width=120,
     compound="left",
 )
@@ -1180,7 +1171,7 @@ app.modelabel = customtkinter.CTkLabel(
     app.cmd_frame,
     text=" UNK",
     font=customtkinter.CTkFont(size=40, weight="bold"),
-    image=tkinter.PhotoImage(file="siliUX/joystick.png"),
+    image=icon("joystick.png"),
     compound="left",
 )
 app.modelabel.grid(row=1, column=0, columnspan=3, pady=5)
@@ -1228,7 +1219,7 @@ app.battlabel = customtkinter.CTkLabel(
     app.battery_frame,
     text="0.0V\n0.0A",
     font=customtkinter.CTkFont(size=20, weight="bold"),
-    image=tkinter.PhotoImage(file="siliUX/battery.png"),
+    image=icon("battery.png"),
     compound="left",
 )
 app.battlabel.grid(row=1, column=0, pady=10, padx=(30, 0), sticky="w")
@@ -1236,7 +1227,7 @@ app.battlabel.grid(row=1, column=0, pady=10, padx=(30, 0), sticky="w")
 app.coulomblabel = customtkinter.CTkLabel(
     app.battery_frame,
     text="0mAh",
-    image=tkinter.PhotoImage(file="siliUX/counter.png"),
+    image=icon("counter.png"),
     compound="left",
 )
 app.coulomblabel.grid(row=2, column=0)
@@ -1271,7 +1262,7 @@ app.rpmlabel = customtkinter.CTkLabel(
     app.motor_frame,
     text="0\nRPM",
     font=customtkinter.CTkFont(size=20, weight="bold"),
-    image=tkinter.PhotoImage(file="siliUX/motor.png"),
+    image=icon("motor.png"),
     compound="left",
 )
 app.rpmlabel.grid(row=1, column=0, columnspan=2, sticky="nsew")
@@ -1280,7 +1271,7 @@ app.fluxlabel = customtkinter.CTkLabel(
     app.motor_frame,
     text="0A\0V",
     font=customtkinter.CTkFont(size=20, weight="bold"),
-    image=tkinter.PhotoImage(file="siliUX/flux.png"),
+    image=icon("flux.png"),
     compound="top",
 )
 app.fluxlabel.grid(row=3, column=0, sticky="nsew")
@@ -1290,7 +1281,7 @@ app.torquelabel = customtkinter.CTkLabel(
     app.motor_frame,
     text="0A\0V",
     font=customtkinter.CTkFont(size=20, weight="bold"),
-    image=tkinter.PhotoImage(file="siliUX/torque.png"),
+    image=icon("torque.png"),
     compound="top",
 )
 app.torquelabel.grid(row=3, column=1, sticky="nsew")
@@ -1313,7 +1304,7 @@ app.motcurrentbar.grid(row=9, column=0, columnspan=2, pady=(0, 0), sticky="ns")
 app.odolabel = customtkinter.CTkLabel(
     app.motor_frame,
     text="0 revs",
-    image=tkinter.PhotoImage(file="siliUX/counter.png"),
+    image=icon("counter.png"),
     compound="top",
 )
 app.odolabel.grid(row=11, column=0, pady=15)
@@ -1322,7 +1313,7 @@ CTkToolTip(app.odolabel, message="Number of electrical revolutions since reboot.
 app.ohmlabel = customtkinter.CTkLabel(
     app.motor_frame,
     text="0 ohms",
-    image=tkinter.PhotoImage(file="siliUX/ohm.png"),
+    image=icon("ohm.png"),
     compound="top",
 )
 app.ohmlabel.grid(row=11, column=1, pady=15)

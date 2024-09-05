@@ -1,20 +1,11 @@
-import sxapi
-import tkinter
-import math
-import customtkinter
-import codetostr
-
-
-# for message box
-from messagebox import MessageBox
+import sxapi, tkinter, customtkinter, math, os
 from queue import Queue
-from ctk_tooltip import *
 
-# customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
-# customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+from siliUX import codetostr
+from siliUX.messagebox import *
+from siliUX.ctk_tooltip import *
 
 ################################################################################
-
 
 def advSwitch():
     if checkbox_adv.get():
@@ -393,7 +384,8 @@ def AutomaticIdentification(n, parent):
     x, y = window.winfo_pointerxy()
     window.geometry(f"{640}x{600}+{x}+{y}")
     window.title("Automatic motor identification")
-    window.iconbitmap("siliUX/SiliXcon.ico")
+    lib_dir = os.path.dirname(__file__) + "/"
+    window.iconbitmap(lib_dir + "SiliXcon.ico")
     # customtkinter.CTkLabel(window, text="ahoj").pack(padx=20, pady=20)
     window.grid_rowconfigure((0), weight=1)
     window.grid_columnconfigure((0, 1, 2, 3), weight=1)

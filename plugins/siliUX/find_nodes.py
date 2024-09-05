@@ -1,5 +1,4 @@
-import customtkinter
-import sxapi
+import customtkinter, sxapi, os
 
 
 def MessageBox(message):
@@ -9,7 +8,8 @@ def MessageBox(message):
     x, y = app.winfo_pointerxy()
     app.geometry(f"+{x}+{y}")
     app.title("Find nodes")
-    app.iconbitmap("siliUX/SiliXcon.ico")
+    lib_dir = os.path.dirname(__file__)
+    app.iconbitmap(lib_dir + "/SiliXcon.ico")
     customtkinter.CTkLabel(app, text=message).pack(padx=20, pady=20)
     customtkinter.CTkButton(app, text=f"OK", command=app.destroy).pack(padx=20, pady=20)
     app.mainloop()

@@ -1,21 +1,16 @@
-sys.path.append("./siliUX")
+import tkinter, customtkinter, math, os
 
-import tkinter
-import math
-import customtkinter
+from siliUX import find_nodes
+from siliUX.messagebox import *
+from siliUX.ctk_tooltip import *
 
-from messagebox import MessageBox
-from ctk_tooltip import *
+lib_dir = os.path.dirname(__file__) + "/siliUX/"
 
-# customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
-# customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
-
-import find_nodes
+def icon(name):
+    return tkinter.PhotoImage(file=lib_dir + name)
 
 nodes, nodenames = find_nodes.find("esc")
 
-# configure grid layout (4x4)
-# https://www.pythontutorial.net/tkinter/tkinter-grid/
 app = customtkinter.CTk()
 app.title("siliSpin (ESCx)")
 app.attributes("-topmost", 1)
@@ -24,10 +19,9 @@ app.geometry(f"{500}x{400}+{x-250}+{y}")
 app.grid_columnconfigure((0), weight=1)
 app.grid_rowconfigure((3, 4), weight=1)
 app.attributes("-topmost", 0)
-app.iconbitmap("siliUX/SiliXcon.ico")
+app.iconbitmap(lib_dir + "SiliXcon.ico")
 
 ################################################################################
-
 
 app.top_frame = customtkinter.CTkFrame(app, fg_color="transparent")
 app.top_frame.grid(
@@ -51,7 +45,7 @@ def node_select_callback(value):
 def show_emgui():
     sxapi.show()
 
-emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"emgui", command=show_emgui, image=tkinter.PhotoImage(file="siliUX/main.png"), width=5)
+emgui_switch = customtkinter.CTkButton(app.top_frame, text=f"emgui", command=show_emgui, image=icon("main.png"), width=5)
 emgui_switch.grid(row=0, column=0, padx=(10,0))
 """
 
@@ -68,8 +62,8 @@ nodeselect_button = customtkinter.CTkSegmentedButton(
 nodeselect_button.configure(values=nodenames + ["NONE"])
 nodeselect_button.grid(row=0, column=4, pady=5, sticky="w")
 
-icon_light = tkinter.PhotoImage(file="siliUX/light.png")
-icon_dark = tkinter.PhotoImage(file="siliUX/dark.png")
+icon_light = icon("light.png")
+icon_dark = icon("dark.png")
 
 
 def change_appearance_mode_event():
@@ -323,7 +317,7 @@ def run():
 
 
 runbutton = customtkinter.CTkButton(
-    app, text="Run !", command=run, image=tkinter.PhotoImage(file="siliUX/joystick.png")
+    app, text="Run !", command=run, image=icon("joystick.png")
 )
 runbutton.grid(row=3, column=1, padx=(5, 10), pady=5, sticky="nsew")
 CTkToolTip(runbutton, message="Hit to issue the command preset.")
@@ -338,7 +332,7 @@ stopbutton = customtkinter.CTkButton(
     text="Stop !",
     fg_color="red",
     command=stop,
-    image=tkinter.PhotoImage(file="siliUX/stop.png"),
+    image=icon("stop.png"),
 )
 stopbutton.grid(row=4, column=1, padx=(5, 10), pady=5, sticky="nsew")
 CTkToolTip(stopbutton, message="Hit to force the freewheeling mode.")
