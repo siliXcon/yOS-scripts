@@ -220,44 +220,48 @@ def spinup_cb(state, res, stdout_data):
 
 
 def identlin():
-    if checkbox_nlin.get():
-        retval = my_node.execute("identlin", "-n", update=identlin_cb)
-    else:
-        retval = my_node.execute("identlin", update=identlin_cb)
+    try:
+        if checkbox_nlin.get():
+            my_node.execute("identlin", "-n", update=identlin_cb)
+        else:
+            my_node.execute("identlin", update=identlin_cb)
 
-    if retval < 0:
+    except sxapi.error as e:
         retlabel.configure(
-            text="Could not start identlin, error " + str(retval), fg_color="red"
+            text=str(e), fg_color="red"
         )
-    else:
-        retlabel.configure(text="Identlin started", fg_color=("gray78", "gray23"))
-        outputBox.delete("0.0", "end")
-        enableButtons(0)
+        return
+
+    retlabel.configure(text="Identlin started", fg_color=("gray78", "gray23"))
+    outputBox.delete("0.0", "end")
+    enableButtons(0)
 
 
 def spinup():
-    if currentBox.get() == "":
-        retval = my_node.execute(
-            "spinup", accelBox.get(), durationBox.get(), update=spinup_cb, timeout=10000
-        )
-    else:
-        retval = my_node.execute(
-            "spinup",
-            accelBox.get(),
-            durationBox.get(),
-            currentBox.get(),
-            update=spinup_cb,
-            timeout=10000,
-        )
+    try:
+        if currentBox.get() == "":
+            my_node.execute(
+                "spinup", accelBox.get(), durationBox.get(), update=spinup_cb, timeout=10000
+            )
+        else:
+            my_node.execute(
+                "spinup",
+                accelBox.get(),
+                durationBox.get(),
+                currentBox.get(),
+                update=spinup_cb,
+                timeout=10000,
+            )
 
-    if retval < 0:
+    except sxapi.error as e:
         retlabel.configure(
-            text="Could not start spin-up, error " + str(retval), fg_color="red"
+            text=str(e), fg_color="red"
         )
-    else:
-        retlabel.configure(text="Spin-up started", fg_color=("gray78", "gray23"))
-        outputBox.delete("0.0", "end")
-        enableButtons(0)
+        return
+
+    retlabel.configure(text="Spin-up started", fg_color=("gray78", "gray23"))
+    outputBox.delete("0.0", "end")
+    enableButtons(0)
 
 
 def identrun():
@@ -265,66 +269,68 @@ def identrun():
         my_node.open("{scope}")
         checkbox_scope.deselect()
 
-    # TODO simplify this decission tree with argument list !!
-    if checkbox_visual.get():
-        if checkbox_adv.get():
-            if currentBox.get() == "":
-                retval = my_node.execute(
-                    "identrun",
-                    "-w",
-                    accelBox.get(),
-                    durationBox.get(),
-                    update=identrun_cb,
-                    timeout=10000,
-                )
+    try:
+        # TODO simplify this decission tree with argument list !!
+        if checkbox_visual.get():
+            if checkbox_adv.get():
+                if currentBox.get() == "":
+                    my_node.execute(
+                        "identrun",
+                        "-w",
+                        accelBox.get(),
+                        durationBox.get(),
+                        update=identrun_cb,
+                        timeout=10000,
+                    )
+                else:
+                    my_node.execute(
+                        "identrun",
+                        "-w",
+                        accelBox.get(),
+                        durationBox.get(),
+                        currentBox.get(),
+                        update=identrun_cb,
+                        timeout=10000,
+                    )
             else:
-                retval = my_node.execute(
-                    "identrun",
-                    "-w",
-                    accelBox.get(),
-                    durationBox.get(),
-                    currentBox.get(),
-                    update=identrun_cb,
-                    timeout=10000,
+                my_node.execute(
+                    "identrun", "-w", update=identrun_cb, timeout=10000
                 )
         else:
-            retval = my_node.execute(
-                "identrun", "-w", update=identrun_cb, timeout=10000
-            )
-    else:
-        if checkbox_adv.get():
-            if currentBox.get() == "":
-                retval = my_node.execute(
-                    "identrun",
-                    "-q",
-                    accelBox.get(),
-                    durationBox.get(),
-                    update=identrun_cb,
-                    timeout=10000,
-                )
+            if checkbox_adv.get():
+                if currentBox.get() == "":
+                    my_node.execute(
+                        "identrun",
+                        "-q",
+                        accelBox.get(),
+                        durationBox.get(),
+                        update=identrun_cb,
+                        timeout=10000,
+                    )
+                else:
+                    my_node.execute(
+                        "identrun",
+                        "-q",
+                        accelBox.get(),
+                        durationBox.get(),
+                        currentBox.get(),
+                        update=identrun_cb,
+                        timeout=10000,
+                    )
             else:
-                retval = my_node.execute(
-                    "identrun",
-                    "-q",
-                    accelBox.get(),
-                    durationBox.get(),
-                    currentBox.get(),
-                    update=identrun_cb,
-                    timeout=10000,
+                my_node.execute(
+                    "identrun", "-q", update=identrun_cb, timeout=10000
                 )
-        else:
-            retval = my_node.execute(
-                "identrun", "-q", update=identrun_cb, timeout=10000
-            )
 
-    if retval < 0:
+    except sxapi.error as e:
         retlabel.configure(
-            text="Could not start identrun, error " + str(retval), fg_color="red"
+            text=str(e), fg_color="red"
         )
-    else:
-        retlabel.configure(text="Identrun started", fg_color=("gray78", "gray23"))
-        outputBox.delete("0.0", "end")
-        enableButtons(0)
+        return
+
+    retlabel.configure(text="Identrun started", fg_color=("gray78", "gray23"))
+    outputBox.delete("0.0", "end")
+    enableButtons(0)
 
 
 def identsat():
@@ -332,19 +338,21 @@ def identsat():
         my_node.open("{scope}")
         checkbox_scope.deselect()
 
-    if checkbox_visual.get():
-        retval = my_node.execute("identsat", "-w", update=update_cb, timeout=10000)
-    else:
-        retval = my_node.execute("identsat", "-q", update=update_cb, timeout=10000)
+    try:
+        if checkbox_visual.get():
+            my_node.execute("identsat", "-w", update=update_cb, timeout=10000)
+        else:
+            my_node.execute("identsat", "-q", update=update_cb, timeout=10000)
 
-    if retval < 0:
+    except sxapi.error as e:
         retlabel.configure(
-            text="Could not start identsat, error " + str(retval), fg_color="red"
+            text=str(e), fg_color="red"
         )
-    else:
-        retlabel.configure(text="Identsat started", fg_color=("gray78", "gray23"))
-        outputBox.delete("0.0", "end")
-        enableButtons(0)
+        return
+
+    retlabel.configure(text="Identsat started", fg_color=("gray78", "gray23"))
+    outputBox.delete("0.0", "end")
+    enableButtons(0)
 
 
 def identsal():
@@ -352,19 +360,21 @@ def identsal():
         my_node.open("{scope}")
         checkbox_scope.deselect()
 
-    if checkbox_visual.get():
-        retval = my_node.execute("identsal", "-w", update=update_cb, timeout=10000)
-    else:
-        retval = my_node.execute("identsal", "-q", update=update_cb, timeout=10000)
+    try:
+        if checkbox_visual.get():
+            my_node.execute("identsal", "-w", update=update_cb, timeout=10000)
+        else:
+            my_node.execute("identsal", "-q", update=update_cb, timeout=10000)
 
-    if retval < 0:
+    except sxapi.error as e:
         retlabel.configure(
-            text="Could not start identsal, error " + str(retval), fg_color="red"
+            text=str(e), fg_color="red"
         )
-    else:
-        retlabel.configure(text="Identsal started", fg_color=("gray78", "gray23"))
-        outputBox.delete("0.0", "end")
-        enableButtons(0)
+        return
+
+    retlabel.configure(text="Identsal started", fg_color=("gray78", "gray23"))
+    outputBox.delete("0.0", "end")
+    enableButtons(0)
 
 
 # to receive asynchronous callbacks from sxapi
