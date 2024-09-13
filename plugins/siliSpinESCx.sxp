@@ -376,7 +376,7 @@ if len(nodenames) == 1:
     nodeselect_button.set(nodenames[0])
     node_select_callback(nodenames[0])
 else:
-    app.nodeselect_button.set("NONE")
+    nodeselect_button.set("NONE")
     node_select_callback("NONE")
 
 # Bind the mouse wheel event to the whole window
