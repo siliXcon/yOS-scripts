@@ -15,7 +15,6 @@
 
 import customtkinter, sxapi, os
 
-
 def MessageBox(message):
     app = customtkinter.CTk()
     app.attributes("-topmost", 1)
@@ -30,8 +29,7 @@ def MessageBox(message):
     app.mainloop()
 
 
-def find(family):
-    # Connect to the node
+def find(family, io = 3):
     try:
         nodeCount = sxapi.search(dummy=1)
         if nodeCount < 1:
@@ -42,17 +40,16 @@ def find(family):
             nodeCount = nodeCount2
 
     except sxapi.error as e:
-        # tkinter.messagebox.showerror("Error", "Failed to connect to the device")
+        MessageBox("SXAPI error " + str(e))
         exit()
 
-    # todo make these as function return
     nodes = []
     nodenames = []
 
     for i in range(nodeCount):
         newNode = sxapi.node(
-            i, iomode=3
-        )  # TODO explore other iomode options for better responsiveness and safety
+            i, iomode=io
+        )
         if newNode.hwid().decode()[:3] == family:
             nodes.append(newNode)
             nodenames.append(
@@ -60,7 +57,7 @@ def find(family):
             )
 
     if len(nodes) < 1:
-        MessageBox("None of the nodes is an " + family + " member!")
+        MessageBox("None of the available nodes is an " + family + " member !")
         raise ValueError()  # no other way to kill the script without exitting emgui
 
     return nodes, nodenames
