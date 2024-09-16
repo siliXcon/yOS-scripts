@@ -1,3 +1,18 @@
+"""
+ codetostr.py
+
+ The ESCx error / status / limit code decoding.
+
+ This module is part of the YOS/SWTools project.
+
+ Date:
+    2024
+
+ Copyright:
+    siliXcon (c) all rights reserved. Redistribution and usage of this code
+    in another project without the author's agreement is not allowed.
+"""
+
 # Bit mappings for /driver/stat
 bit_messages = {
     0: "[OverCurrent]",

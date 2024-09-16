@@ -1,5 +1,21 @@
+"""
+ ident.py
+
+ The automatic-identification part of the siliTune SXAPI plugin for ESCx controllers.
+
+ This module is part of the YOS/SWTools project.
+
+ Date:
+    2024
+
+ Copyright:
+    siliXcon (c) all rights reserved. Redistribution and usage of this code
+    in another project without the author's agreement is not allowed.
+"""
+
 import sxapi, tkinter, customtkinter, math, os
 from queue import Queue
+from PIL import Image, ImageTk
 
 from siliUX import codetostr
 from siliUX.messagebox import *
@@ -396,7 +412,14 @@ def AutomaticIdentification(n, parent):
     window.title("Automatic motor identification")
     lib_dir = os.path.dirname(__file__) + "/"
     window.iconbitmap(lib_dir + "SiliXcon.ico")
-    # customtkinter.CTkLabel(window, text="ahoj").pack(padx=20, pady=20)
+
+
+
+    icon = Image.open(lib_dir + "flux.png")  # Make sure you have a PNG version of your icon
+    photo = ImageTk.PhotoImage(icon)
+    window.iconphoto(False, photo)
+
+
     window.grid_rowconfigure((0), weight=1)
     window.grid_columnconfigure((0, 1, 2, 3), weight=1)
     window.focus()

@@ -1,3 +1,26 @@
+"""
+ siliWatchESCx.sxp
+
+ The siliWatch SXAPI plugin for ESCx controllers.
+
+ This module is part of the YOS/SWTools project.
+
+ TODO:
+    The plugin makes a blocking, periodic calls to the SXAPI to retrieve the values.
+    Because of that, the UI responsivity depends on the comlink load.
+    An obvious solution is to extend the SXAPI with asynchronous callbacks
+    (for 'get' method, similarly like current 'execute' method offers),
+    and then make use of event-driven architecture, as used elsewhere in the system.
+    A simpler workaround might be to adjust the 'iomode' property.
+
+ Date:
+    2024
+
+ Copyright:
+    siliXcon (c) all rights reserved. Redistribution and usage of this code
+    in another project without the author's agreement is not allowed.
+"""
+
 import tkinter, customtkinter, math, csv
 import os  # for file explorer after logging ends
 from tkinter import filedialog

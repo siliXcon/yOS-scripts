@@ -1,3 +1,18 @@
+"""
+ siliSpinESCx.sxp
+
+ The siliSpin SXAPI plugin for ESCx controllers.
+
+ This module is part of the YOS/SWTools project.
+
+ Date:
+    2024
+
+ Copyright:
+    siliXcon (c) all rights reserved. Redistribution and usage of this code
+    in another project without the author's agreement is not allowed.
+"""
+
 import tkinter, customtkinter, math, os
 
 from siliUX import find_nodes
@@ -291,8 +306,15 @@ class preset_tab:
         if rmult != 1:
             args.append(str(round(rmult, 2)))
 
-        retval = my_node.executeSimple(*args)
-        update_result(retval, " ".join(args))
+        try:
+            retval = my_node.executeSimple(*args)
+            update_result(retval, " ".join(args))
+
+        except sxapi.error as e:
+            retlabel.configure(
+                text=str(e), fg_color="red"
+            )
+            return
 
     def update(self, *args):
         if checkbox_follow.get():

@@ -1,3 +1,18 @@
+"""
+ find_nodes.py
+
+ The common code for siliXXX plugins for discovering nodes of a particular family.
+
+ This module is part of the YOS/SWTools project.
+
+ Date:
+    2024
+
+ Copyright:
+    siliXcon (c) all rights reserved. Redistribution and usage of this code
+    in another project without the author's agreement is not allowed.
+"""
+
 import customtkinter, sxapi, os
 
 
