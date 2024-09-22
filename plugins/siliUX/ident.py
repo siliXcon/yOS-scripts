@@ -445,9 +445,9 @@ def AutomaticIdentification(n, parent):
         "\nADVANCED:\n"
         " - In case of current instability, adjust the PID settings and/or 'iref' value.\n"
         " - If the rotor fails to spin up with 'identrun', adjust the acceleration, current and duration values.\n"
-        " - 'identrun' of a back-driven motor can be done by setting acceleration to zero.\n"
-        " - 'identrun', 'identsat' and 'identsal' sends recorded data to SCOPE tool for visualisation.\n"
-        " - 'identsat' and 'identsal' are for reference only and do not store any values.\n",
+        " - 'identrun' of a back-driven motor can be performed by setting acceleration to zero.\n"
+        " - 'identrun', 'identsat' and 'identsal' use SCOPE tool for visualization (if selected).\n"
+        " - 'identsat' and 'identsal' are for visualization only and do not identify/store any values.\n",
     )
 
     identlinButton = customtkinter.CTkButton(
