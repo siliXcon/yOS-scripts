@@ -405,7 +405,7 @@ def AutomaticIdentification(n, parent):
     my_node = n
     window = customtkinter.CTkToplevel()
 
-    # window.attributes("-topmost", 1)
+    window.attributes("-topmost", 1)
     # window.eval("tk::PlaceWindow . center")
     x, y = window.winfo_pointerxy()
     window.geometry(f"{640}x{600}+{x}+{y}")

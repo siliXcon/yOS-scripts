@@ -33,7 +33,7 @@ x, y = app.winfo_pointerxy()
 app.geometry(f"{500}x{400}+{x-250}+{y}")
 app.grid_columnconfigure((0), weight=1)
 app.grid_rowconfigure((3, 4), weight=1)
-app.attributes("-topmost", 0)
+#app.attributes("-topmost", 0)
 app.iconbitmap(lib_dir + "SiliXcon.ico")
 
 ################################################################################
