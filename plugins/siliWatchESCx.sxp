@@ -43,39 +43,9 @@ nodes, nodenames = find_nodes.find("esc")
 logfile = None
 writer = None
 log_count = 0
-
-
-# NOTE the values are global only for the purpose of logging. Otherwise, values can exist only locally, within the update functions.
-class value:
-    # updated in group 3
-    voltage = 0
-    current = 0
-    voltageq = 0
-    currentq = 0
-    voltaged = 0
-    currentd = 0
-    motorcurrent = 0
-    motorvoltage = 0
-    motcurrentrms = 0
-    motvoltagerms = 0
-    # updated in group 2
-    rpm = 0
-    imult = 0
-    umult = 0
-    cmd = 0
-    mode = 0
-    # updated in group 1
-    power = 0
-    status = 0
-    limit = 0
-    error = 0
-    totallimit = 0
-    enable = 0
-    # updated in group 0
-    temp = 0
-    ptctemp = 0
-    rthermistor = 0
-
+log_prio = 4
+log_row = []
+log_switches = []
 
 log_group = [
     "battery and motor currents",
@@ -89,214 +59,6 @@ log_group = [
     "error, stat, limit and totallimit",
     "temperatures",
 ]
-
-log_group_header = [
-    [
-        "/driver/supply/currentf [A]",
-        "/driver/motor/currentqf [A]",
-        "/driver/motor/currentdf [A]",
-    ],
-    [
-        "/driver/supply/voltage [V]",
-        "/driver/motor/voltageq [V]",
-        "/driver/motor/voltaged [V]",
-    ],
-    ["total motor current [A]", "total motor voltage [V]"],
-    ["RMS motor current [A]", "RMS motor voltage [V]"],
-    ["/driver/motor/rpmf [rpm]"],
-    ["/driver/command", "/driver/mode"],
-    ["/driver/imult", "/driver/umult"],
-    ["/driver/powerf"],
-    ["/driver/error", "/driver/stat", "/driver/limit", "/driver/totallimit"],
-    ["/driver/temp", "/driver/ptctemp", "/driver/motor/rthermistor"],
-]
-
-
-log_switches = []
-
-
-def log_group_cb(group):
-    if logfile and writer:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-        row = [timestamp]
-        max_group = -1
-
-        # updated in group 3 (fastest)
-        if log_switches[0].get() == 1:
-            row.append(value.current)
-            row.append(value.currentq)
-            row.append(value.currentd)
-            max_group = max(max_group, 3)
-        if log_switches[1].get() == 1:
-            row.append(value.voltage)
-            row.append(value.voltageq)
-            row.append(value.voltaged)
-            max_group = max(max_group, 3)
-        if log_switches[2].get() == 1:
-            row.append(value.motorcurrent)
-            row.append(value.motorvoltage)
-            max_group = max(max_group, 3)
-        if log_switches[3].get() == 1:
-            row.append(value.motcurrentrms)
-            row.append(value.motvoltagerms)
-            max_group = max(max_group, 3)
-
-        # updated in group 2
-        if log_switches[4].get() == 1:
-            row.append(value.rpm)
-            max_group = max(max_group, 2)
-        if log_switches[5].get() == 1:
-            row.append(value.cmd)
-            row.append(value.mode)
-            max_group = max(max_group, 2)
-        if log_switches[6].get() == 1:
-            row.append(value.imult)
-            row.append(value.umult)
-            max_group = max(max_group, 2)
-
-        # updated in group 1
-        if log_switches[7].get() == 1:
-            row.append(value.power)
-            max_group = max(max_group, 1)
-        if log_switches[8].get() == 1:
-            row.append(value.error)
-            row.append(value.status)
-            row.append(value.limit)
-            row.append(value.totallimit)
-            max_group = max(max_group, 1)
-
-        # updated in group 0
-        if log_switches[9].get() == 1:
-            row.append(value.temp)
-            row.append(value.ptctemp)
-            row.append(value.rthermistor)
-            max_group = max(max_group, 0)
-
-        # log at the frequency of the selected group that updates the fastest
-        if group != max_group:
-            return
-
-        writer.writerow(row)
-
-        global log_count
-        log_count = log_count + 1
-        app.logcountlabel.configure(text=str(log_count) + " samples")
-
-
-################################################################################
-# define group updater callbacks
-
-update_group0_id = None
-update_group1_id = None
-update_group2_id = None
-update_group3_id = None
-
-
-def cancel_updates():
-    app.nodeselect_button.configure(selected_color="red")
-    if update_group0_id:
-        app.after_cancel(update_group0_id)
-    if update_group1_id:
-        app.after_cancel(update_group1_id)
-    if update_group2_id:
-        app.after_cancel(update_group2_id)
-    if update_group3_id:
-        app.after_cancel(update_group3_id)
-
-
-def update_group0():
-    try:
-        value.temp = drivertemp.get()
-        app.templabel.configure(text=str(round(value.temp, 1)) + "\N{DEGREE SIGN}C")
-
-        value.ptctemp = ptctemp.get()
-        if math.isnan(value.ptctemp):
-            app.ptctemplabel.configure(text=str("N/A"))
-        elif math.isinf(value.ptctemp):
-            app.ptctemplabel.configure(text=str("INF"))
-        else:
-            app.ptctemplabel.configure(text=str(int(value.ptctemp)))
-
-        value.rthermistor = rthermistor.get()
-        if math.isnan(value.rthermistor):
-            app.ohmlabel.configure(text=str("N/A"))
-        elif math.isinf(value.rthermistor):
-            app.ohmlabel.configure(text=str("INF"))
-        else:
-            app.ohmlabel.configure(text=str(int(value.rthermistor)) + " ohms")
-
-        app.energylabel.configure(text=str(int(driverenergy.get())) + "J")
-        app.odolabel.configure(text=str(motorodo.get()) + " revs")
-        app.coulomblabel.configure(text=str(int(supplycap.get())) + "mAh")
-
-        global iref
-        iref = driveriref.get()
-
-        log_group_cb(0)
-        global update_group0_id
-        update_group0_id = app.after(567, update_group0)
-
-    except sxapi.error as e:
-        cancel_updates()
-        raise e
-
-
-def update_group1():
-    try:
-        value.power = driverpower.get()
-        app.pwrlabel.configure(text=str(int(value.power)) + "W")
-
-        value.status = driverstat.get()
-        app.stattext.delete("0.0", "end")  # delete all text
-        app.stattext.insert("0.0", codetostr.stat2string(value.status))
-        app.statlabel.configure(text="stat\n" + str(value.status))
-        if value.status:
-            app.statlabel.configure(fg_color="darkorange")
-        else:
-            app.statlabel.configure(fg_color="transparent")
-
-        value.limit = driverlimit.get()
-        app.limittext.delete("0.0", "end")  # delete all text
-        app.limittext.insert("0.0", codetostr.limit2string(value.limit))
-        app.limitlabel.configure(text="limit\n" + str(value.limit))
-        if value.limit:
-            app.limitlabel.configure(fg_color="green")
-        else:
-            app.limitlabel.configure(fg_color="transparent")
-
-        value.error = drivererror.get()
-        app.errortext.delete("0.0", "end")  # delete all text
-        app.errortext.insert("0.0", codetostr.error2string(value.error))
-        app.errorlabel.configure(text="error\n" + str(value.error))
-        if value.error:
-            app.errorlabel.configure(fg_color="red")
-        else:
-            app.errorlabel.configure(fg_color="transparent")
-
-        if value.error:
-            app.totallimitbar.configure(progress_color="red")
-        elif value.status:
-            app.totallimitbar.configure(progress_color="yellow")
-        else:
-            app.totallimitbar.configure(progress_color="green")
-
-        value.totallimit = drivertotallimit.get()
-        app.totallimitbar.set(value.totallimit)
-
-        value.enable = driverenable.get()
-        if value.enable:
-            app.enablebar.configure(fg_color="grey", progress_color="blue")
-        else:
-            app.enablebar.configure(fg_color="grey", progress_color="grey")
-
-        log_group_cb(1)
-        global update_group1_id
-        update_group1_id = app.after(456, update_group1)
-
-    except sxapi.error as e:
-        cancel_updates()
-        raise e
-
 
 modes = [
     "FRW",
@@ -317,131 +79,80 @@ modes = [
     "SHR",
 ]
 
+################################################################################
+# log callbacks
 
-def update_group2():
+
+class state_monitor:
+    def __init__(self, prio, log_id, path, cb):
+        global my_node
+        self.path = path
+        self.cb = cb
+        self.prio = prio - 1
+        self.log_id = log_id
+        self.variable = my_node.variable(self.path)
+
+    def update(self, *args):
+        value = self.variable.get()
+        self.cb(value)
+        return value
+
+
+update_timer = None
+current_index = 0
+current_prio = 0
+
+
+def update():
+    global update_timer, updaters, current_index, current_prio, log_prio, log_count, log_row
+
     try:
-        value.rpm = motorrpm.get()
-        app.rpmlabel.configure(text=" " + str(int(value.rpm)) + "\n RPM")
+        while True:
+            updater = updaters[current_index]
+            current_index = current_index + 1
+            if current_index >= len(updaters):
+                # TODO consider spreading current_prio randomly (from 0 - 4) - to not aggregate log samples together
+                current_prio = (current_prio + 1) % 5
+                current_index = 0
+                if logfile and writer and log_prio <= current_prio:
+                    writer.writerow(log_row)
+                    log_count = log_count + 1
+                    app.logcountlabel.configure(text=str(log_count) + " samples")
+                    log_row = [datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")]
 
-        value.imult = driverimult.get()
-        app.imultbar.set(value.imult)
-        value.umult = driverumult.get()
-        app.umultbar.set(value.umult)
+            if updater.prio <= current_prio:
+                # TODO try to experiment with different iomodes here !
+                # we can attempt to schedule and IO op and if not successful, repeat next time. That will promote responsivity.
+                # Also try the 'direct' mode (not to disturb emGUI).
+                value = updater.update()
+                if logfile and writer and log_prio <= current_prio and updater.log_id >= 0 and log_switches[updater.log_id].get() and log_count >= 0:
+                    log_row.append(value)
+                break
 
-        value.cmd = drivercmd.get()
-        app.cmdbar.set(value.cmd)
-
-        value.mode = drivermode.get()
-        app.modelabel.configure(
-            text=" " + modes[value.mode & 15] + " " + str(round(value.cmd, 2))
-        )
-
-        app.checkbox_pos.configure(state="enabled")
-        app.checkbox_spd.configure(state="enabled")
-
-        if value.mode & 0x10:
-            app.checkbox_spd.select()
-        else:
-            app.checkbox_spd.deselect()
-
-        if value.mode & 0x20:
-            app.checkbox_pos.select()
-        else:
-            app.checkbox_pos.deselect()
-
-        app.checkbox_pos.configure(state="disabled")
-        app.checkbox_spd.configure(state="disabled")
-
-        log_group_cb(2)
-        global update_group2_id
-        update_group2_id = app.after(345, update_group2)
+        update_timer = app.after(10, update)
 
     except sxapi.error as e:
-        cancel_updates()
+        app.nodeselect_button.configure(selected_color="red")
         raise e
 
+error = 0
+stat = 0
+iref = 0
+cmd = 0
+currentq = 0
+currentd = 0
+voltageq = 0
+voltaged = 0
 
-def update_group3():
-    try:
-        value.voltage = supplyvoltage.get()
-        value.current = supplycurrent.get()
+supplyvoltage = 0
+supplycurrent = 0
 
-        app.battlabel.configure(
-            text=" "
-            + str(round(value.voltage, 2))
-            + "V\n "
-            + str(round(value.current, 2))
-            + "A"
-        )
+#localy calculated - for logging
+motvoltage = 0
+motcurrent = 0
 
-        value.currentq = motorcurrentq.get()
-        value.voltageq = motorvoltageq.get()
-
-        app.torquelabel.configure(
-            text=str(round(value.voltageq, 2))
-            + "V\n"
-            + str(round(value.currentq, 1))
-            + "A"
-        )
-
-        if motorcurrentd and motorvoltaged:  # VECTOR
-            value.currentd = motorcurrentd.get()
-            value.voltaged = motorvoltaged.get()
-            value.motcurrent = math.sqrt(
-                value.currentq * value.currentq + value.currentd * value.currentd
-            )
-            value.motvoltage = (
-                math.sqrt(
-                    value.voltageq * value.voltageq + value.voltaged * value.voltaged
-                )
-                * 1.73205
-            )  # sqrt3
-            app.fluxlabel.configure(
-                text=str(round(value.voltaged, 2))
-                + "V\n"
-                + str(round(value.currentd, 1))
-                + "A"
-            )
-
-        else:  # BLDC
-            value.currentd = 0.0
-            value.voltaged = 0.0
-            value.motcurrent = value.currentq
-            value.motvoltage = value.voltageq
-            app.fluxlabel.configure(text="N/A")
-
-        value.motcurrentrms = value.motcurrent / 1.41
-        value.motvoltagerms = value.motvoltage / 1.41
-        app.motcurrentlabel.configure(
-            text=str(round(value.motcurrent, 2))
-            + "A / "
-            + str(round(value.motcurrentrms, 2))
-            + "Arms"
-        )
-        app.motcurrentbar.configure(progress_color="green")
-
-        app.motvoltagelabel.configure(
-            text=str(round(value.motvoltage, 2))
-            + "V / "
-            + str(round(value.motvoltagerms, 2))
-            + "Vrms"
-        )
-        app.motvoltagebar.configure(progress_color="yellow")
-
-        if value.voltage:
-            app.motvoltagebar.set(value.motvoltage / value.voltage)
-
-        if iref:
-            app.batcurrentbar.set(value.current / iref)
-            app.motcurrentbar.set(value.motcurrent / iref)
-
-        log_group_cb(3)
-        global update_group3_id
-        update_group3_id = app.after(234, update_group3)
-
-    except sxapi.error as e:
-        cancel_updates()
-        raise e
+def set_global_var(var_name, value):
+    globals()[var_name] = value
 
 
 ################################################################################
@@ -460,8 +171,10 @@ app.iconbitmap(lib_dir + "SiliXcon.ico")
 #app.attributes("-topmost", 0)
 
 
-def node_select_callback(value):
-    cancel_updates()
+def node_select_callback(nodename):
+    global update_timer
+    if update_timer:
+        app.after_cancel(update_timer)
 
     app.enablebar.configure(fg_color="black", progress_color="black")
     app.totallimitbar.configure(progress_color="black")
@@ -475,120 +188,192 @@ def node_select_callback(value):
     # app.term_button.configure(state="disabled")
     # app.scope_button.configure(state="disabled")
 
-    if value in nodenames:
-        global my_node
-        my_node = nodes[nodenames.index(value)]
+    if nodename in nodenames:
+        global my_node, updaters
+        my_node = nodes[nodenames.index(nodename)]
         # app.term_button.configure(state="enabled")
         # app.scope_button.configure(state="enabled")
+        updaters = []
 
         try:
             # handle some of the exceptions - some variables are named differently in esc3 and esc5
-            global driverpower
-            try:
-                driverpower = my_node.variable("/driver/power")  # power at esc3
-            except sxapi.error as e:
-                driverpower = my_node.variable("/driver/powerf")  # powerf at esc5
-
             # TODO add support for esc4 and esc6 !
-
-            # group0
-            global drivertemp
-            drivertemp = my_node.variable("/driver/temp")
-            global ptctemp
-            ptctemp = my_node.variable("/driver/ptctemp")
-            global motorodo
-            motorodo = my_node.variable("/driver/motor/odo")
-            global driverenergy
-            driverenergy = my_node.variable("/driver/energy")
-            global supplycap
-            supplycap = my_node.variable("/driver/supply/cap")
-            global driveriref
-            driveriref = my_node.variable("/driver/iref")
-            global drivererror
-            drivererror = my_node.variable("/driver/error")
-            global rthermistor
-            rthermistor = my_node.variable("/driver/motor/Rthermistor")
-
-            update_group0()
-
-            # group1
-            global driverenable
-            driverenable = my_node.variable("/driver/enable")
-            global driverstat
-            driverstat = my_node.variable("/driver/stat")
-            global driverlimit
-            driverlimit = my_node.variable("/driver/limit")
-            global drivertotallimit
-            drivertotallimit = my_node.variable("/driver/totallimit")
-
-            update_group1()
-
-            # group2
-            global drivercmd
-            drivercmd = my_node.variable("/driver/cmd")
-            global drivermode
-            drivermode = my_node.variable("/driver/mode")
-            global motorrpm
-            motorrpm = my_node.variable("/driver/motor/rpmf")
-
-            global driverimult
             try:
-                driverimult = my_node.variable("/driver/iqmult")  # VECTOR
-            except sxapi.error as e:
-                driverimult = my_node.variable("/driver/imult")  # BLDC
+                updaters.append(state_monitor(1, 7, "/driver/power", lambda value: (
+                    app.pwrlabel.configure(text=str(int(value)) + "W")
+                ))) # esc3
 
-            global driverumult
+            except sxapi.error as e:
+                updaters.append(state_monitor(1, 7, "/driver/powerf", lambda value: (
+                    app.pwrlabel.configure(text=str(int(value)) + "W")
+                ))) # esc5
+
+
+            # limiters & status words
+
+            updaters.append(state_monitor(1, 8, "/driver/error", lambda value: (
+                set_global_var(error, value),
+                app.errortext.delete("0.0", "end"),  # delete all text
+                app.errortext.insert("0.0", codetostr.error2string(value)),
+                app.errorlabel.configure(text="error\n" + str(value), fg_color="red" if value else "transparent")
+            )))
+            updaters.append(state_monitor(1, -1, "/driver/enable", lambda value: (
+                app.enablebar.configure(fg_color="grey", progress_color="blue" if value else "grey")
+            )))
+            updaters.append(state_monitor(1, 8, "/driver/stat", lambda value: (
+                set_global_var(stat, value),
+                app.stattext.delete("0.0", "end"),  # delete all text
+                app.stattext.insert("0.0", codetostr.stat2string(value)),
+                app.statlabel.configure(text="stat\n" + str(value), fg_color="darkorange" if value else "transparent")
+            )))
+            updaters.append(state_monitor(1, 8, "/driver/limit", lambda value: (
+                app.limittext.delete("0.0", "end"),  # delete all text
+                app.limittext.insert("0.0", codetostr.limit2string(value)),
+                app.limitlabel.configure(text="limit\n" + str(value), fg_color="green" if value else "transparent")
+            )))
+            updaters.append(state_monitor(1, 8, "/driver/totallimit", lambda value: (
+                app.totallimitbar.configure(progress_color="red" if error else "yellow" if stat else "green"),
+                app.totallimitbar.set(value)
+            )))
+
+            # command
+
+            updaters.append(state_monitor(3, 5, "/driver/cmd", lambda value: (
+                set_global_var(cmd, value),
+                app.cmdbar.set(value)
+            )))
+            updaters.append(state_monitor(3, 5, "/driver/mode", lambda value: (
+                app.modelabel.configure(text=" " + modes[value & 15] + " " + str(round(cmd, 2))),
+                app.checkbox_pos.configure(state="enabled"),
+                app.checkbox_spd.configure(state="enabled"),
+                app.checkbox_spd.select() if value & 0x10 else app.checkbox_spd.deselect(),
+                app.checkbox_pos.select() if value & 0x20 else app.checkbox_pos.deselect(),
+                app.checkbox_pos.configure(state="disabled"),
+                app.checkbox_spd.configure(state="disabled")
+            )))
             try:
-                driverumult = my_node.variable("/driver/uqmult")  # VECTOR
+                updaters.append(state_monitor(3, 6, "/driver/iqmult", lambda value: (
+                    app.imultbar.set(value)
+                )))  # VECTOR
             except sxapi.error as e:
-                driverumult = my_node.variable("/driver/umult")  # BLDC
-
-            update_group2()
-
-            # group3
-            global supplycurrent
-            supplycurrent = my_node.variable("/driver/supply/currentf")
-            global supplyvoltage
-            supplyvoltage = my_node.variable("/driver/supply/voltage")
-
-            global motorcurrentq
-            global motorcurrentd
+                updaters.append(state_monitor(3, 6, "/driver/imult", lambda value: (
+                    app.imultbar.set(value)
+                )))  # BLDC
             try:
-                motorcurrentq = my_node.variable("/driver/motor/currentqf")  # VECTOR
-                motorcurrentd = my_node.variable("/driver/motor/currentdf")
+                updaters.append(state_monitor(3, 6, "/driver/uqmult", lambda value: (
+                    app.umultbar.set(value)
+                )))  # VECTOR
             except sxapi.error as e:
-                motorcurrentq = my_node.variable("/driver/motor/current")  # BLDC
-                motorcurrentd = 0
+                updaters.append(state_monitor(3, 6, "/driver/umult", lambda value: (
+                    app.umultbar.set(value)
+                )))  # BLDC
 
-            global motorvoltageq
-            global motorvoltaged
-            try:
-                motorvoltageq = my_node.variable("/driver/motor/voltageq")
-                motorvoltaged = my_node.variable("/driver/motor/voltaged")
-            except sxapi.error as e:
-                motorvoltageq = my_node.variable("/driver/motor/voltage")
-                motorvoltaged = 0
+            # param - for reference
 
-            update_group3()
+            updaters.append(state_monitor(5, -1, "/driver/iref", lambda value: (
+                set_global_var(iref, value)
+            )))
+
+            # temps and energy counter
+
+            updaters.append(state_monitor(4, 9, "/driver/temp", lambda value: (
+                app.templabel.configure(text=str(round(value, 1)) + "\N{DEGREE SIGN}C")
+            )))
+            updaters.append(state_monitor(4, 9, "/driver/ptctemp", lambda val: (
+                app.ptctemplabel.configure(text=str("N/A") if math.isnan(val) else str("INF") if math.isinf(val) else str(int(val)))
+            )))
+            updaters.append(state_monitor(4, -1, "/driver/energy", lambda value: (
+                app.energylabel.configure(text=str(int(value)) + "J")
+            )))
+
+            #supply
+
+            updaters.append(state_monitor(2, 0, "/driver/supply/currentf", lambda value: (
+                set_global_var(supplycurrent, value),
+                app.batcurrentbar.set(current / iref) if iref else None
+            )))
+            updaters.append(state_monitor(2, 1, "/driver/supply/voltage", lambda value: (
+                set_global_var(supplyvoltage, value),
+                app.battlabel.configure(text=" " + str(round(supplyvoltage, 2)) + "V\n " + str(round(supplycurrent, 2)) + "A")
+            )))
+
+            # supply counters
+
+            updaters.append(state_monitor(5, -1, "/driver/supply/cap", lambda value: (
+                app.coulomblabel.configure(text=str(int(value)) + "mAh")
+            )))
+
+            # motor
+
+            try: # VECTOR
+                updaters.append(state_monitor(2, 0, "/driver/motor/currentqf", lambda value: (
+                     set_global_var(currentq, value)
+                )))
+                updaters.append(state_monitor(2, 0, "/driver/motor/currentdf", lambda value: (
+                    set_global_var(currentd, value),
+                    set_global_var(motcurrent, math.sqrt(currentq * currentq + currentd * currentd)),
+                    app.motcurrentlabel.configure(text=str(round(motcurrent, 2)) + "A / " + str(round(motcurrent / 1.41, 2)) + "Arms"),
+                    app.motcurrentbar.configure(progress_color="green"), # TODO is it necessary?
+                    app.motcurrentbar.set(motcurrent / iref) if iref else None
+                )))
+            except sxapi.error as e: # BLDC
+                updaters.append(state_monitor(2, 0, "/driver/motor/current", lambda value: (
+                    app.motcurrentlabel.configure(text=str(round(value, 2)) + "A / " + str(round(value, 2)) + "Arms"),
+                    app.motcurrentbar.configure(progress_color="green"), # TODO is it necessary?
+                    app.motcurrentbar.set(motcurrent / iref) if iref else None
+                )))
+
+            try: # VECTOR
+                updaters.append(state_monitor(2, 1, "/driver/motor/voltageq", lambda value: (
+                     set_global_var(voltageq, value)
+                )))
+
+                updaters.append(state_monitor(2, 1, "/driver/motor/voltaged", lambda value: (
+                    set_global_var(voltaged, value),
+                    set_global_var(motvoltage, (math.sqrt(voltageq * voltageq + voltaged * voltaged) * 1.73205)),  # sqrt3
+
+                    app.motvoltagelabel.configure(text=str(round(motvoltage, 2)) + "V / " + str(round(motvoltage / 1.41, 2)) + "Vrms"),
+                    app.motvoltagebar.configure(progress_color="yellow"), # TODO is it necessary?
+                    app.motvoltagebar.set(motvoltage / supplyvoltage) if supplyvoltage else None,
+
+                    app.fluxlabel.configure(text=str(round(voltaged, 2)) + "V\n" + str(round(currentd, 1)) + "A"),
+                    app.torquelabel.configure(text=str(round(voltageq, 2)) + "V\n" + str(round(currentq, 1)) + "A"),
+                )))
+            except sxapi.error as e: # BLDC
+                updaters.append(state_monitor(2, 1, "/driver/motor/voltage", lambda value: (
+                    app.fluxlabel.configure(text="N/A")
+                )))
+
+            updaters.append(state_monitor(2, 4, "/driver/motor/rpmf", lambda value: (
+                app.rpmlabel.configure(text=" " + str(int(value)) + "\n RPM")
+            )))
+
+            # motor counters
+
+            updaters.append(state_monitor(4, -1, "/driver/motor/odo", lambda value: (
+                app.odolabel.configure(text=str(value) + " revs")
+            )))
+            updaters.append(state_monitor(4, 9, "/driver/motor/Rthermistor", lambda value: (
+                app.ohmlabel.configure(text=str("N/A") if math.isnan(value) else str("INF") if math.isinf(value) else str(int(value)) + " ohms")
+            )))
+
+            #indicate success
 
             app.nodeselect_button.configure(selected_color="green")
 
+            update_timer = app.after(567, update)
+
         except sxapi.error as e:
-            MessageBox(
-                app,
-                title="siliWatch",
+            MessageBox(app, title="siliWatch",
                 message="Could not bind to all the driver states!\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n"
-                + str(e),
-            )
+                + str(e))
 
 
 ################################################################################
 # create top frame
 
 app.top_frame = customtkinter.CTkFrame(app, fg_color="transparent")
-app.top_frame.grid(
-    row=0, column=0, columnspan=8, padx=(10, 10), pady=(10, 10), sticky="sew"
-)
+app.top_frame.grid(row=0, column=0, columnspan=8, padx=(10, 10), pady=(10, 10), sticky="sew")
 app.top_frame.grid_columnconfigure((3, 4, 5), weight=1)
 
 
@@ -707,7 +492,7 @@ def log_open_event():
 
 
 def log_ctl_event(value):
-    global logfile_path, logfile, writer, log_count
+    global logfile_path, logfile, writer, log_count, log_row, log_prio
 
     if logfile and value == "Stop":
         # app.entry.configure(state="normal")
@@ -749,15 +534,20 @@ def log_ctl_event(value):
             writer = csv.writer(logfile)
         # app.entry.configure(state="readonly")
 
-        row = ["timestamp"]
+        log_row = ["timestamp"]
         for i in range(len(log_group)):
             log_switches[i].configure(state="disabled")
-            if log_switches[i].get() == 1:
-                for j in range(len(log_group_header[i])):
-                    row.append(log_group_header[i][j])
 
-        writer.writerow(row)
-        log_count = 0
+        log_prio = 0
+        for i in range(len(updaters)):
+            updater = updaters[i]
+            if updater.log_id >= 0 and log_switches[updater.log_id].get():
+                log_row.append(updater.path)
+                if updater.prio > log_prio:
+                    log_prio = updater.prio
+
+        log_count = -1
+
         app.logctl_button.configure(selected_color="red")
         app.showfile_button.configure(state="disabled")
         app.delimiter.configure(state="disabled")

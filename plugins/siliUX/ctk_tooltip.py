@@ -36,6 +36,7 @@ class CTkToolTip(Toplevel):
         self.widget = widget
 
         self.withdraw()
+        self.attributes("-topmost", 1)
 
         # Disable ToolTip's title bar
         self.overrideredirect(True)
