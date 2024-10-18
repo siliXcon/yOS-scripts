@@ -47,36 +47,18 @@ log_prio = 4
 log_row = []
 log_switches = []
 
+# do not change the order, indices are defined within registration
 log_group = [
     "battery and motor currents",
     "battery and motor voltages",
-    "total motor current and voltage",
-    "rms motor current and voltage",
+    "total stator current",
+    "total stator voltage",
     "motor speed",
     "command and mode",
     "command multipliers",
     "power throughput",
     "error, stat, limit and totallimit",
     "temperatures",
-]
-
-modes = [
-    "FRW",
-    "VLT",
-    "CRT",
-    "VLF",
-    "VLB",
-    "SCR",
-    "TRQ",
-    "BCR",
-    "SBR",
-    "TBR",
-    "ABR",
-    "RES",
-    "RES",
-    "RES",
-    "SVC",
-    "SHR",
 ]
 
 ################################################################################
@@ -115,13 +97,18 @@ def update():
                 current_prio = (current_prio + 1) % 5
                 current_index = 0
                 if logfile and writer and log_prio <= current_prio:
+                    if log_count >= 0:
+                        if log_switches[2].get():
+                            log_row.append(motcurrent)
+                        if log_switches[3].get():
+                            log_row.append(motvoltage)
                     writer.writerow(log_row)
                     log_count = log_count + 1
                     app.logcountlabel.configure(text=str(log_count) + " samples")
                     log_row = [datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")]
 
             if updater.prio <= current_prio:
-                # TODO try to experiment with different iomodes here !
+                # TODO try to experiment with different iomodes here (read the header above)
                 # we can attempt to schedule and IO op and if not successful, repeat next time. That will promote responsivity.
                 # Also try the 'direct' mode (not to disturb emGUI).
                 value = updater.update()
@@ -135,6 +122,28 @@ def update():
         app.nodeselect_button.configure(selected_color="red")
         raise e
 
+################################################################################
+# updaters - contextes
+
+modes = [
+    "FRW",
+    "VLT",
+    "CRT",
+    "VLF",
+    "VLB",
+    "SCR",
+    "TRQ",
+    "BCR",
+    "SBR",
+    "TBR",
+    "ABR",
+    "RES",
+    "RES",
+    "RES",
+    "SVC",
+    "SHR",
+]
+
 error = 0
 stat = 0
 iref = 0
@@ -147,13 +156,14 @@ voltaged = 0
 supplyvoltage = 0
 supplycurrent = 0
 
-#localy calculated - for logging
+# localy calculated - for logging
 motvoltage = 0
 motcurrent = 0
 
+# needed for in-lambda setting
 def set_global_var(var_name, value):
     globals()[var_name] = value
-
+    #locals()[var_name] = value
 
 ################################################################################
 # make the main window and node select callback
@@ -208,11 +218,10 @@ def node_select_callback(nodename):
                     app.pwrlabel.configure(text=str(int(value)) + "W")
                 ))) # esc5
 
-
             # limiters & status words
 
             updaters.append(state_monitor(1, 8, "/driver/error", lambda value: (
-                set_global_var(error, value),
+                set_global_var("error", value),
                 app.errortext.delete("0.0", "end"),  # delete all text
                 app.errortext.insert("0.0", codetostr.error2string(value)),
                 app.errorlabel.configure(text="error\n" + str(value), fg_color="red" if value else "transparent")
@@ -221,7 +230,7 @@ def node_select_callback(nodename):
                 app.enablebar.configure(fg_color="grey", progress_color="blue" if value else "grey")
             )))
             updaters.append(state_monitor(1, 8, "/driver/stat", lambda value: (
-                set_global_var(stat, value),
+                set_global_var("stat", value),
                 app.stattext.delete("0.0", "end"),  # delete all text
                 app.stattext.insert("0.0", codetostr.stat2string(value)),
                 app.statlabel.configure(text="stat\n" + str(value), fg_color="darkorange" if value else "transparent")
@@ -239,7 +248,7 @@ def node_select_callback(nodename):
             # command
 
             updaters.append(state_monitor(3, 5, "/driver/cmd", lambda value: (
-                set_global_var(cmd, value),
+                set_global_var("cmd", value),
                 app.cmdbar.set(value)
             )))
             updaters.append(state_monitor(3, 5, "/driver/mode", lambda value: (
@@ -271,7 +280,7 @@ def node_select_callback(nodename):
             # param - for reference
 
             updaters.append(state_monitor(5, -1, "/driver/iref", lambda value: (
-                set_global_var(iref, value)
+                set_global_var("iref", value)
             )))
 
             # temps and energy counter
@@ -289,11 +298,11 @@ def node_select_callback(nodename):
             #supply
 
             updaters.append(state_monitor(2, 0, "/driver/supply/currentf", lambda value: (
-                set_global_var(supplycurrent, value),
-                app.batcurrentbar.set(current / iref) if iref else None
+                set_global_var("supplycurrent", value),
+                app.batcurrentbar.set(value / iref) if iref else None
             )))
             updaters.append(state_monitor(2, 1, "/driver/supply/voltage", lambda value: (
-                set_global_var(supplyvoltage, value),
+                set_global_var("supplyvoltage", value),
                 app.battlabel.configure(text=" " + str(round(supplyvoltage, 2)) + "V\n " + str(round(supplycurrent, 2)) + "A")
             )))
 
@@ -307,41 +316,53 @@ def node_select_callback(nodename):
 
             try: # VECTOR
                 updaters.append(state_monitor(2, 0, "/driver/motor/currentqf", lambda value: (
-                     set_global_var(currentq, value)
+                     set_global_var("currentq", value)
                 )))
                 updaters.append(state_monitor(2, 0, "/driver/motor/currentdf", lambda value: (
-                    set_global_var(currentd, value),
-                    set_global_var(motcurrent, math.sqrt(currentq * currentq + currentd * currentd)),
+                    set_global_var("currentd", value),
+                    set_global_var("motcurrent", math.sqrt(currentq * currentq + currentd * currentd)),
+
                     app.motcurrentlabel.configure(text=str(round(motcurrent, 2)) + "A / " + str(round(motcurrent / 1.41, 2)) + "Arms"),
                     app.motcurrentbar.configure(progress_color="green"), # TODO is it necessary?
-                    app.motcurrentbar.set(motcurrent / iref) if iref else None
+                    app.motcurrentbar.set(motcurrent / iref) if iref else None,
+
+                    app.fluxlabel.configure(text=str(round(voltaged, 2)) + "V\n" + str(round(currentd, 1)) + "A"),
                 )))
             except sxapi.error as e: # BLDC
                 updaters.append(state_monitor(2, 0, "/driver/motor/current", lambda value: (
-                    app.motcurrentlabel.configure(text=str(round(value, 2)) + "A / " + str(round(value, 2)) + "Arms"),
+                    set_global_var("currentq", value),
+                    set_global_var("motcurrent", value),
+
+                    app.motcurrentlabel.configure(text=str(round(motcurrent, 2)) + "A / " + str(round(motcurrent, 2)) + "Arms"),
                     app.motcurrentbar.configure(progress_color="green"), # TODO is it necessary?
-                    app.motcurrentbar.set(motcurrent / iref) if iref else None
+                    app.motcurrentbar.set(motcurrent / iref) if iref else None,
+
+                    app.fluxlabel.configure(text="N/A")
                 )))
 
             try: # VECTOR
                 updaters.append(state_monitor(2, 1, "/driver/motor/voltageq", lambda value: (
-                     set_global_var(voltageq, value)
+                    set_global_var("voltageq", value),
+                    app.torquelabel.configure(text=str(round(voltageq, 2)) + "V\n" + str(round(currentq, 1)) + "A")
                 )))
 
                 updaters.append(state_monitor(2, 1, "/driver/motor/voltaged", lambda value: (
-                    set_global_var(voltaged, value),
-                    set_global_var(motvoltage, (math.sqrt(voltageq * voltageq + voltaged * voltaged) * 1.73205)),  # sqrt3
+                    set_global_var("voltaged", value),
+                    set_global_var("motvoltage", (math.sqrt(voltageq * voltageq + voltaged * voltaged) * 1.73205)),  # sqrt3
+
+                    app.motvoltagelabel.configure(text=str(round(motvoltage, 2)) + "V / " + str(round(motvoltage / 1.41, 2)) + "Vrms"),
+                    app.motvoltagebar.configure(progress_color="yellow"), # TODO is it necessary?
+                    app.motvoltagebar.set(motvoltage / supplyvoltage) if supplyvoltage else None
+                )))
+            except sxapi.error as e: # BLDC
+                updaters.append(state_monitor(2, 1, "/driver/motor/voltage", lambda value: (
+                    set_global_var("motvoltage", value),
 
                     app.motvoltagelabel.configure(text=str(round(motvoltage, 2)) + "V / " + str(round(motvoltage / 1.41, 2)) + "Vrms"),
                     app.motvoltagebar.configure(progress_color="yellow"), # TODO is it necessary?
                     app.motvoltagebar.set(motvoltage / supplyvoltage) if supplyvoltage else None,
 
-                    app.fluxlabel.configure(text=str(round(voltaged, 2)) + "V\n" + str(round(currentd, 1)) + "A"),
-                    app.torquelabel.configure(text=str(round(voltageq, 2)) + "V\n" + str(round(currentq, 1)) + "A"),
-                )))
-            except sxapi.error as e: # BLDC
-                updaters.append(state_monitor(2, 1, "/driver/motor/voltage", lambda value: (
-                    app.fluxlabel.configure(text="N/A")
+                    app.torquelabel.configure(text=str(round(motvoltage, 2)) + "V\n" + str(round(motcurrent, 1)) + "A")
                 )))
 
             updaters.append(state_monitor(2, 4, "/driver/motor/rpmf", lambda value: (
@@ -360,7 +381,6 @@ def node_select_callback(nodename):
             #indicate success
 
             app.nodeselect_button.configure(selected_color="green")
-
             update_timer = app.after(567, update)
 
         except sxapi.error as e:
@@ -535,6 +555,7 @@ def log_ctl_event(value):
         # app.entry.configure(state="readonly")
 
         log_row = ["timestamp"]
+
         for i in range(len(log_group)):
             log_switches[i].configure(state="disabled")
 
@@ -545,6 +566,11 @@ def log_ctl_event(value):
                 log_row.append(updater.path)
                 if updater.prio > log_prio:
                     log_prio = updater.prio
+
+        if log_switches[2].get():
+            log_row.append("stator current")
+        if log_switches[3].get():
+            log_row.append("stator voltage")
 
         log_count = -1
 
