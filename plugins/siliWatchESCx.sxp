@@ -770,7 +770,6 @@ class plot_tab:
 
     def period_event(self, val):
         my_node.executeSimple("period", "-p" + str(self.index), val.split(" ", 1)[0])
-        print("-p" + str(self.index))
         self.state_update()
 
     def plot_event(self, val):
