@@ -283,7 +283,7 @@ def spinup():
 def identrun():
     if checkbox_scope.get() and checkbox_visual.get():
         my_node.open("{scope}")
-        checkbox_scope.deselect()
+        #checkbox_scope.deselect()
 
     try:
         # TODO simplify this decission tree with argument list !!
@@ -352,7 +352,7 @@ def identrun():
 def identsat():
     if checkbox_scope.get() and checkbox_visual.get():
         my_node.open("{scope}")
-        checkbox_scope.deselect()
+        #checkbox_scope.deselect()
 
     try:
         if checkbox_visual.get():
@@ -374,7 +374,7 @@ def identsat():
 def identsal():
     if checkbox_scope.get() and checkbox_visual.get():
         my_node.open("{scope}")
-        checkbox_scope.deselect()
+        #checkbox_scope.deselect()
 
     try:
         if checkbox_visual.get():
