@@ -98,6 +98,7 @@ def update():
             current_index = current_index + 1
             if current_index >= len(updaters):
                 # TODO consider spreading current_prio randomly (from 0 - 4) - to not aggregate log samples together
+                app.nodeselect_button.configure(selected_color="green")
                 current_prio = (current_prio + 1) % 5
                 current_index = 0
                 if logfile and writer and log_prio <= current_prio:
@@ -109,6 +110,7 @@ def update():
                     writer.writerow(log_row)
                     log_count = log_count + 1
                     app.logcountlabel.configure(text=str(log_count) + " samples")
+                    # start over
                     log_row = [datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")]
 
             if updater.prio <= current_prio:
@@ -124,6 +126,9 @@ def update():
 
     except sxapi.error as e:
         app.nodeselect_button.configure(selected_color="red")
+        # attempt to recover
+        # NOTE if device is disconnected, this makes the gui to freeze for 1 second. Use different iomode !
+        update_timer = app.after(3456, update)
         raise e
 
 ################################################################################
@@ -388,7 +393,6 @@ def node_select_callback(nodename):
 
             #indicate success
 
-            app.nodeselect_button.configure(selected_color="green")
             update_timer = app.after(567, update)
 
         except sxapi.error as e:

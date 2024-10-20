@@ -363,11 +363,15 @@ CTkToolTip(stopbutton, message="Hit to force the freewheeling mode.")
 
 
 def release():
-    update_result(my_node.executeSimple("run"), "release")
+    retval = my_node.executeSimple("run")
+    if retval == -1:
+        update_result(my_node.executeSimple("reinit"), "reinit")
+    else:
+        update_result(retval, "release")
 
 
 releasebutton = customtkinter.CTkButton(
-    app, text="Release !", fg_color="green", command=release
+    app, text="Release / reinit !", fg_color="green", command=release
 )
 releasebutton.grid(row=5, column=1, padx=(5, 10), pady=5, sticky="nsew")
 CTkToolTip(
@@ -409,7 +413,7 @@ app.bind("<MouseWheel>", on_mousewheel)
 MessageBox(
     app,
     title="siliSpin", cls=1,
-    message="This tool actively controls the motor.\nPlease make necessary precautions to prevent an injury!"
+    message="This tool overrides the motor control (unless the driver API is used).\nPlease make necessary precautions to prevent an injury!"
 )
 
 app.mainloop()
