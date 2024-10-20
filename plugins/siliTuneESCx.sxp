@@ -87,7 +87,7 @@ def tabview_callback():
         params = pid_params
     elif app.tabview.get() == "REST":
         params = rest_params
-    elif app.tabview.get() == "DAC":
+    elif app.tabview.get() == "Flux":
         params = dac_params
     elif app.tabview.get() == "Advanced":
         params = limiter2_params
@@ -713,7 +713,7 @@ picture.grid(
 
 ################################################################################
 
-tab = app.tabview.add("DAC")
+tab = app.tabview.add("Flux")
 tab.grid_columnconfigure((1, 2, 3, 15, 16, 17, 35, 36, 37), weight=1)
 
 label = customtkinter.CTkLabel(
@@ -838,7 +838,7 @@ tab = app.tabview.add("Advanced")
 tab.grid_columnconfigure((1, 2, 3, 15, 16, 17, 35, 36, 37), weight=1)
 
 label = customtkinter.CTkLabel(
-    tab, text="REST", font=customtkinter.CTkFont(size=15, weight="bold")
+    tab, text="Sensor mapping", font=customtkinter.CTkFont(size=15, weight="bold")
 )
 label.grid(row=1, column=1, columnspan=3, padx=5, sticky="we")
 limiter2_params.append(
