@@ -1,15 +1,28 @@
 import customtkinter as ctk
+import os
+from PIL import Image
+lib_dir = os.path.dirname(__file__) + "//"
+
+def icon(name):
+    pil_image = Image.open(lib_dir + name)
+    return ctk.CTkImage(pil_image, size = pil_image.size)
 
 class MessageBox(ctk.CTkToplevel):
-    def __init__(self, parent, title="Message", message=""):
+    def __init__(self, parent, title="Message", message="", cls=0):
         super().__init__(parent)
 
         self.title(title)
-        self.geometry("300x150")
+        self.geometry("350x150")
         self.resizable(False, False)
 
         # Message label
-        self.label = ctk.CTkLabel(self, text=message, wraplength=250)
+        self.label = ctk.CTkLabel(self,
+            text=message,
+            compound="left",
+            justify="left",
+            image=icon("okay.png") if cls == 0 else icon("warning.png") if cls == 1 else icon("stop.png"),
+            padx=15,
+            wraplength=250)
         self.label.pack(pady=20)
 
         # OK button

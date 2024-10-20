@@ -85,39 +85,39 @@ def enableButtons(enabled):
 def describe_error(error):
     if error == -101:
         MessageBox(
-            window,
+            window, cls=2,
             title="Automatic identification",
-            message="ERROR: The driver is not initialized.\nPlease init with sensor of your chocice first (e.g. using 'init as:' in siliTune).",
+            message="The driver is not initialized.\nPlease init with sensor of your chocice first (e.g. using 'init as:' in siliTune).",
         )
     elif error == -102:
         MessageBox(
-            window,
+            window, cls=2,
             title="Automatic identification",
-            message="ERROR: The drive is active.\nPlease ensure that motor command is deactivated first (e.g. through 'stop' command).",
+            message="The drive is active.\nPlease ensure that motor command is deactivated first (e.g. through 'stop' command).",
         )
     elif error == -103:
         MessageBox(
-            window,
+            window, cls=2,
             title="Automatic identification",
-            message="ERROR: A limiter is active.\nPlease ensure that limiter thresholds are deactivated or wide enough for the identification.",
+            message="A limiter is active.\nPlease ensure that limiter thresholds are deactivated or wide enough for the identification.",
         )
     elif error == -105:
         MessageBox(
-            window,
+            window, cls=2,
             title="Automatic identification",
-            message="ERROR: The motor is not ready.\nPlease ensure that the motor is properly connected, free from load and standing still.",
+            message="The motor is not ready.\nPlease ensure that the motor is properly connected, free from load and standing still.",
         )
     elif error == -110:
         MessageBox(
-            window,
+            window, cls=2,
             title="Automatic identification",
-            message="ERROR: R_t (coil resistance) is not set.\nPlease set it manually or run the 'identlin' to measure first.",
+            message="R_t (coil resistance) is not set.\nPlease set it manually or run the 'identlin' to measure first.",
         )
     elif error <= -10 and error >= -100:
         MessageBox(
-            window,
+            window, cls=2,
             title="Automatic identification",
-            message="ERROR: Current control / inductance measurement error in stage "
+            message="Current control / inductance measurement error in stage "
             + str(-error)
             + "\nPlease adjust the PID settings / current reference.",
         )
@@ -168,9 +168,9 @@ def identrun_cb(state, res, stdout_data):
     if state == 0 and not isinstance(stdout_data, str):
         if res == -1:
             MessageBox(
-                window,
+                window, cls=2,
                 title="Automatic identification",
-                message="ERROR: Flux linkage could not be measured.\nPlease ensure that the rotor can freely move and optionally, adjust the acceleration and current.",
+                message="Flux linkage could not be measured.\nPlease ensure that the rotor can freely move and optionally, adjust the acceleration and current.",
             )
         elif res == 1:
             try:
@@ -180,9 +180,9 @@ def identrun_cb(state, res, stdout_data):
                 print(e)
 
             MessageBox(
-                window,
+                window, cls=1,
                 title="Automatic identification",
-                message="WARNING: Sensor was not identified !",
+                message="Sensor was not identified !",
             )
         elif res == 0:
             try:

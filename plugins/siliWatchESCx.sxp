@@ -22,7 +22,8 @@
 """
 
 import tkinter, customtkinter, math, csv
-import os  # for file explorer after logging ends
+import os # for file explorer after logging ends
+import webbrowser # for opening external url with help
 from PIL import Image
 from tkinter import filedialog
 from datetime import datetime
@@ -391,7 +392,7 @@ def node_select_callback(nodename):
             update_timer = app.after(567, update)
 
         except sxapi.error as e:
-            MessageBox(app, title="siliWatch",
+            MessageBox(app, title="siliWatch", cls=2,
                 message="Could not bind to all the driver states!\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n"
                 + str(e))
 
@@ -453,9 +454,19 @@ app.nodeselect_button = customtkinter.CTkSegmentedButton(
 app.nodeselect_button.grid(row=0, column=4, sticky="w")
 app.nodeselect_button.configure(values=nodenames + ["NONE"])
 
+
+help_button = customtkinter.CTkButton(
+    app.top_frame,
+    text=f"",
+    image=icon("help.png"),
+    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/plugins/siliWatch")),
+    width=5,
+)
+help_button.grid(row=0, column=5, padx=5, pady=5, sticky="e")
+
+
 icon_light = icon("light.png")
 icon_dark = icon("dark.png")
-
 
 def change_appearance_mode_event():
     if customtkinter.get_appearance_mode() == "Dark":
@@ -473,7 +484,7 @@ apperance_switch = customtkinter.CTkButton(
     image=icon_dark,
     width=5,
 )
-apperance_switch.grid(row=0, column=5, padx=5, pady=5, sticky="e")
+apperance_switch.grid(row=0, column=6, padx=5, pady=5, sticky="e")
 
 ################################################################################
 # create sidebar frame with widgets

@@ -408,8 +408,8 @@ app.bind("<MouseWheel>", on_mousewheel)
 
 MessageBox(
     app,
-    title="siliSpin",
-    message="WARNING:\nThis tool actively controls the motor.\nPlease make necessary precautions to prevent an injury!",
+    title="siliSpin", cls=1,
+    message="This tool actively controls the motor.\nPlease make necessary precautions to prevent an injury!"
 )
 
 app.mainloop()

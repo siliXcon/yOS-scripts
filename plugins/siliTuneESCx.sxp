@@ -14,6 +14,7 @@
 """
 
 import tkinter, customtkinter, math, os
+import webbrowser # for opening external url with help
 from PIL import Image
 from siliUX import find_nodes
 from siliUX import codetostr
@@ -103,9 +104,10 @@ def refresh_prest():
     except sxapi.error as e:
         MessageBox(
             app,
+            cls=2,
             title="siliTune",
             message="Could not access '/driver/prest' !\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n"
-            + str(e),
+            + str(e)
         )
         return
 
@@ -186,6 +188,15 @@ nodeselect_button.grid(row=0, column=4, pady=5, sticky="w")
 # refresh_button.grid(row=0, column=3, sticky="w")
 
 
+help_button = customtkinter.CTkButton(
+    app.top_frame,
+    text=f"",
+    image=icon("help.png"),
+    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/plugins/siliTune")),
+    width=5,
+)
+help_button.grid(row=0, column=5, padx=5, pady=5, sticky="e")
+
 icon_light = icon("light.png")
 icon_dark = icon("dark.png")
 
@@ -206,7 +217,7 @@ apperance_switch = customtkinter.CTkButton(
     image=icon_dark,
     width=5,
 )
-apperance_switch.grid(row=0, column=5, padx=5, pady=5, sticky="e")
+apperance_switch.grid(row=0, column=6, padx=5, pady=5, sticky="e")
 
 ################################################################################
 
@@ -365,6 +376,7 @@ def reinit(value):
         MessageBox(
             app,
             title="siliTune",
+            cls=2,
             message="Driver initialization resulted with error "
             + str(retval)
             + "\n"
@@ -915,6 +927,7 @@ def save():
     if retval < 0:
         MessageBox(
             app,
+            cls=2,
             title="siliTune",
             message="Saving parameters resulted into error " + str(retval),
         )
@@ -943,6 +956,7 @@ def load():
     if retval < 0:
         MessageBox(
             app,
+            cls=2,
             title="siliTune",
             message="Loading parameters resulted into error " + str(retval),
         )
@@ -970,6 +984,7 @@ def restore():
     if retval < 0:
         MessageBox(
             app,
+            cls=2,
             title="siliTune",
             message="Restoring parameters resulted into error " + str(retval),
         )
