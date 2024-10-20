@@ -14,7 +14,7 @@
 """
 
 import tkinter, customtkinter, math, os
-
+from PIL import Image
 from siliUX import find_nodes
 from siliUX import codetostr
 from siliUX.messagebox import *
@@ -24,7 +24,9 @@ from siliUX.ident import *
 lib_dir = os.path.dirname(__file__) + "/siliUX/"
 
 def icon(name):
-    return tkinter.PhotoImage(file=lib_dir + name)
+    pil_image = Image.open(lib_dir + name)
+    return customtkinter.CTkImage(pil_image, size = pil_image.size)
+    #return tkinter.PhotoImage(file=lib_dir + name)
 
 nodes, nodenames = find_nodes.find("esc")
 

@@ -23,6 +23,7 @@
 
 import tkinter, customtkinter, math, csv
 import os  # for file explorer after logging ends
+from PIL import Image
 from tkinter import filedialog
 from datetime import datetime
 from siliUX import codetostr
@@ -33,7 +34,9 @@ from siliUX.ctk_tooltip import *
 lib_dir = os.path.dirname(__file__) + "/siliUX/"
 
 def icon(name):
-    return tkinter.PhotoImage(file=lib_dir + name)
+    pil_image = Image.open(lib_dir + name)
+    return customtkinter.CTkImage(pil_image, size = pil_image.size)
+    #return tkinter.PhotoImage(file=lib_dir + name)
 
 nodes, nodenames = find_nodes.find("esc")
 
@@ -155,6 +158,8 @@ voltaged = 0
 
 supplyvoltage = 0
 supplycurrent = 0
+
+vector = 1
 
 # localy calculated - for logging
 motvoltage = 0
@@ -316,7 +321,8 @@ def node_select_callback(nodename):
 
             try: # VECTOR
                 updaters.append(state_monitor(2, 0, "/driver/motor/currentqf", lambda value: (
-                     set_global_var("currentq", value)
+                     set_global_var("currentq", value),
+                     set_global_var("vector", 1)
                 )))
                 updaters.append(state_monitor(2, 0, "/driver/motor/currentdf", lambda value: (
                     set_global_var("currentd", value),
@@ -337,7 +343,8 @@ def node_select_callback(nodename):
                     app.motcurrentbar.configure(progress_color="green"), # TODO is it necessary?
                     app.motcurrentbar.set(motcurrent / iref) if iref else None,
 
-                    app.fluxlabel.configure(text="N/A")
+                    app.fluxlabel.configure(text="N/A"),
+                    set_global_var("vector", 0)
                 )))
 
             try: # VECTOR
@@ -410,8 +417,10 @@ emgui_switch = customtkinter.CTkButton(
 )
 emgui_switch.grid(row=0, column=0, padx=(10, 0))
 
-
+scope_open = 0
 def open_scope():
+    global scope_open
+    scope_open = 1
     my_node.open("{scope} -t")
 
 
@@ -662,7 +671,7 @@ def plot_plot(val, index):
     if val == "battery current":
         my_node.executeSimple("plot", "-p" + str(index), "/driver/supply/currentf")
     if val == "motor currents":
-        if motorcurrentd and motorvoltaged:  # VECTOR
+        if vector:  # VECTOR
             my_node.executeSimple(
                 "plot",
                 "-p" + str(index),
@@ -672,7 +681,7 @@ def plot_plot(val, index):
         else:  # BLDC
             my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/current")
     if val == "unfiltered motor currents":
-        if motorcurrentd and motorvoltaged:  # VECTOR
+        if vector:  # VECTOR
             my_node.executeSimple(
                 "plot",
                 "-p" + str(index),
@@ -682,7 +691,7 @@ def plot_plot(val, index):
         else:  # BLDC
             my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/current")
     if val == "motor current references":
-        if motorcurrentd and motorvoltaged:  # VECTOR
+        if vector:  # VECTOR
             my_node.executeSimple(
                 "plot",
                 "-p" + str(index),
@@ -696,7 +705,7 @@ def plot_plot(val, index):
     if val == "battery voltage":
         my_node.executeSimple("plot", "-p" + str(index), "/driver/supply/voltage")
     if val == "motor voltages":
-        if motorcurrentd and motorvoltaged:  # VECTOR
+        if vector:  # VECTOR
             my_node.executeSimple(
                 "plot",
                 "-p" + str(index),
@@ -708,7 +717,7 @@ def plot_plot(val, index):
                 "plot", "-p" + str(index), "/driver/motor/voltage", "/driver/motor/duty"
             )
     if val == "motor voltage references":
-        if motorcurrentd and motorvoltaged:  # VECTOR
+        if vector:  # VECTOR
             my_node.executeSimple(
                 "plot",
                 "-p" + str(index),
@@ -747,7 +756,6 @@ def plot_plot(val, index):
         "legend", "-p" + str(index), "-c24", "13", "0"
     )  # a bug workaround: YOS only sends payload in multiply of 4 bytes, we must send a dummy zero
 
-
 class plot_tab:
     index = 0
     user_event = None
@@ -774,6 +782,11 @@ class plot_tab:
 
     def plot_event(self, val):
         self.valuemenu.set("Plot a topic ...")
+        global scope_open
+        if scope_open == 0:
+            my_node.executeSimple("clear", "all")
+            open_scope()
+            time.sleep(1)
         plot_plot(val, self.index)
         self.state_update()
 
