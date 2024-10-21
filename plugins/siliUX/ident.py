@@ -87,7 +87,7 @@ def describe_error(error):
         MessageBox(
             window, cls=2,
             title="Automatic identification",
-            message="The driver is not initialized.\nPlease init with sensor of your chocice first (e.g. using 'init as:' in siliTune).",
+            message="The driver is not initialized.\nPlease initialize first (e.g. using 'init as:' in siliTune).",
         )
     elif error == -102:
         MessageBox(

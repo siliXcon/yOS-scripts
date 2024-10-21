@@ -111,13 +111,13 @@ def refresh_prest():
         )
         return
 
-    prestbox.set(initmodes[prestval + 2])
-
     try:
         my_node.variable("/driver/vcf")
         prestbox.configure(values=initmodes)
+        prestbox.set(initmodes[prestval + 2])
     except sxapi.error as e:
         prestbox.configure(values=initmodes_bldc)
+        prestbox.set(initmodes_bldc[prestval + 2])
 
 
 def refresh():
