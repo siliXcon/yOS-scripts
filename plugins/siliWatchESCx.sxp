@@ -1014,7 +1014,7 @@ app.cmd_frame.grid_rowconfigure(1, weight=2)
 
 app.namelabel = customtkinter.CTkLabel(
     app.cmd_frame,
-    text="Actual command setpoint",
+    text="Actual drive command",
     corner_radius=5,
     fg_color=("gray78", "gray23"),
 )
@@ -1041,7 +1041,7 @@ app.modelabel = customtkinter.CTkLabel(
     compound="left",
 )
 app.modelabel.grid(row=1, column=0, columnspan=3, pady=5)
-CTkToolTip(app.modelabel, message="Actual control mode.")
+CTkToolTip(app.modelabel, message="Actual drive mode.")
 
 # app.cmdlabel = customtkinter.CTkLabel(app.cmd_frame, text="0.0", font=customtkinter.CTkFont(size=40, weight="bold"))
 # app.cmdlabel.grid(row=0, column=0, columnspan=2)
@@ -1055,7 +1055,7 @@ app.cmdbar = customtkinter.CTkSlider(
     height=30,
 )
 app.cmdbar.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
-CTkToolTip(app.cmdbar, message="Actual command level.")
+CTkToolTip(app.cmdbar, message="Actual drive level.")
 
 app.umultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
 app.umultbar.grid(row=1, column=3, rowspan=3, padx=5, pady=5, sticky="ns")

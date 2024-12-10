@@ -292,7 +292,7 @@ def identrun():
                 if currentBox.get() == "":
                     my_node.execute(
                         "identrun",
-                        "-w",
+                        "-w", #TODO - this causes HANG when not supported by the fw !
                         accelBox.get(),
                         durationBox.get(),
                         update=identrun_cb,
@@ -301,7 +301,7 @@ def identrun():
                 else:
                     my_node.execute(
                         "identrun",
-                        "-w",
+                        "-w", #TODO - this causes HANG when not supported by the fw !
                         accelBox.get(),
                         durationBox.get(),
                         currentBox.get(),
@@ -310,14 +310,17 @@ def identrun():
                     )
             else:
                 my_node.execute(
-                    "identrun", "-w", update=identrun_cb, timeout=10000
+                    "identrun",
+                    "-w", #TODO - this causes HANG when not supported by the fw !
+                    update=identrun_cb,
+                    timeout=10000
                 )
         else:
             if checkbox_adv.get():
                 if currentBox.get() == "":
                     my_node.execute(
                         "identrun",
-                        "-q",
+                        "-q", #TODO - this causes HANG when not supported by the fw !
                         accelBox.get(),
                         durationBox.get(),
                         update=identrun_cb,
@@ -326,7 +329,7 @@ def identrun():
                 else:
                     my_node.execute(
                         "identrun",
-                        "-q",
+                        "-q", #TODO - this causes HANG when not supported by the fw !
                         accelBox.get(),
                         durationBox.get(),
                         currentBox.get(),
@@ -335,7 +338,10 @@ def identrun():
                     )
             else:
                 my_node.execute(
-                    "identrun", "-q", update=identrun_cb, timeout=10000
+                    "identrun",
+                    "-q",  #TODO - this causes HANG when not supported by the fw !
+                    update=identrun_cb,
+                    timeout=10000
                 )
 
     except sxapi.error as e:
