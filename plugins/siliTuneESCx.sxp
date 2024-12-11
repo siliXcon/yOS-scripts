@@ -941,7 +941,7 @@ def save():
 save_button = customtkinter.CTkButton(
     app.bottom_frame,
     text=f"Save to flash !\n(confirm changes)",
-    fg_color="red",
+    fg_color="darkred",
     command=save,
 )
 save_button.grid(row=1, column=1, padx=10, sticky="nsew")

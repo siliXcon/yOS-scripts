@@ -52,6 +52,7 @@ def advSwitch():
 
 def enableButtons(enabled):
     if enabled:
+        interruptButton.configure(state="disabled")
         checkbox_adv.configure(state="normal")
         identlinButton.configure(state="normal")
         identrunButton.configure(state="normal")
@@ -65,6 +66,7 @@ def enableButtons(enabled):
             identsatButton.configure(state="normal")
             identsalButton.configure(state="normal")
     else:
+        interruptButton.configure(state="normal")
         checkbox_adv.configure(state="disabled")
         identlinButton.configure(state="disabled")
         identrunButton.configure(state="disabled")
@@ -142,13 +144,18 @@ def update_cb(state, res, stdout_data):
             )
         else:
             retlabel.configure(text="Succeeded !", fg_color="green")
-
+        
     if isinstance(stdout_data, str):
         outputBox.insert("end", stdout_data)
+        outputBox.see("end")
 
     elif state == 0:
         enableButtons(1)
         describe_error(res)
+
+    elif interruptButton.cget("state")=="disabled":
+        interruptButton.configure(state="normal")
+        return "\r\n"        
 
     elif not char_queue.empty():
         char_list = []
@@ -276,12 +283,17 @@ def spinup():
     enableButtons(0)
 
 
+def interrupt():
+    # TODO make the "interrupt" signal working (through RPC) !
+    interruptButton.configure(state="disabled")
+
+
 def identrun():
     if checkbox_visual.get() and checkbox_visual.get():
         my_node.open("{scope}")
 
     try:
-        # TODO simplify this decission tree with argument list !!
+        # TODO simplify this decission tree with argument list !
         if checkbox_visual.get():
             if checkbox_adv.get():
                 if currentBox.get() == "":
@@ -399,8 +411,8 @@ def poll_events():
 
 
 def AutomaticIdentification(n, parent):
-    global my_node, window, char_queue, retlabel, outputBox, checkbox_adv, accelBox, currentBox, durationBox, checkbox_nlin, checkbox_visual, identlinButton, identrunButton, identsatButton, identsalButton, spinupButton
-
+    global my_node, window, char_queue, retlabel, outputBox, checkbox_adv, accelBox, currentBox, durationBox, checkbox_nlin, checkbox_visual, identlinButton, identrunButton, identsatButton, identsalButton, spinupButton, interruptButton
+    
     my_node = n
     window = customtkinter.CTkToplevel()
 
@@ -420,7 +432,7 @@ def AutomaticIdentification(n, parent):
 
 
     window.grid_rowconfigure((0), weight=1)
-    window.grid_columnconfigure((0, 1, 2, 3), weight=1)
+    window.grid_columnconfigure((0, 1, 2), weight=1)
     window.focus()
 
     outputBox = customtkinter.CTkTextbox(window)  # , state="disabled")
@@ -466,9 +478,15 @@ def AutomaticIdentification(n, parent):
         identrunButton,
         message="Measure the motor KV (psi) and, mapping parameters of the selected shaft sensor.\nFor some types of sensors, identrun must be performed multiple times.",
     )
-
-    checkbox_adv = customtkinter.CTkSwitch(window, text="Advanced", command=advSwitch)
-    checkbox_adv.grid(row=2, column=2, padx=10, pady=10)
+    
+    interruptButton = customtkinter.CTkButton(
+        window, text=f"Interrupt !", command=interrupt, fg_color="darkred", state="disabled"
+    )
+    interruptButton.grid(row=2, column=2, padx=10, pady=10)
+    CTkToolTip(
+        interruptButton,
+        message="Attempt to terminate the proceudure.",
+    )    
 
     adv_frame = customtkinter.CTkFrame(window, fg_color="transparent", border_width=2)
     adv_frame.grid(
@@ -500,19 +518,18 @@ def AutomaticIdentification(n, parent):
     spinupButton.grid(row=2, column=10, padx=10, pady=5, sticky="ew")
     CTkToolTip(spinupButton, message="Try the spin-up in dry mode (no identification)")
 
-    checkbox_nlin = customtkinter.CTkCheckBox(
-        adv_frame, text="Measure Da, Dc", state="disabled"
-    )
-    checkbox_nlin.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+    checkbox_adv = customtkinter.CTkSwitch(adv_frame, text="Advanced", command=advSwitch)
+    checkbox_adv.grid(row=0, column=1, padx=10, pady=5, sticky="w")    
+    
+    checkbox_nlin = customtkinter.CTkCheckBox(adv_frame, text="Measure Da, Dc", state="disabled")
+    checkbox_nlin.grid(row=1, column=1, padx=10, pady=5, sticky="w")
     CTkToolTip(
         checkbox_nlin,
         message="Attempt to find the inductance derating parameters during identlin.",
     )
 
-    checkbox_visual = customtkinter.CTkCheckBox(
-        adv_frame, text="Visualize result", state="disabled"
-    )
-    checkbox_visual.grid(row=1, column=1, padx=10, pady=2, sticky="w")
+    checkbox_visual = customtkinter.CTkCheckBox(adv_frame, text="Visualize result", state="disabled")
+    checkbox_visual.grid(row=2, column=1, padx=10, pady=2, sticky="w")
     # checkbox_visual.select()
     CTkToolTip(
         checkbox_visual,

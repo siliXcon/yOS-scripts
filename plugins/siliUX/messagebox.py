@@ -28,6 +28,7 @@ class MessageBox(ctk.CTkToplevel):
         # OK button
         self.ok_button = ctk.CTkButton(self, text="OK", command=self.destroy)
         self.ok_button.pack(pady=10)
+        self.ok_button.focus_force()
 
         # Center the window
         self.update_idletasks()
