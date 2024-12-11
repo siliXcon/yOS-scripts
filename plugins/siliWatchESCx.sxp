@@ -397,7 +397,7 @@ def node_select_callback(nodename):
 
         except sxapi.error as e:
             MessageBox(app, title="siliWatch", cls=2,
-                message="Could not bind to all the driver states!\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n"
+                message="The firmware is not compatible or you do not have enough rights.\n"
                 + str(e))
 
 

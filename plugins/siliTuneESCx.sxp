@@ -106,7 +106,7 @@ def refresh_prest():
             app,
             cls=2,
             title="siliTune",
-            message="Could not access '/driver/prest' !\nThe device firmware is either not compatible with this tool or you do not have enough access rights.\n"
+            message="The firmware is not compatible or you do not have enough rights.\n"
             + str(e)
         )
         return

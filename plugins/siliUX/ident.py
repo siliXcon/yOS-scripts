@@ -29,7 +29,6 @@ def advSwitch():
         currentBox.configure(state="normal")
         durationBox.configure(state="normal")
         checkbox_nlin.configure(state="normal")
-        checkbox_scope.configure(state="normal")
         checkbox_visual.configure(state="normal")
         spinupButton.configure(state="normal")
         identsatButton.configure(state="normal")
@@ -45,7 +44,6 @@ def advSwitch():
         currentBox.configure(state="disabled")
         durationBox.configure(state="disabled")
         checkbox_nlin.configure(state="disabled")
-        checkbox_scope.configure(state="disabled")
         checkbox_visual.configure(state="disabled")
         spinupButton.configure(state="disabled")
         identsatButton.configure(state="disabled")
@@ -62,7 +60,6 @@ def enableButtons(enabled):
             currentBox.configure(state="normal")
             durationBox.configure(state="normal")
             checkbox_nlin.configure(state="normal")
-            checkbox_scope.configure(state="normal")
             checkbox_visual.configure(state="normal")
             spinupButton.configure(state="normal")
             identsatButton.configure(state="normal")
@@ -75,7 +72,6 @@ def enableButtons(enabled):
         currentBox.configure(state="disabled")
         durationBox.configure(state="disabled")
         checkbox_nlin.configure(state="disabled")
-        checkbox_scope.configure(state="disabled")
         checkbox_visual.configure(state="disabled")
         spinupButton.configure(state="disabled")
         identsatButton.configure(state="disabled")
@@ -281,9 +277,8 @@ def spinup():
 
 
 def identrun():
-    if checkbox_scope.get() and checkbox_visual.get():
+    if checkbox_visual.get() and checkbox_visual.get():
         my_node.open("{scope}")
-        #checkbox_scope.deselect()
 
     try:
         # TODO simplify this decission tree with argument list !!
@@ -356,9 +351,8 @@ def identrun():
 
 
 def identsat():
-    if checkbox_scope.get() and checkbox_visual.get():
+    if checkbox_visual.get() and checkbox_visual.get():
         my_node.open("{scope}")
-        #checkbox_scope.deselect()
 
     try:
         if checkbox_visual.get():
@@ -378,9 +372,8 @@ def identsat():
 
 
 def identsal():
-    if checkbox_scope.get() and checkbox_visual.get():
+    if checkbox_visual.get() and checkbox_visual.get():
         my_node.open("{scope}")
-        #checkbox_scope.deselect()
 
     try:
         if checkbox_visual.get():
@@ -406,7 +399,7 @@ def poll_events():
 
 
 def AutomaticIdentification(n, parent):
-    global my_node, window, char_queue, retlabel, outputBox, checkbox_adv, accelBox, currentBox, durationBox, checkbox_nlin, checkbox_scope, checkbox_visual, identlinButton, identrunButton, identsatButton, identsalButton, spinupButton
+    global my_node, window, char_queue, retlabel, outputBox, checkbox_adv, accelBox, currentBox, durationBox, checkbox_nlin, checkbox_visual, identlinButton, identrunButton, identsatButton, identsalButton, spinupButton
 
     my_node = n
     window = customtkinter.CTkToplevel()
@@ -524,16 +517,6 @@ def AutomaticIdentification(n, parent):
     CTkToolTip(
         checkbox_visual,
         message="Collect and display detailed measurement data from the procedure.",
-    )
-
-    checkbox_scope = customtkinter.CTkCheckBox(
-        adv_frame, text="Start scope", state="disabled"
-    )
-    checkbox_scope.grid(row=2, column=1, padx=10, pady=2, sticky="w")
-    checkbox_scope.select()
-    CTkToolTip(
-        checkbox_scope,
-        message="Start an instance of the scope tool before relevant procedures.",
     )
 
     i = 2
