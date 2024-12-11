@@ -346,7 +346,7 @@ def identrun():
             else:
                 my_node.execute(
                     "identrun",
-                    "-q",  #TODO - this causes HANG when not supported by the fw !
+                    #"-q",  #TODO - this causes HANG when not supported by the fw !
                     update=identrun_cb,
                     timeout=10000
                 )
@@ -370,7 +370,9 @@ def identsat():
         if checkbox_visual.get():
             my_node.execute("identsat", "-w", update=update_cb, timeout=10000)
         else:
-            my_node.execute("identsat", "-q", update=update_cb, timeout=10000)
+            my_node.execute("identsat",
+                            "-q",  #TODO - this causes HANG when not supported by the fw !
+                            update=update_cb, timeout=10000)
 
     except sxapi.error as e:
         retlabel.configure(
@@ -391,7 +393,9 @@ def identsal():
         if checkbox_visual.get():
             my_node.execute("identsal", "-w", update=update_cb, timeout=10000)
         else:
-            my_node.execute("identsal", "-q", update=update_cb, timeout=10000)
+            my_node.execute("identsal", 
+                            "-q",  #TODO - this causes HANG when not supported by the fw !
+                            update=update_cb, timeout=10000)
 
     except sxapi.error as e:
         retlabel.configure(
