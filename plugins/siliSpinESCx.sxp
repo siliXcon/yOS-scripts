@@ -348,8 +348,10 @@ CTkToolTip(runbutton, message="Hit to issue the command preset.")
 
 
 def stop():
-    update_result(my_node.executeSimple("stop"), "stop")
-
+    try:
+        update_result(my_node.executeSimple("stop"), "stop")
+    except sxapi.error as e:
+        retlabel.configure(text=str(e), fg_color="red")
 
 stopbutton = customtkinter.CTkButton(
     app,
@@ -363,11 +365,14 @@ CTkToolTip(stopbutton, message="Hit to force the freewheeling mode.")
 
 
 def release():
-    retval = my_node.executeSimple("run")
-    if retval == -1:
-        update_result(my_node.executeSimple("reinit"), "reinit")
-    else:
-        update_result(retval, "release")
+    try:
+        retval = my_node.executeSimple("run")
+        if retval == -1:
+            update_result(my_node.executeSimple("reinit"), "reinit")
+        else:
+            update_result(retval, "release")
+    except sxapi.error as e:
+        retlabel.configure(text=str(e), fg_color="red")        
 
 
 releasebutton = customtkinter.CTkButton(

@@ -363,10 +363,14 @@ def reinit(value):
     except ValueError:
         mode = initmodes_bldc.index(value) - 2
 
-    if mode == -2:
-        retval = my_node.executeSimple("reinit")
-    else:
-        retval = my_node.executeSimple("reinit", str(mode))
+    try:
+        if mode == -2:
+            retval = my_node.executeSimple("reinit")
+        else:
+            retval = my_node.executeSimple("reinit", str(mode))
+    except sxapi.error as e:
+        MessageBox(app, title="siliTune", cls=2, message=str(e))            
+        return
 
     refresh_prest()
 
@@ -923,7 +927,12 @@ app.bottom_frame.grid_columnconfigure((1, 2, 3), weight=1)
 
 
 def save():
-    retval = my_node.executeSimple("save", "-y")
+    try:
+        retval = my_node.executeSimple("save", "-y")
+    except sxapi.error as e:
+        MessageBox(app, title="siliTune", cls=2, message=str(e))            
+        return
+
     if retval < 0:
         MessageBox(
             app,
@@ -952,7 +961,11 @@ CTkToolTip(
 
 
 def load():
-    retval = my_node.executeSimple("load", "-y")
+    try:
+        retval = my_node.executeSimple("load", "-y")
+    except sxapi.error as e:
+        MessageBox(app, title="siliTune", cls=2, message=str(e))            
+        return    
     if retval < 0:
         MessageBox(
             app,
@@ -980,7 +993,11 @@ CTkToolTip(
 
 def restore():
     # retval = my_node.executeSimple("restore", "-ry", "/driver") # doesn't work
-    retval = my_node.executeSimple("restore", "-y")
+    try:
+        retval = my_node.executeSimple("restore", "-y")
+    except sxapi.error as e:
+        MessageBox(app, title="siliTune", cls=2, message=str(e))            
+        return    
     if retval < 0:
         MessageBox(
             app,
