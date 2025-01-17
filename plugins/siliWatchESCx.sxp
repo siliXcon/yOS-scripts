@@ -189,7 +189,7 @@ app.grid_columnconfigure((2, 3), weight=0)
 app.grid_rowconfigure(3, weight=1)
 app.grid_rowconfigure(4, weight=1)
 app.iconbitmap(lib_dir + "SiliXcon.ico")
-#app.attributes("-topmost", 0)
+app.attributes("-topmost", 0)
 
 
 def node_select_callback(nodename):
@@ -447,7 +447,7 @@ scope_button.grid(row=0, column=1, padx=(10, 0), sticky="w")
 
 app.nodeselect_label = customtkinter.CTkLabel(
     app.top_frame,
-    text="Select device to watch:",
+    text="Device:",
     font=customtkinter.CTkFont(size=15, weight="bold"),
 )
 app.nodeselect_label.grid(row=0, column=3, padx=10, sticky="e")
@@ -489,6 +489,23 @@ apperance_switch = customtkinter.CTkButton(
     width=5,
 )
 apperance_switch.grid(row=0, column=6, padx=5, pady=5, sticky="e")
+
+def change_ontop_event():
+    if ontop_switch.cget("border_width"):
+        app.attributes("-topmost", 0)
+        ontop_switch.configure(border_width=0)
+    else:
+        app.attributes("-topmost", 1)
+        ontop_switch.configure(border_width=3)
+        
+ontop_switch = customtkinter.CTkButton(
+    app.top_frame,
+    text=f"",
+    command=change_ontop_event,
+    image=icon("address.png"),
+    width=5,
+)
+ontop_switch.grid(row=0, column=7, padx=5, pady=0, sticky="e")
 
 ################################################################################
 # create sidebar frame with widgets
