@@ -31,9 +31,6 @@ class CTkToolTip(Toplevel):
         **message_kwargs,
     ):
     
-        # disable tooltips - to get massive speedup.
-        return
-
         super().__init__()
 
         self.widget = widget

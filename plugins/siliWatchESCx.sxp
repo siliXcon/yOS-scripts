@@ -30,7 +30,7 @@ from datetime import datetime
 from siliUX import codetostr
 from siliUX import find_nodes
 from siliUX.messagebox import *
-from siliUX.ctk_tooltip import *
+#from siliUX.ctk_tooltip import *
 
 lib_dir = os.path.dirname(__file__) + "/siliUX/"
 
@@ -648,7 +648,7 @@ app.logcountlabel = customtkinter.CTkLabel(
     font=customtkinter.CTkFont(size=15, weight="bold"),
 )
 app.logcountlabel.grid(row=0, column=1, padx=5, sticky="nsew")
-CTkToolTip(app.logcountlabel, message="Samples recorded")
+#CTkToolTip(app.logcountlabel, message="Samples recorded")
 
 app.delimiter = customtkinter.CTkSwitch(
     master=app.scrollable_frame, text="use semicolon delimiter"
@@ -836,7 +836,7 @@ class plot_tab:
         )
         self.valuemenu.grid(row=0, column=0, columnspan=3, padx=10, pady=(20, 10))
         self.valuemenu.set("Plot a topic ...")
-        CTkToolTip(self.valuemenu, message="Choose group of variables to plot.")
+        #CTkToolTip(self.valuemenu, message="Choose group of variables to plot.")
         self.periodbox = customtkinter.CTkComboBox(
             app.tabview.tab(name),
             values=["1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "50 ms", "100 ms"],
@@ -844,7 +844,7 @@ class plot_tab:
         )
         self.periodbox.set("10 ms")
         self.periodbox.grid(row=1, column=0, columnspan=3, padx=10, pady=10)
-        CTkToolTip(self.periodbox, message="Choose a sampling period for this plot.")
+        #CTkToolTip(self.periodbox, message="Choose a sampling period for this plot.")
         self.clear_button = customtkinter.CTkButton(
             app.tabview.tab(name),
             text="Clear",
@@ -853,24 +853,21 @@ class plot_tab:
             width=5,
         )
         self.clear_button.grid(row=0, column=3, rowspan=2, padx=5, pady=5)
-        CTkToolTip(self.clear_button, message="Clear the plot (stop sampling service).")
+        #CTkToolTip(self.clear_button, message="Clear the plot (stop sampling service).")
         self.release_button = customtkinter.CTkButton(
             app.tabview.tab(name), text="Release", command=self.erase_event, width=5
         )
         self.release_button.grid(
             row=2, column=2, columnspan=2, padx=5, pady=5, sticky="w"
         )
-        CTkToolTip(self.release_button, message="Release this plot from the scope.")
+        #CTkToolTip(self.release_button, message="Release this plot from the scope.")
         self.autoset_button = customtkinter.CTkButton(
             app.tabview.tab(name), text="Autoscale", command=self.autoset_event, width=5
         )
         self.autoset_button.grid(
             row=2, column=0, columnspan=2, padx=5, pady=5, sticky="e"
         )
-        CTkToolTip(
-            self.autoset_button,
-            message="Auto-scale this plot according to the acutal data.",
-        )
+        #CTkToolTip(self.autoset_button, message="Auto-scale this plot according to the acutal data.")
 
 
 plot_groups = [
@@ -918,7 +915,7 @@ app.templabel = customtkinter.CTkLabel(
     compound="left",
 )
 app.templabel.grid(row=1, column=0, rowspan=3, padx=0, sticky="w")
-CTkToolTip(app.templabel, message="Average temperature.")
+#CTkToolTip(app.templabel, message="Average temperature.")
 
 app.pwrlabel = customtkinter.CTkLabel(
     app.drv_frame,
@@ -929,7 +926,7 @@ app.pwrlabel = customtkinter.CTkLabel(
     compound="left",
 )
 app.pwrlabel.grid(row=1, column=1)
-CTkToolTip(app.pwrlabel, message="Total power throughput.")
+#CTkToolTip(app.pwrlabel, message="Total power throughput.")
 
 app.energylabel = customtkinter.CTkLabel(
     app.drv_frame,
@@ -938,7 +935,7 @@ app.energylabel = customtkinter.CTkLabel(
     compound="left",
 )
 app.energylabel.grid(row=2, column=1)
-CTkToolTip(app.energylabel, message="Transferred energy since reboot.")
+#CTkToolTip(app.energylabel, message="Transferred energy since reboot.")
 
 app.ptctemplabel = customtkinter.CTkLabel(
     app.drv_frame,
@@ -948,7 +945,7 @@ app.ptctemplabel = customtkinter.CTkLabel(
     compound="left",
 )
 app.ptctemplabel.grid(row=1, column=2, rowspan=3, padx=(0, 20), sticky="e")
-CTkToolTip(app.ptctemplabel, message="Peak temperature sensor state.")
+#CTkToolTip(app.ptctemplabel, message="Peak temperature sensor state.")
 
 # TODO consider other widget to indicate enable state (e.g. icon)
 app.enablebar = customtkinter.CTkProgressBar(app.drv_frame, orientation="horizontal")
@@ -957,7 +954,7 @@ app.enablebar.configure(
     progress_color="black", fg_color="black"
 )  # , mode="indeterminate")
 app.enablebar.set(1)
-CTkToolTip(app.enablebar, message="Power transistor switching state.")
+#CTkToolTip(app.enablebar, message="Power transistor switching state.")
 
 # app.enablebar.start()
 
@@ -988,7 +985,7 @@ app.errorlabel = customtkinter.CTkLabel(
 app.errorlabel.grid(row=1, column=0, padx=5, pady=5, sticky="nw")
 app.errortext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.errortext.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
-CTkToolTip(app.errorlabel, message="Driver critical error.")
+#CTkToolTip(app.errorlabel, message="Driver critical error.")
 
 app.statlabel = customtkinter.CTkLabel(
     app.limiter_frame,
@@ -1001,7 +998,7 @@ app.statlabel = customtkinter.CTkLabel(
 app.statlabel.grid(row=1, column=1, padx=5, pady=5, sticky="nw")
 app.stattext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.stattext.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
-CTkToolTip(app.statlabel, message="Driver status (warning) indication.")
+#CTkToolTip(app.statlabel, message="Driver status (warning) indication.")
 
 app.limitlabel = customtkinter.CTkLabel(
     app.limiter_frame,
@@ -1014,14 +1011,14 @@ app.limitlabel = customtkinter.CTkLabel(
 app.limitlabel.grid(row=1, column=2, padx=5, pady=5, sticky="nw")
 app.limittext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.limittext.grid(row=2, column=2, padx=5, pady=5, sticky="nsew")
-CTkToolTip(app.limitlabel, message="Driver limit (derating) indication.")
+#CTkToolTip(app.limitlabel, message="Driver limit (derating) indication.")
 
 app.totallimitbar = customtkinter.CTkProgressBar(
     app.limiter_frame, height=20, progress_color="black"
 )
 app.totallimitbar.grid(row=3, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
 app.totallimitbar.set(1)
-CTkToolTip(app.totallimitbar, message="Total driver limitation.")
+#CTkToolTip(app.totallimitbar, message="Total driver limitation.")
 
 ################################################################################
 # create driver command frame
@@ -1041,7 +1038,7 @@ app.namelabel.grid(row=0, column=0, columnspan=4, sticky="ew")
 
 app.imultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
 app.imultbar.grid(row=1, column=0, rowspan=3, padx=5, pady=5, sticky="ns")
-CTkToolTip(app.imultbar, message="Current multiplier level.")
+#CTkToolTip(app.imultbar, message="Current multiplier level.")
 
 app.checkbox_spd = customtkinter.CTkSwitch(
     master=app.cmd_frame, text="speed loop", state="disabled"
@@ -1060,7 +1057,7 @@ app.modelabel = customtkinter.CTkLabel(
     compound="left",
 )
 app.modelabel.grid(row=1, column=0, columnspan=3, pady=5)
-CTkToolTip(app.modelabel, message="Actual drive mode.")
+#CTkToolTip(app.modelabel, message="Actual drive mode.")
 
 # app.cmdlabel = customtkinter.CTkLabel(app.cmd_frame, text="0.0", font=customtkinter.CTkFont(size=40, weight="bold"))
 # app.cmdlabel.grid(row=0, column=0, columnspan=2)
@@ -1075,11 +1072,11 @@ app.cmdbar = customtkinter.CTkSlider(
     height=30,
 )
 app.cmdbar.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
-CTkToolTip(app.cmdbar, message="Actual drive level.")
+#CTkToolTip(app.cmdbar, message="Actual drive level.")
 
 app.umultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
 app.umultbar.grid(row=1, column=3, rowspan=3, padx=5, pady=5, sticky="ns")
-CTkToolTip(app.umultbar, message="Voltage multiplier level.")
+#CTkToolTip(app.umultbar, message="Voltage multiplier level.")
 
 # app.rmultbar = customtkinter.CTkProgressBar(app.cmd_frame, orientation="vertical")
 # app.rmultbar.grid(row=0, column=4, rowspan=4, padx=(10, 10), pady=(10, 10), sticky="ns")
@@ -1117,7 +1114,7 @@ app.coulomblabel = customtkinter.CTkLabel(
     compound="left",
 )
 app.coulomblabel.grid(row=2, column=0)
-CTkToolTip(app.coulomblabel, message="DC capacity transferred since last reboot.")
+#CTkToolTip(app.coulomblabel, message="DC capacity transferred since last reboot.")
 
 app.batcurrentbar = customtkinter.CTkSlider(
     app.battery_frame,
@@ -1129,7 +1126,7 @@ app.batcurrentbar = customtkinter.CTkSlider(
     height=30,
 )
 app.batcurrentbar.grid(row=3, column=0, padx=(10, 10), pady=(10, 10), sticky="ns")
-CTkToolTip(app.batcurrentbar, message="Relative DC current indicator.")
+#CTkToolTip(app.batcurrentbar, message="Relative DC current indicator.")
 
 ################################################################################
 # create motor frame
@@ -1162,7 +1159,7 @@ app.fluxlabel = customtkinter.CTkLabel(
     compound="top",
 )
 app.fluxlabel.grid(row=3, column=0, sticky="nsew")
-CTkToolTip(app.fluxlabel, message="D-axis (flux) current and voltage.")
+#CTkToolTip(app.fluxlabel, message="D-axis (flux) current and voltage.")
 
 app.torquelabel = customtkinter.CTkLabel(
     app.motor_frame,
@@ -1172,18 +1169,18 @@ app.torquelabel = customtkinter.CTkLabel(
     compound="top",
 )
 app.torquelabel.grid(row=3, column=1, sticky="nsew")
-CTkToolTip(app.torquelabel, message="Q-axis (torque) current and voltage.")
+#CTkToolTip(app.torquelabel, message="Q-axis (torque) current and voltage.")
 
 app.motvoltagelabel = customtkinter.CTkLabel(app.motor_frame, text="0V / 0Vrms")
 app.motvoltagelabel.grid(row=5, column=0, columnspan=2, pady=(0, 0))
-CTkToolTip(app.motvoltagelabel, message="Stator voltage (magnitude and RMS).")
+#CTkToolTip(app.motvoltagelabel, message="Stator voltage (magnitude and RMS).")
 
 app.motvoltagebar = customtkinter.CTkProgressBar(app.motor_frame, height=10)
 app.motvoltagebar.grid(row=6, column=0, columnspan=2, pady=(0, 10), sticky="ns")
 
 app.motcurrentlabel = customtkinter.CTkLabel(app.motor_frame, text="0A / 0Arms")
 app.motcurrentlabel.grid(row=7, column=0, columnspan=2, pady=(10, 0))
-CTkToolTip(app.motcurrentlabel, message="Stator current (magnitude and RMS).")
+#CTkToolTip(app.motcurrentlabel, message="Stator current (magnitude and RMS).")
 
 app.motcurrentbar = customtkinter.CTkProgressBar(app.motor_frame, height=10)
 app.motcurrentbar.grid(row=9, column=0, columnspan=2, pady=(0, 0), sticky="ns")
@@ -1195,7 +1192,7 @@ app.odolabel = customtkinter.CTkLabel(
     compound="top",
 )
 app.odolabel.grid(row=11, column=0, pady=15)
-CTkToolTip(app.odolabel, message="Number of electrical revolutions since reboot.")
+#CTkToolTip(app.odolabel, message="Number of electrical revolutions since reboot.")
 
 app.ohmlabel = customtkinter.CTkLabel(
     app.motor_frame,
@@ -1204,7 +1201,7 @@ app.ohmlabel = customtkinter.CTkLabel(
     compound="top",
 )
 app.ohmlabel.grid(row=11, column=1, pady=15)
-CTkToolTip(app.ohmlabel, message="Resistance of the motor temperature sensor.")
+#CTkToolTip(app.ohmlabel, message="Resistance of the motor temperature sensor.")
 
 
 ################################################################################
