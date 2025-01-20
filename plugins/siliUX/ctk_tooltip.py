@@ -30,6 +30,9 @@ class CTkToolTip(Toplevel):
         padding: tuple = (10, 2),
         **message_kwargs,
     ):
+    
+        # disable tooltips - to get massive speedup.
+        return
 
         super().__init__()
 
