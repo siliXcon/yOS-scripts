@@ -275,7 +275,7 @@ class param_edit:
         unit.grid(row=row, column=col + 2, padx=5, sticky="w")
 
     def on_modified(self, *args):
-        self.valueBox.configure(text_color="blue")
+        self.valueBox.configure(corner_radius=0)
 
     def on_set(self, *args):
         variable = my_node.variable(self.path)
@@ -289,7 +289,7 @@ class param_edit:
         self.get()
 
     def get(self, *args):
-        self.valueBox.configure(text_color="SystemWindowText")
+        self.valueBox.configure(corner_radius=8)
         try:
             variable = my_node.variable(self.path)
 

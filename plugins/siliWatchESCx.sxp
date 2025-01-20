@@ -217,6 +217,10 @@ def node_select_callback(nodename):
         updaters = []
 
         try:
+            # one time reference param read
+            set_global_var("iref",  my_node.variable("/driver/iref").get())
+            # TODO consider reading uref as well
+
             # handle some of the exceptions - some variables are named differently in esc3 and esc5
             # TODO add support for esc4 and esc6 !
             try:
@@ -287,12 +291,6 @@ def node_select_callback(nodename):
                 updaters.append(state_monitor(3, 6, "/driver/umult", lambda value: (
                     app.umultbar.set(value)
                 )))  # BLDC
-
-            # param - for reference
-
-            updaters.append(state_monitor(5, -1, "/driver/iref", lambda value: (
-                set_global_var("iref", value)
-            )))
 
             # temps and energy counter
 
