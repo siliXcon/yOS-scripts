@@ -199,6 +199,8 @@ def node_select_callback(nodename):
 
     app.enablebar.configure(fg_color="black", progress_color="black")
     app.totallimitbar.configure(progress_color="black")
+    app.batcurrentbar.configure(button_color="black")
+    app.cmdbar.configure(button_color="black")
     app.nodeselect_button.configure(selected_color="red")
     app.modelabel.configure(text=" UNK")
     app.statlabel.configure(fg_color="transparent")
@@ -264,7 +266,8 @@ def node_select_callback(nodename):
 
             updaters.append(state_monitor(3, 5, "/driver/cmd", lambda value: (
                 set_global_var("cmd", value),
-                app.cmdbar.set(value)
+                app.cmdbar.set(value),
+                app.cmdbar.configure(button_color="grey")
             )))
             updaters.append(state_monitor(3, 5, "/driver/mode", lambda value: (
                 app.modelabel.configure(text=" " + modes[value & 15] + " " + str(round(cmd, 2))),
@@ -308,7 +311,8 @@ def node_select_callback(nodename):
 
             updaters.append(state_monitor(2, 0, "/driver/supply/currentf", lambda value: (
                 set_global_var("supplycurrent", value),
-                app.batcurrentbar.set(value / iref) if iref else None
+                app.batcurrentbar.set(value / iref) if iref else None,
+                app.batcurrentbar.configure(button_color="grey")
             )))
             updaters.append(state_monitor(2, 1, "/driver/supply/voltage", lambda value: (
                 set_global_var("supplyvoltage", value),
@@ -1067,7 +1071,7 @@ app.cmdbar = customtkinter.CTkSlider(
     to=1,
     state="disabled",
     progress_color="transparent",
-    button_color="grey",
+    button_color="black",
     height=30,
 )
 app.cmdbar.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
@@ -1121,7 +1125,7 @@ app.batcurrentbar = customtkinter.CTkSlider(
     to=1,
     state="disabled",
     progress_color="transparent",
-    button_color="grey",
+    button_color="black",
     height=30,
 )
 app.batcurrentbar.grid(row=3, column=0, padx=(10, 10), pady=(10, 10), sticky="ns")
