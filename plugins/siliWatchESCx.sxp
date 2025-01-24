@@ -21,7 +21,7 @@
     in another project without the author's agreement is not allowed.
 """
 
-import tkinter, customtkinter, math, csv
+import tkinter, customtkinter, math, csv, time
 import os # for file explorer after logging ends
 import webbrowser # for opening external url with help
 from PIL import Image
