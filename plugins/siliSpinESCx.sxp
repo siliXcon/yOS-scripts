@@ -415,8 +415,10 @@ else:
     nodeselect_button.set("NONE")
     node_select_callback("NONE")
 
-# Bind the mouse wheel event to the whole window
+# Bind some events to the whole window
 app.bind("<MouseWheel>", on_mousewheel)
+app.bind('<Return>', lambda event: run())
+app.bind('<Escape>', lambda event: stop())
 
 #MessageBox(
 #    app,
@@ -425,3 +427,4 @@ app.bind("<MouseWheel>", on_mousewheel)
 #)
 
 app.mainloop()
+
