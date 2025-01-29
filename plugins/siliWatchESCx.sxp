@@ -32,6 +32,65 @@ from siliUX import find_nodes
 from siliUX.messagebox import *
 #from siliUX.ctk_tooltip import *
 
+
+
+
+import gc
+import sys
+import threading
+import time
+from collections import defaultdict
+
+class MemoryMonitor:
+    def __init__(self, interval=5):
+        self.interval = interval
+        self.running = False
+        self.thread = None
+    
+    def get_object_counts(self):
+        counts = defaultdict(int)
+        for obj in gc.get_objects():
+            counts[type(obj).__name__] += 1
+        return counts
+    
+    def get_size(self, obj):
+        """Get size of object and its contents"""
+        try:
+            return sys.getsizeof(obj)
+        except:
+            return 0
+    
+    def get_total_memory(self):
+        """Estimate total memory used by Python objects"""
+        total_size = 0
+        for obj in gc.get_objects():
+            total_size += self.get_size(obj)
+        return total_size
+    
+    def monitor(self):
+        while self.running:
+            counts = self.get_object_counts()
+            total_mem = self.get_total_memory()
+            
+            print(f"\nTotal Memory Used: {total_mem / 1024 / 1024:.2f} MB")
+            print("\nTop 10 Object counts:")
+            for type_name, count in sorted(counts.items(), key=lambda x: x[1], reverse=True)[:10]:
+                print(f"{type_name}: {count}")
+            print("-" * 40)
+            
+            time.sleep(self.interval)
+    
+    def start(self):
+        self.running = True
+        self.thread = threading.Thread(target=self.monitor, daemon=True)
+        self.thread.start()
+    
+    def stop(self):
+        self.running = False
+        if self.thread:
+            self.thread.join()
+
+
 lib_dir = os.path.dirname(__file__) + "/siliUX/"
 
 def icon(name):
@@ -40,7 +99,7 @@ def icon(name):
     #return tkinter.PhotoImage(file=lib_dir + name)
 
 nodes, nodenames = find_nodes.find("esc")
-
+           
 ################################################################################
 # log callbacks
 
@@ -199,15 +258,15 @@ def node_select_callback(nodename):
 
     app.enablebar.configure(fg_color="black", progress_color="black")
     app.totallimitbar.configure(progress_color="black")
-    app.batcurrentbar.configure(button_color="black")
-    app.cmdbar.configure(button_color="black")
+    app.imultbar.configure(progress_color="black")
+    app.umultbar.configure(progress_color="black")    
     app.nodeselect_button.configure(selected_color="red")
     app.modelabel.configure(text=" UNK")
     app.statlabel.configure(fg_color="transparent")
     app.limitlabel.configure(fg_color="transparent")
     app.errorlabel.configure(fg_color="transparent")
-    app.motcurrentbar.configure(progress_color="grey")
-    app.motvoltagebar.configure(progress_color="grey")
+    app.motcurrentbar.configure(progress_color="black")
+    app.motvoltagebar.configure(progress_color="black")
     # app.term_button.configure(state="disabled")
     # app.scope_button.configure(state="disabled")
 
@@ -266,8 +325,7 @@ def node_select_callback(nodename):
 
             updaters.append(state_monitor(3, 5, "/driver/cmd", lambda value: (
                 set_global_var("cmd", value),
-                app.cmdbar.set(value),
-                app.cmdbar.configure(button_color="grey")
+                app.cmdbar.set(value)
             )))
             updaters.append(state_monitor(3, 5, "/driver/mode", lambda value: (
                 app.modelabel.configure(text=" " + modes[value & 15] + " " + str(round(cmd, 2))),
@@ -280,19 +338,23 @@ def node_select_callback(nodename):
             )))
             try:
                 updaters.append(state_monitor(3, 6, "/driver/iqmult", lambda value: (
-                    app.imultbar.set(value)
+                    app.imultbar.set(value),
+                    app.imultbar.configure(progress_color="green")
                 )))  # VECTOR
             except sxapi.error as e:
                 updaters.append(state_monitor(3, 6, "/driver/imult", lambda value: (
-                    app.imultbar.set(value)
+                    app.imultbar.set(value),
+                    app.imultbar.configure(progress_color="green")
                 )))  # BLDC
             try:
                 updaters.append(state_monitor(3, 6, "/driver/uqmult", lambda value: (
-                    app.umultbar.set(value)
+                    app.umultbar.set(value),
+                    app.umultbar.configure(progress_color="yellow")                    
                 )))  # VECTOR
             except sxapi.error as e:
                 updaters.append(state_monitor(3, 6, "/driver/umult", lambda value: (
-                    app.umultbar.set(value)
+                    app.umultbar.set(value),
+                    app.umultbar.configure(progress_color="yellow")         
                 )))  # BLDC
 
             # temps and energy counter
@@ -311,8 +373,7 @@ def node_select_callback(nodename):
 
             updaters.append(state_monitor(2, 0, "/driver/supply/currentf", lambda value: (
                 set_global_var("supplycurrent", value),
-                app.batcurrentbar.set(value / iref) if iref else None,
-                app.batcurrentbar.configure(button_color="grey")
+                app.batcurrentbar.set(value / iref) if iref else None
             )))
             updaters.append(state_monitor(2, 1, "/driver/supply/voltage", lambda value: (
                 set_global_var("supplyvoltage", value),
@@ -951,7 +1012,7 @@ app.ptctemplabel.grid(row=1, column=2, rowspan=3, padx=(0, 20), sticky="e")
 app.enablebar = customtkinter.CTkProgressBar(app.drv_frame, orientation="horizontal")
 app.enablebar.grid(row=3, column=1, padx=5, pady=5, sticky="ns")
 app.enablebar.configure(
-    progress_color="black", fg_color="black"
+    #progress_color="black", fg_color="black"
 )  # , mode="indeterminate")
 app.enablebar.set(1)
 #CTkToolTip(app.enablebar, message="Power transistor switching state.")
@@ -1014,7 +1075,7 @@ app.limittext.grid(row=2, column=2, padx=5, pady=5, sticky="nsew")
 #CTkToolTip(app.limitlabel, message="Driver limit (derating) indication.")
 
 app.totallimitbar = customtkinter.CTkProgressBar(
-    app.limiter_frame, height=20, progress_color="black"
+    app.limiter_frame, height=20 #, progress_color="black"
 )
 app.totallimitbar.grid(row=3, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
 app.totallimitbar.set(1)
@@ -1041,13 +1102,14 @@ app.imultbar.grid(row=1, column=0, rowspan=3, padx=5, pady=5, sticky="ns")
 #CTkToolTip(app.imultbar, message="Current multiplier level.")
 
 app.checkbox_spd = customtkinter.CTkSwitch(
-    master=app.cmd_frame, text="speed loop", state="disabled"
+    master=app.cmd_frame, text="speed loop", state="disabled", button_color="grey"
 )
 app.checkbox_spd.grid(row=3, column=1, pady=5, padx=20, sticky="nw")
 app.checkbox_pos = customtkinter.CTkSwitch(
-    master=app.cmd_frame, text="position loop", state="disabled"
+    master=app.cmd_frame, text="position loop", state="disabled", button_color="grey"
 )
 app.checkbox_pos.grid(row=3, column=2, pady=5, padx=20, sticky="nw")
+
 
 app.modelabel = customtkinter.CTkLabel(
     app.cmd_frame,
@@ -1068,7 +1130,7 @@ app.cmdbar = customtkinter.CTkSlider(
     to=1,
     state="disabled",
     progress_color="transparent",
-    button_color="black",
+    button_color="grey",
     height=30,
 )
 app.cmdbar.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
@@ -1122,7 +1184,7 @@ app.batcurrentbar = customtkinter.CTkSlider(
     to=1,
     state="disabled",
     progress_color="transparent",
-    button_color="black",
+    button_color="grey",
     height=30,
 )
 app.batcurrentbar.grid(row=3, column=0, padx=(10, 10), pady=(10, 10), sticky="ns")
@@ -1215,4 +1277,7 @@ else:
     app.nodeselect_button.set("NONE")
     node_select_callback("NONE")
 
+#monitor = MemoryMonitor(interval=1)  # Print every 5 seconds
+#monitor.start()
+    
 app.mainloop()
