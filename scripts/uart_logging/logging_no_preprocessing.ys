@@ -1,0 +1,94 @@
+
+@c
+
+script e
+delay 10
+
+# Store the script in the device memory
+script
+
+
+var line.64 string #create buffer
+# internal YOS buffer is 64bytes long, so we are unable to send more than 64 bytes at once
+
+
+echo
+echo Sending CSV log to interface 1
+echo with a period of 1000 ms
+echo
+
+delay 10
+
+.send_csv_header {
+
+    # The openlog need some time to bootup
+    delay 1000
+    set line "           "
+    send -i1 -f255 line
+    send -i1 -f255 13 10 #send cr + lf
+    delay 250
+
+    set line "timestamp"+","
+    send -i1 -f255 line
+
+    # For each send variable, add variable name to the csv header:
+
+    set line "/driver/power"+","
+    send -i1 -f255 line
+
+    set line "/driver/supply/voltage"+","
+    send -i1 -f255 line
+
+    set line "/driver/supply/currentf"+","
+    send -i1 -f255 line
+    
+    send -i1 -f255 13 10 #send cr + lf
+    delay 250   # Wait for the logger to write
+}
+
+
+.send_csv_line {
+
+    # Send timestamp
+    set line ""
+    clock -dline
+    set line line+" "
+    send -i1 -f255 line
+    set line ""
+    clock -tline
+    set line line+","
+    send -i1 -f255 line
+
+    # For each send variable, add variable value to the csv line:
+    
+    set line /driver/power+","
+    send -i1 -f255 line
+
+    set line /driver/supply/voltage+","
+    send -i1 -f255 line
+
+    set line /driver/supply/currentf+","
+    send -i1 -f255 line
+    
+
+    send -i1 -f255 13 10 #send cr + lf
+}
+
+call send_csv_header
+
+
+{
+    # This is main loop
+
+    call send_csv_line
+    delay 1000
+    branch s
+}
+
+
+
+# Store the script in the device memory
+
+quit
+# Start the internal script
+script s
