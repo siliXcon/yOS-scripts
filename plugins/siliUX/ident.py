@@ -111,13 +111,13 @@ def describe_error(error):
             title="Automatic identification",
             message="R_t (coil resistance) is not set.\nPlease set it manually or run the 'identlin' to measure first.",
         )
-    elif error <= -10 and error >= -100:
+    elif error <= -10 and error >= -100:           
         MessageBox(
             window, cls=2,
             title="Automatic identification",
             message="Current control / inductance measurement error in stage "
             + str(-error)
-            + "\nPlease adjust the PID settings / current reference.",
+            + "\nPlease adjust the PID / current reference.\n(" + codetostr.error2string(my_node.variable("/driver/error").get()) + ")"
         )
 
 
