@@ -1,12 +1,7 @@
 
-@c
-
-script e
-delay 10
-
-# Store the script in the device memory
-script
-
+# No preprocessing
+# Upload this script using the emGUI script manager
+ 
 
 var line.64 string #create buffer
 # internal YOS buffer is 64bytes long, so we are unable to send more than 64 bytes at once
@@ -85,10 +80,4 @@ call send_csv_header
     branch s
 }
 
-
-
-# Store the script in the device memory
-
-quit
-# Start the internal script
-script s
+ 
