@@ -18,7 +18,8 @@ class MessageBox(ctk.CTkToplevel):
         self.geometry(f"+{x}+{y}")
         self.geometry("350x150")
         self.resizable(False, False)
-        self.title(title)        
+        self.title(title)
+        self.attributes("-topmost", 1)        
 
         # Message label
         self.label = ctk.CTkLabel(self,

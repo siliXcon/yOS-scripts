@@ -824,7 +824,10 @@ def plot_plot(val, index):
                 "plot", "-p" + str(index), "/driver/debug_core/dutyr"
             )  # TODO !
     if val == "power":
-        my_node.executeSimple("plot", "-p" + str(index), "/driver/power")
+        if vector:  # VECTOR
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/powerf")        
+        else:
+            my_node.executeSimple("plot", "-p" + str(index), "/driver/power")
     if val == "motor speed":
         my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/rpmf")
     if val == "tempreatures":
@@ -846,16 +849,12 @@ def plot_plot(val, index):
             "plot", "-p" + str(index), "/driver/iqmult", "/driver/uqmult"
         )
 
-    # always do autoscale
-    my_node.executeSimple(
-        "legend", "-p" + str(index), "-c24", "13", "0"
-    )  # a bug workaround: YOS only sends payload in multiply of 4 bytes, we must send a dummy zero
 
 class plot_tab:
     index = 0
     user_event = None
 
-    def erase_event(self):
+    def release_event(self):
         my_node.executeSimple("legend", "-p" + str(self.index), "-c20", "99", "113")
 
     def autoset_event(self):
@@ -877,12 +876,26 @@ class plot_tab:
 
     def plot_event(self, val):
         self.valuemenu.set("Plot a topic ...")
+        autoscale = 1
         global scope_open
         if scope_open == 0:
             my_node.executeSimple("clear", "all")
             open_scope()
             time.sleep(1)
+            
+        # reset if nothing is running in the scope
+        elif (my_node.executeSimple("period", "-p" + str(self.index), "-g", "-c") >> 16) & 7 == 0:
+            my_node.executeSimple("legend", "-p" + str(self.index), "-c20", "99", "112")
+            time.sleep(0.5)
+            autoscale = 0
+
         plot_plot(val, self.index)
+        
+        # do autoscale
+        if autoscale:
+            time.sleep(0.5)
+            my_node.executeSimple("legend", "-p" + str(self.index), "-c24", "13", "0")  # a bug workaround: YOS only sends payload in multiply of 4 bytes, we must send a dummy zero
+    
         self.state_update()
 
     def __init__(self, name, idx, vals):
@@ -916,7 +929,7 @@ class plot_tab:
         self.clear_button.grid(row=0, column=3, rowspan=2, padx=5, pady=5)
         #CTkToolTip(self.clear_button, message="Clear the plot (stop sampling service).")
         self.release_button = customtkinter.CTkButton(
-            app.tabview.tab(name), text="Release", command=self.erase_event, width=5
+            app.tabview.tab(name), text="Release", command=self.release_event, width=5
         )
         self.release_button.grid(
             row=2, column=2, columnspan=2, padx=5, pady=5, sticky="w"
