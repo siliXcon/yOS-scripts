@@ -246,8 +246,9 @@ class param_edit:
         parts = path.split("/")
         name = parts[-1] if parts else ""
 
-        label = customtkinter.CTkLabel(
-            frame, text=name, font=customtkinter.CTkFont(size=size, weight="bold")
+        label = customtkinter.CTkButton(
+            frame, text=name, font=customtkinter.CTkFont(size=size, weight="bold"), fg_color="transparent", text_color=("black", "white"), width=0,
+            command = lambda : (webbrowser.open("https://docs.silixcon.com/search?q=" + name))
         )
         label.grid(row=row, column=col, padx=5, sticky="e")
         CTkToolTip(label, message=tip)
@@ -363,8 +364,9 @@ main_params.append(
     )
 )
 
-label = customtkinter.CTkLabel(
-    app, text="init as", font=customtkinter.CTkFont(size=15, weight="bold")
+label = customtkinter.CTkButton(
+    app, text="init as", font=customtkinter.CTkFont(size=15, weight="bold"), fg_color="transparent", text_color=("black", "white"), width=0,
+            command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/sensor/"))
 )
 label.grid(row=8, column=2, padx=5, sticky="e")
 

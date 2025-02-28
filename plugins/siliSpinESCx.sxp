@@ -14,6 +14,7 @@
 """
 
 import tkinter, customtkinter, math, os
+import webbrowser # for opening external url with help
 from PIL import Image
 from siliUX import find_nodes
 from siliUX.messagebox import *
@@ -215,8 +216,9 @@ class preset_tab:
         self.cmdbar0.set(initval)
         #CTkToolTip(self.cmdbar0, message="Choose the command level for this preset.")
 
-        self.imultlabel = customtkinter.CTkLabel(
-            tab, text="imult\n1", font=customtkinter.CTkFont(weight="bold")
+        self.imultlabel = customtkinter.CTkButton(
+            tab, text="imult\n1", font=customtkinter.CTkFont(weight="bold"), width=0, fg_color="transparent", text_color=("black", "white"),
+            command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/command/cmd"))
         )  # , height=80)
         self.imultlabel.grid(row=20, column=0, padx=5)
         self.imultbar = customtkinter.CTkSlider(
@@ -234,8 +236,9 @@ class preset_tab:
         self.imultbar.set(1)
         #CTkToolTip(self.imultbar, message="Current multiplier.\nSlide to adjust the torque generating current,\nor keep at maximum to use the entire range.")
 
-        self.rmultlabel = customtkinter.CTkLabel(
-            tab, text="rmult\n1", font=customtkinter.CTkFont(weight="bold")
+        self.rmultlabel = customtkinter.CTkButton(
+            tab, text="rmult\n1", font=customtkinter.CTkFont(weight="bold"), width=0, fg_color="transparent", text_color=("black", "white"),
+            command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/command/cmd"))
         )  # , height=80)
         self.rmultlabel.grid(row=20, column=1, padx=5)
         self.rmultbar = customtkinter.CTkSlider(
@@ -253,8 +256,9 @@ class preset_tab:
         self.rmultbar.set(1)
         #CTkToolTip(self.rmultbar, message="Current multiplier in volage brake mode.\nSlide to adjust the torque generating current in voltage brake,\nor keep at maximum to use the entire range.")
 
-        self.umultlabel = customtkinter.CTkLabel(
-            tab, text="umult\n1", font=customtkinter.CTkFont(weight="bold")
+        self.umultlabel = customtkinter.CTkButton(
+            tab, text="umult\n1", font=customtkinter.CTkFont(weight="bold"), width=0, fg_color="transparent", text_color=("black", "white"),
+            command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/command/cmd"))
         )  # , height=80)
         self.umultlabel.grid(row=20, column=2, padx=5)
         self.umultbar = customtkinter.CTkSlider(
