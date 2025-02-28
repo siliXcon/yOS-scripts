@@ -34,7 +34,7 @@ from siliUX.messagebox import *
 
 
 
-
+'''
 import gc
 import sys
 import threading
@@ -52,14 +52,14 @@ class MemoryMonitor:
         for obj in gc.get_objects():
             counts[type(obj).__name__] += 1
         return counts
-    
+
     def get_size(self, obj):
         """Get size of object and its contents"""
         try:
             return sys.getsizeof(obj)
         except:
             return 0
-    
+
     def get_total_memory(self):
         """Estimate total memory used by Python objects"""
         total_size = 0
@@ -71,7 +71,7 @@ class MemoryMonitor:
         while self.running:
             counts = self.get_object_counts()
             total_mem = self.get_total_memory()
-            
+
             print(f"\nTotal Memory Used: {total_mem / 1024 / 1024:.2f} MB")
             print("\nTop 10 Object counts:")
             for type_name, count in sorted(counts.items(), key=lambda x: x[1], reverse=True)[:10]:
@@ -79,7 +79,7 @@ class MemoryMonitor:
             print("-" * 40)
             
             time.sleep(self.interval)
-    
+
     def start(self):
         self.running = True
         self.thread = threading.Thread(target=self.monitor, daemon=True)
@@ -89,7 +89,7 @@ class MemoryMonitor:
         self.running = False
         if self.thread:
             self.thread.join()
-
+'''
 
 lib_dir = os.path.dirname(__file__) + "/siliUX/"
 
@@ -976,8 +976,9 @@ app.drv_frame.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 app.drv_frame.grid_columnconfigure(1, weight=1)
 app.drv_frame.grid_rowconfigure(1, weight=1)
 
-app.namelabel = customtkinter.CTkLabel(
-    app.drv_frame, text="Power stage", corner_radius=5, fg_color=("gray78", "gray23")
+app.namelabel = customtkinter.CTkButton(
+    app.drv_frame, text="Power stage", corner_radius=5, fg_color=("gray78", "gray23"), text_color=("gray23", "gray78"),
+    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/measurements")),
 )
 app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
@@ -1040,49 +1041,56 @@ app.limiter_frame.grid(row=2, column=1, rowspan=2, padx=5, pady=5, sticky="nsew"
 app.limiter_frame.grid_columnconfigure((0, 1, 2), weight=1)
 app.limiter_frame.grid_rowconfigure(2, weight=1)
 
-app.namelabel = customtkinter.CTkLabel(
+app.namelabel = customtkinter.CTkButton(
     app.limiter_frame,
     text="Protection and derating",
     corner_radius=5,
-    fg_color=("gray78", "gray23"),
+    fg_color=("gray78", "gray23"), text_color=("gray23", "gray78"),
+    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/protections")),
 )
 app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
-app.errorlabel = customtkinter.CTkLabel(
+app.errorlabel = customtkinter.CTkButton(
     app.limiter_frame,
     text="error\n0",
     corner_radius=5,
     image=icon("stop.png"),
     width=120,
-    compound="left",
+    compound="left", text_color=("black", "white"),
+    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/diagnostic/driver_error")),
 )
 app.errorlabel.grid(row=1, column=0, padx=5, pady=5, sticky="nw")
+
 app.errortext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.errortext.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 #CTkToolTip(app.errorlabel, message="Driver critical error.")
 
-app.statlabel = customtkinter.CTkLabel(
+app.statlabel = customtkinter.CTkButton(
     app.limiter_frame,
     text="stat\n0",
     corner_radius=5,
     image=icon("warning.png"),
     width=120,
-    compound="left",
+    compound="left", text_color=("black", "white"),
+    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/protections/driver_state")),
 )
 app.statlabel.grid(row=1, column=1, padx=5, pady=5, sticky="nw")
+
 app.stattext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.stattext.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
 #CTkToolTip(app.statlabel, message="Driver status (warning) indication.")
 
-app.limitlabel = customtkinter.CTkLabel(
+app.limitlabel = customtkinter.CTkButton(
     app.limiter_frame,
     text="limit\n0",
     corner_radius=5,
     image=icon("limiter.png"),
     width=120,
-    compound="left",
+    compound="left", text_color=("black", "white"),
+    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/limiters/limiter_word")),
 )
 app.limitlabel.grid(row=1, column=2, padx=5, pady=5, sticky="nw")
+
 app.limittext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled")
 app.limittext.grid(row=2, column=2, padx=5, pady=5, sticky="nsew")
 #CTkToolTip(app.limitlabel, message="Driver limit (derating) indication.")
@@ -1102,11 +1110,12 @@ app.cmd_frame.grid(row=4, column=1, padx=5, pady=5, sticky="nsew")
 app.cmd_frame.grid_columnconfigure(2, weight=1)
 app.cmd_frame.grid_rowconfigure(1, weight=2)
 
-app.namelabel = customtkinter.CTkLabel(
+app.namelabel = customtkinter.CTkButton(
     app.cmd_frame,
     text="Actual drive command",
     corner_radius=5,
-    fg_color=("gray78", "gray23"),
+    fg_color=("gray78", "gray23"), text_color=("gray23", "gray78"),
+    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/command")),
 )
 app.namelabel.grid(row=0, column=0, columnspan=4, sticky="ew")
 
@@ -1124,14 +1133,17 @@ app.checkbox_pos = customtkinter.CTkSwitch(
 app.checkbox_pos.grid(row=3, column=2, pady=5, padx=20, sticky="nw")
 
 
-app.modelabel = customtkinter.CTkLabel(
+app.modelabel = customtkinter.CTkButton(
     app.cmd_frame,
     text=" UNK",
     font=customtkinter.CTkFont(size=40, weight="bold"),
     image=icon("joystick.png"),
     compound="left",
+    fg_color="transparent", text_color=("black", "white"),
+    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/command/driver_mode")),
 )
 app.modelabel.grid(row=1, column=0, columnspan=3, pady=5)
+
 #CTkToolTip(app.modelabel, message="Actual drive mode.")
 
 # app.cmdlabel = customtkinter.CTkLabel(app.cmd_frame, text="0.0", font=customtkinter.CTkFont(size=40, weight="bold"))
@@ -1165,11 +1177,12 @@ app.battery_frame.grid(row=1, column=2, rowspan=2, padx=5, pady=5, sticky="nsew"
 app.battery_frame.grid_columnconfigure(0, weight=1)
 app.battery_frame.grid_rowconfigure(1, weight=1)
 
-app.namelabel = customtkinter.CTkLabel(
+app.namelabel = customtkinter.CTkButton(
     app.battery_frame,
     text="Supply (DC)",
     corner_radius=5,
-    fg_color=("gray78", "gray23"),
+    fg_color=("gray78", "gray23"), text_color=("gray23", "gray78"),
+    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/supply")),
 )
 app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
@@ -1212,8 +1225,9 @@ app.motor_frame.grid_columnconfigure(0, weight=1)
 app.motor_frame.grid_columnconfigure(1, weight=1)
 app.motor_frame.grid_rowconfigure((1, 3, 5, 7, 11), weight=1)
 
-app.namelabel = customtkinter.CTkLabel(
-    app.motor_frame, text="Motor (AC)", corner_radius=5, fg_color=("gray78", "gray23")
+app.namelabel = customtkinter.CTkButton(
+    app.motor_frame, text="Motor (AC)", corner_radius=5, fg_color=("gray78", "gray23"), text_color=("gray23", "gray78"),
+    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/motor")),
 )
 app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
