@@ -99,7 +99,7 @@ def icon(name):
     #return tkinter.PhotoImage(file=lib_dir + name)
 
 nodes, nodenames = find_nodes.find("esc")
-           
+
 ################################################################################
 # log callbacks
 
@@ -349,7 +349,7 @@ def node_select_callback(nodename):
             try:
                 updaters.append(state_monitor(3, 6, "/driver/uqmult", lambda value: (
                     app.umultbar.set(value),
-                    app.umultbar.configure(progress_color="yellow")                    
+                    app.umultbar.configure(progress_color="yellow")
                 )))  # VECTOR
             except sxapi.error as e:
                 updaters.append(state_monitor(3, 6, "/driver/umult", lambda value: (
@@ -763,92 +763,58 @@ app.tabview.grid(row=0, column=0, columnspan=2, pady=5, sticky="nsew")
 
 
 def plot_plot(val, index):
+    ret = -1
     if val == "battery current":
-        my_node.executeSimple("plot", "-p" + str(index), "/driver/supply/currentf")
+        ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/supply/currentf")
     if val == "motor currents":
         if vector:  # VECTOR
-            my_node.executeSimple(
-                "plot",
-                "-p" + str(index),
-                "/driver/motor/currentqf",
-                "/driver/motor/currentdf",
-            )
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/currentqf", "/driver/motor/currentdf")
         else:  # BLDC
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/current")
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/current")
     if val == "unfiltered motor currents":
         if vector:  # VECTOR
-            my_node.executeSimple(
-                "plot",
-                "-p" + str(index),
-                "/driver/motor/currentq",
-                "/driver/motor/currentd",
-            )
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/currentq", "/driver/motor/currentd")
         else:  # BLDC
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/current")
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/current")
     if val == "motor current references":
         if vector:  # VECTOR
-            my_node.executeSimple(
-                "plot",
-                "-p" + str(index),
-                "/driver/debug_core/Iqref",
-                "/driver/debug_core/Idref",
-            )
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/Iqref", "/driver/debug_core/Idref")
         else:  # BLDC
-            my_node.executeSimple(
-                "plot", "-p" + str(index), "/driver/debug_core/currentr"
-            )  # TODO !
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/currentr")  # TODO !
     if val == "battery voltage":
-        my_node.executeSimple("plot", "-p" + str(index), "/driver/supply/voltage")
+        ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/supply/voltage")
     if val == "motor voltages":
         if vector:  # VECTOR
-            my_node.executeSimple(
-                "plot",
-                "-p" + str(index),
-                "/driver/motor/voltageq",
-                "/driver/motor/voltaged",
-            )
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/voltageq", "/driver/motor/voltaged")
         else:  # BLDC
-            my_node.executeSimple(
-                "plot", "-p" + str(index), "/driver/motor/voltage", "/driver/motor/duty"
-            )
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/voltage", "/driver/motor/duty")
     if val == "motor voltage references":
         if vector:  # VECTOR
-            my_node.executeSimple(
-                "plot",
-                "-p" + str(index),
-                "/driver/debug_core/Uqref",
-                "/driver/debug_core/Udref",
-            )
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/Uqref", "/driver/debug_core/Udref")
         else:  # BLDC
-            my_node.executeSimple(
-                "plot", "-p" + str(index), "/driver/debug_core/dutyr"
-            )  # TODO !
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/debug_core/dutyr")  # TODO !
     if val == "power":
         if vector:  # VECTOR
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/powerf")        
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/powerf")
         else:
-            my_node.executeSimple("plot", "-p" + str(index), "/driver/power")
+            ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/power")
     if val == "motor speed":
-        my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/rpmf")
+        ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/rpmf")
     if val == "tempreatures":
-        my_node.executeSimple(
-            "plot", "-p" + str(index), "/driver/temp", "/driver/ptctemp"
-        )
+        ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/temp", "/driver/ptctemp")
     if val == "motor temperature (resistance)":
-        my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/rthermistor")
+        ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/motor/rthermistor")
     if val == "stat and limit":
-        my_node.executeSimple(
-            "plot", "-p" + str(index), "/driver/stat", "/driver/limit"
-        )
+        ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/stat", "/driver/limit")
     if val == "totallimit":
-        my_node.executeSimple("plot", "-p" + str(index), "/driver/totallimit")
+        ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/totallimit")
     if val == "command and mode":
-        my_node.executeSimple("plot", "-p" + str(index), "/driver/cmd", "/driver/mode")
+        ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/cmd", "/driver/mode")
     if val == "command multipliers":
-        my_node.executeSimple(
-            "plot", "-p" + str(index), "/driver/iqmult", "/driver/uqmult"
-        )
+        ret = my_node.executeSimple("plot", "-p" + str(index), "/driver/iqmult", "/driver/uqmult")
 
+    if ret < 0:
+        MessageBox(app, title="siliWatch", cls=2, message="Could not plot the variable(s).\n")
 
 class plot_tab:
     index = 0
