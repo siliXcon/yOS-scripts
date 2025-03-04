@@ -35,7 +35,7 @@
 @d VAR9 : /driver/totallimit
 @d VAR10 : /driver/temp
 @d VAR11 : /driver/ptctemp
-@d VAR12 : /driver/power
+@d VAR12 : /driver/powerf
 @d VAR13 : /driver/cmd
 @d VAR14 : /driver/mode
 

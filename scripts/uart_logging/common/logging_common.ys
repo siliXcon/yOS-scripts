@@ -1,17 +1,12 @@
-
-@c
-
-delay 10
-
-# Store the script in the device memory
+# Store this script in the device memory
 @f STORE_SCRIPT
     script
 @e
 
-
-var line.64 string #create buffer
 # internal YOS buffer is 64bytes long, so we are unable to send more than 64 bytes at once
+var line.64 string
 
+# use USARTCOM as default interface
 @n LOG_INTERFACE
     @d LOG_INTERFACE : 1
 @e
@@ -20,23 +15,16 @@ var line.64 string #create buffer
     @d LOG_PERIOD : 1000
 @e
 
-echo
-echo Sending CSV log to interface [LOG_INTERFACE]
-echo with a period of [LOG_PERIOD] ms
-echo
-
-delay 10
-
 @f SEND_HEADER
 .send_csv_header {
 
     # The openlog need some time to bootup
-    delay 1000
+    delay 1000 # Wait for the logger to write
     set line "           "
     send -i[LOG_INTERFACE] -f255 line
     send -i[LOG_INTERFACE] -f255 13 10 #send cr + lf
-    delay 250
 
+    delay 250 # Wait for the logger to write
 
     @f TIMESTAMP
         set line "timestamp"+","
@@ -144,7 +132,7 @@ delay 10
         send -i[LOG_INTERFACE] -f255 line
     @e
 
-    delay 250
+    delay 250 # Wait for the logger to write
 
     @n VAR10_HEADER
         @f VAR10
@@ -247,7 +235,7 @@ delay 10
         send -i[LOG_INTERFACE] -f255 line
     @e
 
-    delay 250
+    delay 250 # Wait for the logger to write
 
     @n VAR20_HEADER
         @f VAR20
@@ -350,7 +338,7 @@ delay 10
         send -i[LOG_INTERFACE] -f255 line
     @e
 
-    delay 250
+    delay 250 # Wait for the logger to write
 
     @n VAR30_HEADER
         @f VAR30
@@ -453,7 +441,7 @@ delay 10
         send -i[LOG_INTERFACE] -f255 line
     @e
 
-    delay 250
+    delay 250 # Wait for the logger to write
 
     @n VAR40_HEADER
         @f VAR40
@@ -556,13 +544,11 @@ delay 10
         send -i[LOG_INTERFACE] -f255 line
     @e
 
-
-
     send -i[LOG_INTERFACE] -f255 13 10 #send cr + lf
-    delay 250   # Wait for the logger to write
+
+    delay 250 # Wait for the logger to write
 }
 @e
-
 
 .send_csv_line {
 
@@ -781,10 +767,20 @@ delay 10
     send -i[LOG_INTERFACE] -f255 13 10 #send cr + lf
 }
 
+echo
+echo Beginning to log through if [LOG_INTERFACE]
+echo with a period of [LOG_PERIOD] ms.
+echo
+
+@f INTERFACE_PARAM
+msgconf [LOG_INTERFACE]
+if retval msgconf -y [LOG_INTERFACE] 0
+else msginit [LOG_INTERFACE] [INTERFACE_PARAM]
+@e
+
 @f SEND_HEADER
 call send_csv_header
 @e
-
 
 {
     @f BMS
@@ -792,7 +788,7 @@ call send_csv_header
         set ticks 0
         branch p
     }
-    
+
     if ticks<1002 {
         delay 200
         set line "           "
@@ -810,8 +806,7 @@ call send_csv_header
 
 echo log interrupted
 
-
-# Store the script in the device memory
+# Store this script in the device memory
 @f STORE_SCRIPT
   quit
   # Start the internal script

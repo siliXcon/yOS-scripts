@@ -1,0 +1,40 @@
+@c # Stop any running scripts
+@w # Wait for target shell process
+@! # Login
+
+@d LOG_INTERFACE : 1 #USARTCOM (1:UARTCOM, 5:UARTEXT)
+@d INTERFACE_PARAM : 15 #115200baud,8,n,1
+
+# If you do send the header, you will have about 2s delay before the first line is sent
+# Comment this out if you want send first data immediately after power up
+@d SEND_HEADER
+
+# Values lower than 500ms may not work due small RX buffer on OpenLog
+@d LOG_PERIOD : 1000
+
+# Store script in the device flash when loading by term (use "script e" to remove)
+@d STORE_SCRIPT
+
+# timestamp in [ms]
+@d VAR0 : ticks
+
+# Driver variables
+@d VAR1 : /driver/error
+@d VAR2 : /driver/stat
+@d VAR3 : /driver/limit
+@d VAR4 : /driver/totallimit
+@d VAR5 : /driver/temp
+@d VAR6 : /driver/ptctemp
+@d VAR7 : /driver/powerf
+@d VAR8 : /driver/cmd
+@d VAR9 : /driver/mode
+@d VAR10 : /driver/enable
+@d VAR11 : /driver/supply/voltage
+@d VAR12 : /driver/supply/currentf
+@d VAR13 : /driver/motor/rpmf
+@d VAR14 : /driver/motor/currentqf
+@d VAR15 : /driver/motor/currentdf
+@d VAR16 : /driver/motor/Rthermistor
+
+# Include script with all the logging functions
+@i ./common/logging_common.ys
