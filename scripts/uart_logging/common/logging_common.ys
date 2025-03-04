@@ -1,7 +1,6 @@
 
 @c
 
-script e
 delay 10
 
 # Store the script in the device memory
