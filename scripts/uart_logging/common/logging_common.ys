@@ -804,9 +804,11 @@ call send_csv_header
 
     call send_csv_line
     delay [LOG_PERIOD]
+    echo .
     branch s
 }
 
+echo log interrupted
 
 
 # Store the script in the device memory
