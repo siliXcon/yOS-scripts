@@ -685,9 +685,8 @@ def log_ctl_event(value):
         app.selectnone.configure(state="disabled")
 
 
-app.scrollable_frame = customtkinter.CTkScrollableFrame(
-    app.sidebar_frame, label_text="Background data recording"
-)
+app.scrollable_frame = customtkinter.CTkScrollableFrame(app.sidebar_frame) #label_text="Data recording" )
+
 app.scrollable_frame.grid(row=1, column=0, columnspan=2, pady=5, sticky="nsew")
 app.scrollable_frame.grid_columnconfigure(1, weight=0)
 
@@ -1009,21 +1008,21 @@ app.limiter_frame.grid_rowconfigure(2, weight=1)
 
 app.namelabel = customtkinter.CTkButton(
     app.limiter_frame,
-    text="Protection and derating",
+    text="Diagnostics, protection and derating",
     corner_radius=5,
     fg_color=("gray78", "gray23"), text_color=("gray23", "gray78"),
     command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/protections")),
 )
 app.namelabel.grid(row=0, column=0, columnspan=3, sticky="ew")
 
-app.errorlabel = customtkinter.CTkButton(
+app.errorlabel = customtkinter.CTkLabel(
     app.limiter_frame,
     text="error\n0",
     corner_radius=5,
     image=icon("stop.png"),
     width=120,
-    compound="left", text_color=("black", "white"),
-    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/diagnostic/driver_error")),
+    compound="left",
+    #text_color=("black", "white"), command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/diagnostic/driver_error")),
 )
 app.errorlabel.grid(row=1, column=0, padx=5, pady=5, sticky="nw")
 
@@ -1031,14 +1030,14 @@ app.errortext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled
 app.errortext.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 #CTkToolTip(app.errorlabel, message="Driver critical error.")
 
-app.statlabel = customtkinter.CTkButton(
+app.statlabel = customtkinter.CTkLabel(
     app.limiter_frame,
     text="stat\n0",
     corner_radius=5,
     image=icon("warning.png"),
     width=120,
-    compound="left", text_color=("black", "white"),
-    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/protections/driver_state")),
+    compound="left",
+    #text_color=("black", "white"),  command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/protections/driver_state")),
 )
 app.statlabel.grid(row=1, column=1, padx=5, pady=5, sticky="nw")
 
@@ -1046,14 +1045,14 @@ app.stattext = customtkinter.CTkTextbox(app.limiter_frame)  # , state="disabled"
 app.stattext.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
 #CTkToolTip(app.statlabel, message="Driver status (warning) indication.")
 
-app.limitlabel = customtkinter.CTkButton(
+app.limitlabel = customtkinter.CTkLabel(
     app.limiter_frame,
     text="limit\n0",
     corner_radius=5,
     image=icon("limiter.png"),
     width=120,
-    compound="left", text_color=("black", "white"),
-    command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/limiters/limiter_word")),
+    compound="left",
+    # text_color=("black", "white"), command = lambda : (webbrowser.open("https://docs.silixcon.com/docs/fw/modules/esc/driver/limiters/limiter_word")),
 )
 app.limitlabel.grid(row=1, column=2, padx=5, pady=5, sticky="nw")
 
