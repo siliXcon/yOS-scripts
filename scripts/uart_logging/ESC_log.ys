@@ -26,6 +26,7 @@
 @d VAR5 : /driver/temp
 @d VAR6 : /driver/ptctemp
 @d VAR7 : /driver/powerf
+# @d VAR7 : /driver/power # for ESC3 (compatibility issue)
 @d VAR8 : /driver/cmd
 @d VAR9 : /driver/mode
 @d VAR10 : /driver/enable
