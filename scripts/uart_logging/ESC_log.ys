@@ -9,8 +9,8 @@
 # Comment this out if you want send first data immediately after power up
 @d SEND_HEADER
 
-# Values lower than 500ms may not work due small RX buffer on OpenLog
-@d LOG_PERIOD : 1000
+# Lower values may not work due small RX buffer with the OpenLog
+@d LOG_PERIOD : 50
 
 # Store script in the device flash when loading by term (use "script e" to remove)
 @d STORE_SCRIPT
