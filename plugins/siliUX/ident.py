@@ -29,7 +29,7 @@ def advSwitch():
         currentBox.configure(state="normal")
         durationBox.configure(state="normal")
         checkbox_nlin.configure(state="normal")
-        checkbox_visual.configure(state="normal")
+        checkbox_pid.configure(state="normal")
         spinupButton.configure(state="normal")
         identsatButton.configure(state="normal")
         identsalButton.configure(state="normal")
@@ -44,7 +44,7 @@ def advSwitch():
         currentBox.configure(state="disabled")
         durationBox.configure(state="disabled")
         checkbox_nlin.configure(state="disabled")
-        checkbox_visual.configure(state="disabled")
+        checkbox_pid.configure(state="disabled")
         spinupButton.configure(state="disabled")
         identsatButton.configure(state="disabled")
         identsalButton.configure(state="disabled")
@@ -61,7 +61,7 @@ def enableButtons(enabled):
             currentBox.configure(state="normal")
             durationBox.configure(state="normal")
             checkbox_nlin.configure(state="normal")
-            checkbox_visual.configure(state="normal")
+            checkbox_pid.configure(state="normal")
             spinupButton.configure(state="normal")
             identsatButton.configure(state="normal")
             identsalButton.configure(state="normal")
@@ -74,7 +74,7 @@ def enableButtons(enabled):
         currentBox.configure(state="disabled")
         durationBox.configure(state="disabled")
         checkbox_nlin.configure(state="disabled")
-        checkbox_visual.configure(state="disabled")
+        checkbox_pid.configure(state="disabled")
         spinupButton.configure(state="disabled")
         identsatButton.configure(state="disabled")
         identsalButton.configure(state="disabled")
@@ -155,7 +155,7 @@ def update_cb(state, res, stdout_data):
 
     elif interruptButton.cget("state")=="disabled":
         interruptButton.configure(state="normal")
-        return "\r\n"        
+        return "\r\n"
 
     elif not char_queue.empty():
         char_list = []
@@ -219,6 +219,11 @@ def identlin_cb(state, res, stdout_data):
                 my_node.variable("/driver/motor/Ld").get()
                 my_node.variable("/driver/motor/Da").get()
                 my_node.variable("/driver/motor/Dc").get()
+
+                my_node.variable("/driver/pid_iq/P").get()
+                my_node.variable("/driver/pid_iq/I").get()
+                my_node.variable("/driver/pid_id/P").get()
+                my_node.variable("/driver/pid_id/I").get()
             except sxapi.error as e:
                 print(e)
 
@@ -241,9 +246,15 @@ def spinup_cb(state, res, stdout_data):
 def identlin():
     try:
         if checkbox_nlin.get():
-            my_node.execute("identlin", "-n", update=identlin_cb)
+            if checkbox_pid.get():
+                my_node.execute("identlin", "-n", update=identlin_cb)
+            else:
+                my_node.execute("identlin", "-np", update=identlin_cb)
         else:
-            my_node.execute("identlin", update=identlin_cb)
+            if checkbox_pid.get():
+                my_node.execute("identlin", update=identlin_cb)
+            else:
+                my_node.execute("identlin", "-p", update=identlin_cb)
 
     except sxapi.error as e:
         retlabel.configure(
@@ -289,67 +300,35 @@ def interrupt():
 
 
 def identrun():
-    if checkbox_visual.get() and checkbox_visual.get():
-        my_node.open("{scope}")
-
     try:
-        # TODO simplify this decission tree with argument list !
-        if checkbox_visual.get():
-            if checkbox_adv.get():
-                if currentBox.get() == "":
-                    my_node.execute(
-                        "identrun",
-                        "-w", #TODO - this causes HANG when not supported by the fw !
-                        accelBox.get(),
-                        durationBox.get(),
-                        update=identrun_cb,
-                        timeout=10000,
-                    )
-                else:
-                    my_node.execute(
-                        "identrun",
-                        "-w", #TODO - this causes HANG when not supported by the fw !
-                        accelBox.get(),
-                        durationBox.get(),
-                        currentBox.get(),
-                        update=identrun_cb,
-                        timeout=10000,
-                    )
+        if checkbox_adv.get():
+            my_node.open("{scope}")
+            if currentBox.get() == "":
+                my_node.execute(
+                    "identrun",
+                    "-w", #TODO - this causes HANG when not supported by the fw !
+                    accelBox.get(),
+                    durationBox.get(),
+                    update=identrun_cb,
+                    timeout=10000,
+                )
             else:
                 my_node.execute(
                     "identrun",
                     "-w", #TODO - this causes HANG when not supported by the fw !
+                    accelBox.get(),
+                    durationBox.get(),
+                    currentBox.get(),
                     update=identrun_cb,
-                    timeout=10000
+                    timeout=10000,
                 )
         else:
-            if checkbox_adv.get():
-                if currentBox.get() == "":
-                    my_node.execute(
-                        "identrun",
-                        "-q", #TODO - this causes HANG when not supported by the fw !
-                        accelBox.get(),
-                        durationBox.get(),
-                        update=identrun_cb,
-                        timeout=10000,
-                    )
-                else:
-                    my_node.execute(
-                        "identrun",
-                        "-q", #TODO - this causes HANG when not supported by the fw !
-                        accelBox.get(),
-                        durationBox.get(),
-                        currentBox.get(),
-                        update=identrun_cb,
-                        timeout=10000,
-                    )
-            else:
-                my_node.execute(
-                    "identrun",
-                    #"-q",  #TODO - this causes HANG when not supported by the fw !
-                    update=identrun_cb,
-                    timeout=10000
-                )
+            my_node.execute(
+                "identrun",
+                #"-q",  #TODO - this causes HANG when not supported by the fw !
+                update=identrun_cb,
+                timeout=10000
+            )
 
     except sxapi.error as e:
         retlabel.configure(
@@ -363,11 +342,9 @@ def identrun():
 
 
 def identsat():
-    if checkbox_visual.get() and checkbox_visual.get():
-        my_node.open("{scope}")
-
     try:
-        if checkbox_visual.get():
+        if checkbox_adv.get():
+            my_node.open("{scope}")
             my_node.execute("identsat", "-w", update=update_cb, timeout=10000)
         else:
             my_node.execute("identsat",
@@ -386,11 +363,9 @@ def identsat():
 
 
 def identsal():
-    if checkbox_visual.get() and checkbox_visual.get():
-        my_node.open("{scope}")
-
     try:
-        if checkbox_visual.get():
+        if checkbox_adv.get():
+            my_node.open("{scope}")
             my_node.execute("identsal", "-w", update=update_cb, timeout=10000)
         else:
             my_node.execute("identsal", 
@@ -415,7 +390,7 @@ def poll_events():
 
 
 def AutomaticIdentification(n, parent):
-    global my_node, window, char_queue, retlabel, outputBox, checkbox_adv, accelBox, currentBox, durationBox, checkbox_nlin, checkbox_visual, identlinButton, identrunButton, identsatButton, identsalButton, spinupButton, interruptButton
+    global my_node, window, char_queue, retlabel, outputBox, checkbox_adv, accelBox, currentBox, durationBox, checkbox_nlin, checkbox_pid, identlinButton, identrunButton, identsatButton, identsalButton, spinupButton, interruptButton
     
     my_node = n
     window = customtkinter.CTkToplevel()
@@ -525,19 +500,19 @@ def AutomaticIdentification(n, parent):
     checkbox_adv = customtkinter.CTkSwitch(adv_frame, text="Advanced", command=advSwitch)
     checkbox_adv.grid(row=0, column=1, padx=10, pady=5, sticky="w")    
     
-    checkbox_nlin = customtkinter.CTkCheckBox(adv_frame, text="Measure Da, Dc", state="disabled")
+    checkbox_nlin = customtkinter.CTkCheckBox(adv_frame, text="Find deratings", state="disabled")
     checkbox_nlin.grid(row=1, column=1, padx=10, pady=5, sticky="w")
     CTkToolTip(
         checkbox_nlin,
         message="Attempt to find the inductance derating parameters during identlin.",
     )
 
-    checkbox_visual = customtkinter.CTkCheckBox(adv_frame, text="Visualize result", state="disabled")
-    checkbox_visual.grid(row=2, column=1, padx=10, pady=2, sticky="w")
-    # checkbox_visual.select()
+    checkbox_pid = customtkinter.CTkCheckBox(adv_frame, text="Find PID gains", state="disabled")
+    checkbox_pid.grid(row=2, column=1, padx=10, pady=2, sticky="w")
+    checkbox_pid.select()
     CTkToolTip(
-        checkbox_visual,
-        message="Collect and display detailed measurement data from the procedure.",
+        checkbox_pid,
+        message="Attempt to preset the PID parameters during identlin (if supported by the firmware).",
     )
 
     i = 2
