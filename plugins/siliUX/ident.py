@@ -300,6 +300,12 @@ def interrupt():
 
 
 def identrun():
+    #NOTE: older versions of auxiliary module (in the _ESC) did not recognize the options (e.g. -'-q")
+    #Instead, it is interpret them as a positional argument and parsed out as number,
+    #causing sometimes the procedure to halt since zero is parsed out from the string.
+    #That's why we don't send any arguments here, unless 'advanced' is checked.
+    #Newer version of _ESC should ignore unknown options, extending the compatibility for future improvements.
+
     try:
         if checkbox_adv.get():
             my_node.open("{scope}")
@@ -348,7 +354,7 @@ def identsat():
             my_node.execute("identsat", "-w", update=update_cb, timeout=10000)
         else:
             my_node.execute("identsat",
-                            "-q",  #TODO - this causes HANG when not supported by the fw !
+                            #"-q",  #TODO - this causes HANG when not supported by the fw !
                             update=update_cb, timeout=10000)
 
     except sxapi.error as e:
@@ -369,7 +375,7 @@ def identsal():
             my_node.execute("identsal", "-w", update=update_cb, timeout=10000)
         else:
             my_node.execute("identsal", 
-                            "-q",  #TODO - this causes HANG when not supported by the fw !
+                            #"-q",  #TODO - this causes HANG when not supported by the fw !
                             update=update_cb, timeout=10000)
 
     except sxapi.error as e:
