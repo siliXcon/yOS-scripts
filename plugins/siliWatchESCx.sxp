@@ -489,7 +489,7 @@ scope_open = 0
 def open_scope():
     global scope_open
     scope_open = 1
-    my_node.open("{scope} -t")
+    my_node.open("{scope}")
 
 
 scope_button = customtkinter.CTkButton(
@@ -844,10 +844,11 @@ class plot_tab:
         autoscale = 1
         global scope_open
         if scope_open == 0:
+            scope_open = 1
             my_node.executeSimple("clear", "all")
-            open_scope()
+            my_node.open("{scope} -t")
             time.sleep(1)
-            
+
         # reset if nothing is running in the scope
         elif (my_node.executeSimple("period", "-p" + str(self.index), "-g", "-c") >> 16) & 7 == 0:
             my_node.executeSimple("legend", "-p" + str(self.index), "-c20", "99", "112")
