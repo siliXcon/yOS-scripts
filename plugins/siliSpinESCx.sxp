@@ -131,15 +131,15 @@ modes = [
     "VLB",
     "SCR",
     "TRQ",
-    "BCR",
-    "SBR",
-    "TBR",
-    "ABR",
+    "BRK",
+    "BRS",
+    "BRT",
+    "BRF",
     "RES",
     "RES",
     "RES",
     "SVC",
-    "SHR",
+    "BRS",
 ]
 
 
