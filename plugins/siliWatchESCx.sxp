@@ -238,7 +238,7 @@ def set_global_var(var_name, value):
 ################################################################################
 # make the main window and node select callback
 
-customtkinter.deactivate_automatic_dpi_awareness()
+#customtkinter.deactivate_automatic_dpi_awareness()
 app = customtkinter.CTk()
 app.title("siliWatch (ESCx)")
 app.attributes("-topmost", 1)
