@@ -430,20 +430,21 @@ def AutomaticIdentification(n, parent):
         "The system offers a few procedures for measuring motor parameters. You can start them from below.\n\n"
         "HINTS:\n"
         " - Typically, a successful 'identlin' followed by 'identrun' is recommended for the minimal setup.\n"
-        " - The resulting values will be stored as corresponding parameters (in /motor and /rest folders).\n"
+        " - The resulting values will be stored as corresponding parameters (in /driver, /motor, and /rest folders).\n"
         " - The controller must be powered with sufficient current and within the operating voltage range.\n"
-        " - The sensor learning during 'identrun' is a convergent procedure. Repeat multiple times if needed.\n"
-        " - No limiters/warnings must be active before starting a procedure.\n"
+        " - The sensor mapping during 'identrun' is a convergent procedure. Repeat multiple times if needed.\n"
+        " - No limiters/warnings must be active before starting a procedure and the driver must be in freewheel mode.\n"
         "\nCAUTION:\n"
         " - The rotor will be positioned into various angles and must be load-free for all procedures !\n"
         " - The motor may spin, shake and make noise ! Do not use when engaged within a vehicle !\n"
         " - Do not forget saving new values to flash before reboot !\n"
         "\nADVANCED:\n"
         " - In case of current instability, adjust the PID settings and/or 'iref' value.\n"
+        " - When motor is to be operated close to magnetic saturation, measure Da and Dc derating coefficients.\n"
         " - If the rotor fails to spin up with 'identrun', adjust the acceleration, current and duration values.\n"
         " - 'identrun' of a back-driven motor can be performed by setting acceleration to zero.\n"
-        " - 'identrun', 'identsat' and 'identsal' use SCOPE tool for visualization (if selected).\n"
-        " - 'identsat' and 'identsal' are for visualization only and do not identify/store any values.\n",
+        " - 'identrun', 'identsat' and 'identsal' use SCOPE tool for visualization (in advanced mode).\n"
+        " - 'identsat' and 'identsal' results produce visualization only and do not identify/store any values.\n",
     )
 
     identlinButton = customtkinter.CTkButton(
