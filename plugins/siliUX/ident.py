@@ -34,7 +34,7 @@ def advSwitch():
         identsatButton.configure(state="normal")
         identsalButton.configure(state="normal")
         # currentBox.insert(0,"iref/4")
-        accelBox.insert(0, "100")
+        accelBox.insert(0, "200")
         durationBox.insert(0, "4000")
     else:
         accelBox.delete(0, 100)
@@ -111,7 +111,7 @@ def describe_error(error):
             title="Automatic identification",
             message="R_t (coil resistance) is not set.\nPlease set it manually or run the 'identlin' to measure first.",
         )
-    elif error <= -10 and error >= -100:           
+    elif error <= -10 and error >= -100:
         MessageBox(
             window, cls=2,
             title="Automatic identification",
@@ -249,12 +249,12 @@ def identlin():
             if checkbox_pid.get():
                 my_node.execute("identlin", "-n", update=identlin_cb)
             else:
-                my_node.execute("identlin", "-np", update=identlin_cb)
+                my_node.execute("identlin", "-nP", update=identlin_cb)
         else:
             if checkbox_pid.get():
-                my_node.execute("identlin", update=identlin_cb)
+                my_node.execute("identlin", "-N", update=identlin_cb)
             else:
-                my_node.execute("identlin", "-p", update=identlin_cb)
+                my_node.execute("identlin", "-NP", update=identlin_cb)
 
     except sxapi.error as e:
         retlabel.configure(
@@ -509,6 +509,7 @@ def AutomaticIdentification(n, parent):
     
     checkbox_nlin = customtkinter.CTkCheckBox(adv_frame, text="Find deratings", state="disabled")
     checkbox_nlin.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+    checkbox_nlin.select()
     CTkToolTip(
         checkbox_nlin,
         message="Attempt to find the inductance derating parameters during identlin.",
