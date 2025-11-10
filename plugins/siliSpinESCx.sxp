@@ -33,7 +33,7 @@ app = customtkinter.CTk()
 app.title("siliSpin (ESCx)")
 app.attributes("-topmost", 1)
 x, y = app.winfo_pointerxy()
-app.geometry(f"{500}x{400}+{x-250}+{y}")
+app.geometry(f"{550}x{400}+{x-250}+{y}")
 app.grid_columnconfigure((0), weight=1)
 app.grid_rowconfigure((3, 4), weight=1)
 app.attributes("-topmost", 0)
@@ -123,23 +123,25 @@ ontop_switch.grid(row=0, column=6, padx=5, pady=0, sticky="e")
 
 ################################################################################
 
+# RES values will be skipped in the mode selection combobox
+# The order is the mode number
 modes = [
-    "FRW",
-    "VLT",
-    "CRT",
-    "VLF",
-    "VLB",
-    "SCR",
-    "TRQ",
-    "BRK",
-    "BRS",
-    "BRT",
-    "BRF",
+    "0 - Freewheel (FRW)",
+    "1 - Voltage (VLT)",
+    "2 - Current (CRT)",
+    "3 - Voltage freewheel (VLF)",
+    "4 - Voltage brake (VLB)",
+    "5 - Stator current (SCR)",
+    "6 - Torque (TRQ)",
+    "RES",
+    "8 - Brake (BRK)",
+    "9 - Brake torque (BRT)",
+    "10 - Brake freewheel (BRF)",
     "RES",
     "RES",
     "RES",
-    "SVC",
-    "BRS",
+    "RES",
+    "15 - Brake short (BRS)",
 ]
 
 
@@ -190,9 +192,10 @@ class preset_tab:
         self.cmd_var = tkinter.DoubleVar()
         self.cmd_var.trace_add("write", self.update)
 
-        self.modebox = customtkinter.CTkComboBox(tab, values=modes, command=self.update)
-        self.modebox.set("VLT")
-        self.modebox.grid(row=0, column=0, columnspan=3, padx=10, pady=10)
+        filtered_modes = [m for m in modes if m != "RES"]
+        self.modebox = customtkinter.CTkComboBox(tab, values=filtered_modes, command=self.update)
+        self.modebox.set("1 - Voltage (VLT)")
+        self.modebox.grid(row=0, column=0, columnspan=3, padx=[10,0], pady=10, sticky="we")
         #CTkToolTip(self.modebox, message="Choose the control mode for this preset.")
 
         self.cmdlabel0 = customtkinter.CTkEntry(
@@ -201,7 +204,7 @@ class preset_tab:
             width=80,
             textvariable=self.cmd_var,
         )
-        self.cmdlabel0.grid(row=0, column=3, padx=10, pady=10, sticky="we")
+        self.cmdlabel0.grid(row=0, column=3, padx=[0,10], pady=10, sticky="e")
         #CTkToolTip(self.cmdlabel0, message="Type-in the command level manually.")
 
         self.cmdbar0 = customtkinter.CTkSlider(
@@ -431,4 +434,3 @@ app.bind('<Escape>', lambda event: stop())
 #)
 
 app.mainloop()
-
