@@ -429,6 +429,7 @@ def AutomaticIdentification(n, parent):
         "0.0",
         "The system offers a few procedures for measuring motor parameters. You can start them from below.\n\n"
         "HINTS:\n"
+        " - For SON/COS sensor run identrun at least 3 times for convergence.\n"
         " - Typically, a successful 'identlin' followed by 'identrun' is recommended for the minimal setup.\n"
         " - The resulting values will be stored as corresponding parameters (in /driver, /motor, and /rest folders).\n"
         " - The controller must be powered with sufficient current and within the operating voltage range.\n"

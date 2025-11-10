@@ -1,3 +1,27 @@
 *.csv
 *.txt
 *.TXT
+
+# AI generated .gitignore file for Odoo module development
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+wheels/
+ 
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+ 
+# System
+.DS_Store
+Thumbs.db
