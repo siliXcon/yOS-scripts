@@ -419,7 +419,16 @@ prestbox.grid(row=8, column=3, columnspan=2, pady=5)
 
 
 def ident():
-    AutomaticIdentification(my_node, app)
+    if not my_node:
+        MessageBox(
+            app,
+            title="siliTune",
+            cls=2,
+            message="Please select a controller firs!",
+        )
+        return
+    else:
+        AutomaticIdentification(my_node, app)
 
 
 ident_button = customtkinter.CTkButton(

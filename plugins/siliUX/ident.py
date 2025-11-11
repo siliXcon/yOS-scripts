@@ -343,7 +343,7 @@ def autoident_stop_cb(state, res, stdout_data):
             text="Step 1/3: Stop completed, waiting 2s...", fg_color="yellow"
         )
         # Schedule identlin after 2 seconds
-        window.after(2000, autoident_run_identlin)
+        window.after(2000, autoident_run_identlin)        
     elif state < 0:  # Timeout
         retlabel.configure(text="Stop command timed out!", fg_color="red")
         enableButtons(1)
@@ -374,14 +374,14 @@ def autoident_identlin_cb(state, res, stdout_data):
             # Schedule identrun after 1 second
             global identrun_count
             prest = my_node.variable("/driver/prest").get()
-            
+
             if prest == 3:
                 identrun_count = 2
             else:
                 identrun_count = 1
 
             global interrupt
-            if interrupt:    
+            if interrupt:
                 retlabel.configure(text=f"Interrupted by user", fg_color="red")
                 enableButtons(1)
             else:
@@ -421,6 +421,11 @@ def autoident_identrun_cb(state, res, stdout_data):
             try:
                 # dummy pull (just to refresh the emgui values)
                 my_node.variable("/driver/motor/psi").get()
+                my_node.variable("/driver/rest/hvar").get()
+                my_node.variable("/driver/rest/rangle").get()
+                my_node.variable("/driver/rest/roff1").get()
+                my_node.variable("/driver/rest/roff2").get()
+                my_node.variable("/driver/rest/rpole").get()
             except sxapi.error as e:
                 print(e)
 
@@ -438,9 +443,9 @@ def autoident_identrun_cb(state, res, stdout_data):
                     fg_color="yellow",
                 )
                 # Schedule next identrun after 1 second
-                
-                if interrupt:    
-                    retlabel.configure(text=f"Interrupted by user", fg_color="red")                    
+
+                if interrupt:
+                    retlabel.configure(text=f"Interrupted by user", fg_color="red")
                     enableButtons(1)
                 else:
                     window.after(1000, autoident_run_identrun)
@@ -450,12 +455,6 @@ def autoident_identrun_cb(state, res, stdout_data):
 
             try:
                 # dummy pull (just to refresh the emgui values)
-                my_node.variable("/driver/motor/psi").get()
-                my_node.variable("/driver/rest/hvar").get()
-                my_node.variable("/driver/rest/rangle").get()
-                my_node.variable("/driver/rest/roff1").get()
-                my_node.variable("/driver/rest/roff2").get()
-                my_node.variable("/driver/rest/rpole").get()
                 my_node.variable("/driver/motor/Rt").get()
                 my_node.variable("/driver/motor/Lq").get()
                 my_node.variable("/driver/motor/Ld").get()
@@ -474,7 +473,6 @@ def autoident_identrun_cb(state, res, stdout_data):
                     title="Automatic identification",
                     message="Automatic identification completed successfully!\nIdentlin and Identrun values were updated.\nDo not forget to save your parameters to flash after the evaluation!",
                 )
-
 
     return r
 
