@@ -209,7 +209,7 @@ def identrun_cb(state, res, stdout_data):
                 title="Automatic identification",
                 message="Flux linkage could not be measured.\nPlease ensure that the rotor can freely move and optionally, adjust the acceleration and current.",
             )
-        elif res == 1:
+        elif res > 0:
             try:
                 # dummy pull (just to refresh the emgui values). TODO find way how to trigger pull on a directory!
                 my_node.variable("/driver/motor/psi").get()
@@ -220,7 +220,7 @@ def identrun_cb(state, res, stdout_data):
                 window,
                 cls=1,
                 title="Automatic identification",
-                message="Sensor was not identified !",
+                message="Sensor was not identified, please try again !",
             )
         elif res == 0:
             try:
@@ -237,7 +237,7 @@ def identrun_cb(state, res, stdout_data):
             MessageBox(
                 window,
                 title="Automatic identification",
-                message="Identrun succeeded and values were updated.\nDo not forget to save your parameters to flash after the evaluation!",
+                message="Identrun succeeded and values were updated.\\nDo not forget to save your parameters to flash after the evaluation!",
             )
 
     return r
@@ -343,7 +343,7 @@ def autoident_stop_cb(state, res, stdout_data):
             text="Step 1/3: Stop completed, waiting 2s...", fg_color="yellow"
         )
         # Schedule identlin after 2 seconds
-        window.after(2000, autoident_run_identlin)        
+        window.after(2000, autoident_run_identlin)
     elif state < 0:  # Timeout
         retlabel.configure(text="Stop command timed out!", fg_color="red")
         enableButtons(1)
@@ -371,6 +371,22 @@ def autoident_identlin_cb(state, res, stdout_data):
             retlabel.configure(
                 text="Step 2/3: Identlin completed, waiting 1s...", fg_color="yellow"
             )
+
+            try:
+                # dummy pull (just to refresh the emgui values)
+                my_node.variable("/driver/motor/Rt").get()
+                my_node.variable("/driver/motor/Lq").get()
+                my_node.variable("/driver/motor/Ld").get()
+                my_node.variable("/driver/motor/Da").get()
+                my_node.variable("/driver/motor/Dc").get()
+                my_node.variable("/driver/pid_iq/P").get()
+                my_node.variable("/driver/pid_iq/I").get()
+                my_node.variable("/driver/pid_id/P").get()
+                my_node.variable("/driver/pid_id/I").get()
+            except sxapi.error as e:
+                print(e)
+
+
             # Schedule identrun after 1 second
             global identrun_count
             prest = my_node.variable("/driver/prest").get()
@@ -417,7 +433,29 @@ def autoident_identrun_cb(state, res, stdout_data):
                 title="Automatic identification",
                 message="Flux linkage could not be measured.\nPlease ensure that the rotor can freely move and optionally, adjust the acceleration and current.",
             )
-        elif res == 1:
+        elif res >= 0:
+            identrun_count -= 1
+            if identrun_count > 0:
+
+                if res > 0:
+                    retlabel.configure(
+                        text=f"Step 3/3: Identrun sensor could not converge, repeating ({identrun_count} runs left)...",
+                        fg_color="yellow",
+                    )
+                else:
+                    retlabel.configure(
+                        text=f"Step 3/3: Identrun completed with success, repeating ({identrun_count} runs left)...",
+                        fg_color="yellow",
+                    )
+                # Schedule next identrun after 1 second
+
+                if interrupt:
+                    retlabel.configure(text=f"Interrupted by user", fg_color="red")
+                    enableButtons(1)
+                else:
+                    window.after(1000, autoident_run_identrun)
+                    return r
+
             try:
                 # dummy pull (just to refresh the emgui values)
                 my_node.variable("/driver/motor/psi").get()
@@ -429,50 +467,20 @@ def autoident_identrun_cb(state, res, stdout_data):
             except sxapi.error as e:
                 print(e)
 
-            MessageBox(
-                window,
-                cls=1,
-                title="Automatic identification",
-                message="Sensor was not identified !",
-            )
-        elif res == 0:
-            identrun_count -= 1
-            if identrun_count > 0:
-                retlabel.configure(
-                    text=f"Step 3/3: Identrun completed with success, repeating ({identrun_count} runs left)...",
-                    fg_color="yellow",
-                )
-                # Schedule next identrun after 1 second
+            if res > 0:
+                 MessageBox(
+                     window,
+                     cls=1,
+                     title="Automatic identification",
+                     message="Almost all done, but sensor was not identified properly! Please check your setup and try again.",
+                 )
 
-                if interrupt:
-                    retlabel.configure(text=f"Interrupted by user", fg_color="red")
-                    enableButtons(1)
-                else:
-                    window.after(1000, autoident_run_identrun)
-                    return r
             else:
-                interrupt = False
-
-            try:
-                # dummy pull (just to refresh the emgui values)
-                my_node.variable("/driver/motor/Rt").get()
-                my_node.variable("/driver/motor/Lq").get()
-                my_node.variable("/driver/motor/Ld").get()
-                my_node.variable("/driver/motor/Da").get()
-                my_node.variable("/driver/motor/Dc").get()
-                my_node.variable("/driver/pid_iq/P").get()
-                my_node.variable("/driver/pid_iq/I").get()
-                my_node.variable("/driver/pid_id/P").get()
-                my_node.variable("/driver/pid_id/I").get()
-            except sxapi.error as e:
-                print(e)
-
-            if not interrupt:
-                MessageBox(
-                    window,
-                    title="Automatic identification",
-                    message="Automatic identification completed successfully!\nIdentlin and Identrun values were updated.\nDo not forget to save your parameters to flash after the evaluation!",
-                )
+                 MessageBox(
+                     window,
+                     title="Automatic identification",
+                     message="Identification completed successfully!\nDo not forget to save your parameters to flash after the evaluation!",
+                 )
 
     return r
 
@@ -660,7 +668,7 @@ def AutomaticIdentification(n, parent):
     )
 
     autoidentButton = customtkinter.CTkButton(
-        window, text=f"Automatic Identification", command=autoident, border_width=2
+        window, text=f" Identify me! ", command=autoident, border_width=2
     )
     # Initially hidden, will be shown when advanced mode is off
     CTkToolTip(
