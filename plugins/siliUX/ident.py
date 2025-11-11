@@ -166,7 +166,7 @@ def update_cb(state, res, stdout_data):
         return
 
     elif state > 0:
-        retlabel.configure(text="Running !", fg_color="yellow")
+        retlabel.configure(text="Running !", fg_color="yellow", text_color="black")
 
     else:
         if res < 0:
@@ -340,7 +340,9 @@ def autoident_stop_cb(state, res, stdout_data):
     """Callback for the stop command in autoident sequence"""
     if state == 0:  # Command completed
         retlabel.configure(
-            text="Step 1/3: Stop completed, waiting 2s...", fg_color="yellow"
+            text="Step 1/3: Stop completed, waiting 2s...",
+            fg_color="yellow",
+            text_color="black",
         )
         # Schedule identlin after 2 seconds
         window.after(2000, autoident_run_identlin)
@@ -351,7 +353,11 @@ def autoident_stop_cb(state, res, stdout_data):
 
 def autoident_run_identlin():
     """Run identlin as part of autoident sequence"""
-    retlabel.configure(text="Step 2/3: Running identlin...", fg_color="yellow")
+    retlabel.configure(
+        text="Step 2/3: Running identlin...",
+        fg_color="yellow",
+        text_color="black",
+    )
 
     try:
         my_node.execute("identlin", update=autoident_identlin_cb)
@@ -369,7 +375,9 @@ def autoident_identlin_cb(state, res, stdout_data):
         if res == 0:
 
             retlabel.configure(
-                text="Step 2/3: Identlin completed, waiting 1s...", fg_color="yellow"
+                text="Step 2/3: Identlin completed, waiting 1s...",
+                fg_color="yellow",
+                text_color="black",
             )
 
             try:
@@ -385,7 +393,6 @@ def autoident_identlin_cb(state, res, stdout_data):
                 my_node.variable("/driver/pid_id/I").get()
             except sxapi.error as e:
                 print(e)
-
 
             # Schedule identrun after 1 second
             global identrun_count
@@ -411,7 +418,11 @@ def autoident_identlin_cb(state, res, stdout_data):
 
 def autoident_run_identrun():
     """Run identrun as part of autoident sequence"""
-    retlabel.configure(text="Step 3/3: Running identrun...", fg_color="yellow")
+    retlabel.configure(
+        text="Step 3/3: Running identrun...",
+        fg_color="yellow",
+        text_color="black",
+    )
 
     try:
         my_node.execute("identrun", update=autoident_identrun_cb, timeout=10000)
@@ -441,11 +452,13 @@ def autoident_identrun_cb(state, res, stdout_data):
                     retlabel.configure(
                         text=f"Step 3/3: Identrun sensor could not converge, repeating ({identrun_count} runs left)...",
                         fg_color="yellow",
+                        text_color="black"
                     )
                 else:
                     retlabel.configure(
                         text=f"Step 3/3: Identrun completed with success, repeating ({identrun_count} runs left)...",
                         fg_color="yellow",
+                        text_color="black"
                     )
                 # Schedule next identrun after 1 second
 
@@ -468,26 +481,26 @@ def autoident_identrun_cb(state, res, stdout_data):
                 print(e)
 
             if res > 0:
-                 MessageBox(
-                     window,
-                     cls=1,
-                     title="Automatic identification",
-                     message="Almost all done, but sensor was not identified properly! Please check your setup and try again.",
-                 )
+                MessageBox(
+                    window,
+                    cls=1,
+                    title="Automatic identification",
+                    message="Almost all done, but sensor was not identified properly! Please check your setup and try again.",
+                )
 
             else:
-                 MessageBox(
-                     window,
-                     title="Automatic identification",
-                     message="Identification completed successfully!\nDo not forget to save your parameters to flash after the evaluation!",
-                 )
+                MessageBox(
+                    window,
+                    title="Automatic identification",
+                    message="Identification completed successfully!\nDo not forget to save your parameters to flash after the evaluation!",
+                )
 
     return r
 
 
 def autoident():
     """Start automatic identification sequence: stop -> identlin -> identrun"""
-    retlabel.configure(text="Step 1/3: Stopping motor...", fg_color="yellow")
+    retlabel.configure(text="Step 1/3: Stopping motor...", fg_color="yellow", text_color="black")
     outputBox.delete("0.0", "end")
     enableButtons(0)
     global interrupt
