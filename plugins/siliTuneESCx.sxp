@@ -290,7 +290,7 @@ class param_edit:
         self.get()
 
     def get(self, *args):
-        self.valueBox.configure(corner_radius=8)
+        self.valueBox.configure(corner_radius=8, state='normal')
         try:
             variable = my_node.variable(self.path)
 
@@ -300,7 +300,8 @@ class param_edit:
                 self.entry_var.set(variable.get())
 
         except sxapi.error as e:
-            self.entry_var.set("N/A")
+            self.entry_var.set("-")
+            self.valueBox.configure(state='disabled')
 
 
 main_params.append(
@@ -411,7 +412,7 @@ def reinit(value):
 
 prestbox = customtkinter.CTkOptionMenu(app, width=100, command=reinit)
 # prestbox = customtkinter.CTkComboBox(app, width=100, values=initmodes, command=reinit)
-# prestbox.set("reinit")
+prestbox.set("")
 prestbox.grid(row=8, column=3, columnspan=2, pady=5)
 
 # reinit_button = customtkinter.CTkButton(app, text=f"Reinit !")
@@ -424,7 +425,7 @@ def ident():
             app,
             title="siliTune",
             cls=2,
-            message="Please select a controller firs!",
+            message="Please select a controller first!",
         )
         return
     else:
