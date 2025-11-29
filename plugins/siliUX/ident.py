@@ -31,9 +31,9 @@ interrupt = False
 def advSwitch():
     if checkbox_adv.get():
         # Advanced mode - show individual buttons
-        identlinButton.grid_remove()
-        identrunButton.grid_remove()
-        autoidentButton.grid_remove()
+        identlinButton.grid_forget()
+        identrunButton.grid_forget()
+        autoidentButton.grid_forget()
         identlinButton.grid(row=2, column=0, padx=10, pady=10)
         identrunButton.grid(row=2, column=1, padx=10, pady=10)
 
@@ -52,9 +52,9 @@ def advSwitch():
         durationBox.insert(0, "4000")
     else:
         # Simple mode - show automatic button only
-        identlinButton.grid_remove()
-        identrunButton.grid_remove()
-        autoidentButton.grid_remove()
+        identlinButton.grid_forget()
+        identrunButton.grid_forget()
+        autoidentButton.grid_forget()
         autoidentButton.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
 
         accelBox.delete(0, 100)
@@ -399,9 +399,9 @@ def autoident_identlin_cb(state, res, stdout_data):
             prest = my_node.variable("/driver/prest").get()
 
             if prest == 3:
-                identrun_count = 2
+                identrun_count = 3
             else:
-                identrun_count = 1
+                identrun_count = 2
 
             global interrupt
             if interrupt:
@@ -820,8 +820,8 @@ def AutomaticIdentification(n, parent):
     CTkToolTip(retlabel, message="The result and value of the lastly issued command.")
 
     # Initially show automatic button (advanced mode is off by default)
-    identlinButton.grid_remove()
-    identrunButton.grid_remove()
+    identlinButton.grid_forget()
+    identrunButton.grid_forget()
     autoidentButton.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
 
     # start the poll loop for async events
