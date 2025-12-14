@@ -133,7 +133,7 @@ modes = [
     "4 - Voltage brake (VLB)",
     "5 - Stator current (SCR)",
     "6 - Torque (TRQ)",
-    "RES",
+    "7 - DC Current (DCR)",
     "8 - Brake (BRK)",
     "9 - Brake torque (BRT)",
     "10 - Brake freewheel (BRF)",
