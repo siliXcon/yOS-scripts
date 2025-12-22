@@ -849,20 +849,23 @@ class plot_tab:
             my_node.open("{scope} -t")
             time.sleep(1)
 
-        # reset if nothing is running in the scope
-        elif (my_node.executeSimple("period", "-p" + str(self.index), "-g", "-c") >> 16) & 7 == 0:
-            my_node.executeSimple("legend", "-p" + str(self.index), "-c20", "99", "112")
-            time.sleep(0.5)
-            autoscale = 0
+        else:
+            my_node.open("{scope}")
+            #time.sleep(0.5)
 
-        my_node.open("{scope}")
+            # reset if nothing is running in the scope
+            if (my_node.executeSimple("period", "-p" + str(self.index), "-g", "-c") >> 16) & 7 == 0:
+                my_node.executeSimple("legend", "-p" + str(self.index), "-c20", "99", "112")
+                time.sleep(0.5)
+                autoscale = 0
+
         plot_plot(val, self.index)
-        
+
         # do autoscale
         if autoscale:
             time.sleep(0.5)
             my_node.executeSimple("legend", "-p" + str(self.index), "-c24", "13", "0")  # a bug workaround: YOS only sends payload in multiply of 4 bytes, we must send a dummy zero
-    
+
         self.state_update()
 
     def __init__(self, name, idx, vals):
