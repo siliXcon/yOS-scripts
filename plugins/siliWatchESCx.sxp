@@ -855,6 +855,7 @@ class plot_tab:
             time.sleep(0.5)
             autoscale = 0
 
+        my_node.open("{scope}")
         plot_plot(val, self.index)
         
         # do autoscale
