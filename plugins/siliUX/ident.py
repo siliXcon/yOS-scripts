@@ -441,7 +441,7 @@ def autoident_identrun_cb(state, res, stdout_data):
             MessageBox(
                 window,
                 cls=2,
-                title="Automatic identification",
+                title="Automatic identification sequence",
                 message="Flux linkage could not be measured.\nPlease ensure that the rotor can freely move and optionally, adjust the acceleration and current.",
             )
         elif res >= 0:
@@ -484,16 +484,17 @@ def autoident_identrun_cb(state, res, stdout_data):
                 MessageBox(
                     window,
                     cls=1,
-                    title="Automatic identification",
+                    title="Automatic identification sequence",
                     message="Almost all done, but sensor was not identified properly! Please check your setup and try again.",
                 )
 
             else:
                 MessageBox(
                     window,
-                    title="Automatic identification",
+                    title="Automatic identification sequence",
                     message="Identification completed successfully!\nDo not forget to save your parameters to flash after the evaluation!",
                 )
+                window.destroy()
 
     return r
 
@@ -685,7 +686,7 @@ def AutomaticIdentification(n, parent):
     # Initially hidden, will be shown when advanced mode is off
     CTkToolTip(
         autoidentButton,
-        message="Automatically run identlin followed by identrun for complete motor identification.",
+        message="Start automatic sequence for complete motor identification.",
     )
 
     interruptButton = customtkinter.CTkButton(
