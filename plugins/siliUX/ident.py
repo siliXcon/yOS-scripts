@@ -619,8 +619,8 @@ def AutomaticIdentification(n, parent):
 
     window.attributes("-topmost", 1)
     # window.eval("tk::PlaceWindow . center")
-    x, y = window.winfo_pointerxy()
-    window.geometry(f"{640}x{600}+{x}+{y}")
+    #x, y = window.winfo_pointerxy()
+    #window.geometry(f"{640}x{600}+{x}+{y}")
     window.title("Automatic motor identification")
     lib_dir = os.path.dirname(__file__) + "/"
     window.iconbitmap(lib_dir + "SiliXcon.ico")

@@ -31,12 +31,12 @@ nodes, nodenames = find_nodes.find("esc")
 
 app = customtkinter.CTk()
 app.title("siliSpin (ESCx)")
-app.attributes("-topmost", 1)
-x, y = app.winfo_pointerxy()
-app.geometry(f"{550}x{400}+{x-250}+{y}")
+#app.attributes("-topmost", 1)
+#x, y = app.winfo_pointerxy()
+#app.geometry(f"{550}x{400}+{x-250}+{y}")
 app.grid_columnconfigure((0), weight=1)
 app.grid_rowconfigure((3, 4), weight=1)
-app.attributes("-topmost", 0)
+#app.attributes("-topmost", 0)
 app.iconbitmap(lib_dir + "SiliXcon.ico")
 
 ################################################################################
