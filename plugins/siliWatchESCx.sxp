@@ -77,7 +77,7 @@ class MemoryMonitor:
             for type_name, count in sorted(counts.items(), key=lambda x: x[1], reverse=True)[:10]:
                 print(f"{type_name}: {count}")
             print("-" * 40)
-            
+
             time.sleep(self.interval)
 
     def start(self):
@@ -132,10 +132,10 @@ class state_monitor:
     def __init__(self, prio, log_id, path, cb):
         global my_node
         self.path = path
+        self.variable = my_node.variable(self.path)
         self.cb = cb
         self.prio = prio - 1
         self.log_id = log_id
-        self.variable = my_node.variable(self.path)
 
     def update(self, *args):
         value = self.variable.get()
@@ -153,8 +153,8 @@ def update():
 
     try:
         while True:
-            updater = updaters[current_index]
-            current_index = current_index + 1
+            #updater = updaters[current_index]
+            #current_index = current_index + 1
             if current_index >= len(updaters):
                 # TODO consider spreading current_prio randomly (from 0 - 4) - to not aggregate log samples together
                 app.nodeselect_button.configure(selected_color="green")
@@ -172,6 +172,8 @@ def update():
                     # start over
                     log_row = [datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")]
 
+            updater = updaters[current_index]
+            current_index = current_index + 1
             if updater.prio <= current_prio:
                 # TODO try to experiment with different iomodes here (read the header above)
                 # we can attempt to schedule and IO op and if not successful, repeat next time. That will promote responsivity.
