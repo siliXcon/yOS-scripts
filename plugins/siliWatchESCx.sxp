@@ -248,7 +248,10 @@ app.grid_columnconfigure(1, weight=1)
 app.grid_columnconfigure((2, 3), weight=0)
 app.grid_rowconfigure(3, weight=1)
 app.grid_rowconfigure(4, weight=1)
-app.iconbitmap(lib_dir + "SiliXcon.ico")
+# iconbitmap(FILE) is problamatic, expected FILE are platform dependent!
+# app.iconbitmap(lib_dir + "SiliXcon.ico")
+app.iconbitmap()
+app.iconphoto(False, tkinter.PhotoImage(file=lib_dir + "SiliXcon.png"))
 #app.attributes("-topmost", 0)
 
 def node_select_callback(nodename):

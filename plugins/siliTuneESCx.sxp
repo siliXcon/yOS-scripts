@@ -39,7 +39,10 @@ app.title("siliTune (ESCx)")
 app.grid_columnconfigure(6, weight=1)
 app.grid_rowconfigure((20, 21, 22), weight=1)
 #app.attributes("-topmost", 0)
-app.iconbitmap(lib_dir + "SiliXcon.ico")
+# iconbitmap(FILE) is problamatic, expected FILE are platform dependent!
+# app.iconbitmap(lib_dir + "SiliXcon.ico")
+app.iconbitmap()
+app.iconphoto(False, tkinter.PhotoImage(file=lib_dir + "SiliXcon.png"))
 
 ################################################################################
 

@@ -13,7 +13,7 @@
     in another project without the author's agreement is not allowed.
 """
 
-import customtkinter, sxapi, os
+import tkinter, customtkinter, sxapi, os
 
 def MessageBox(message):
     app = customtkinter.CTk()
@@ -23,7 +23,8 @@ def MessageBox(message):
     app.geometry(f"+{x}+{y}")
     app.title("Find nodes")
     lib_dir = os.path.dirname(__file__)
-    app.iconbitmap(lib_dir + "/SiliXcon.ico")
+    app.iconbitmap()
+    app.iconphoto(False, tkinter.PhotoImage(file=lib_dir + "/SiliXcon.png"))
     customtkinter.CTkLabel(app, text=message).pack(padx=20, pady=20)
     customtkinter.CTkButton(app, text=f"OK", command=app.destroy).pack(padx=20, pady=20)
     app.mainloop()
