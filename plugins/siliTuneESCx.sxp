@@ -102,15 +102,20 @@ def refresh_prest():
         prest = my_node.variable("/driver/prest")
         prestval = prest.get() & 0x0F
     except sxapi.error as e:
-        MessageBox(
-            app,
-            cls=2,
-            title="siliTune",
-            message="The firmware is not compatible or you do not have enough rights.\n"
-            + str(e)
-        )
+
+        if int(e.code) == 100:
+            MessageBox(app, title="siliWatch", cls=2,
+               message="Could not access the value, please check the host/node status!\n"
+               + str(e))
+        else:
+            MessageBox(app, title="siliWatch", cls=2,
+               message="The firmware is not compatible or you do not have enough rights!\n"
+               + str(e))
+
+        nodeselect_button.set("NONE")
         return
 
+    nodeselect_button.configure(selected_color="green")
     try:
         my_node.variable("/driver/vcf")
         prestbox.configure(values=initmodes)
@@ -135,7 +140,6 @@ def node_select_callback(value):
     if value in nodenames:
         my_node = nodes[nodenames.index(value)]
         refresh()
-        nodeselect_button.configure(selected_color="green")
     else:
         my_node = 0
 
