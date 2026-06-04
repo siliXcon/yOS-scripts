@@ -623,7 +623,9 @@ def AutomaticIdentification(n, parent):
     #window.geometry(f"{640}x{600}+{x}+{y}")
     window.title("Automatic motor identification")
     lib_dir = os.path.dirname(__file__) + "/"
-    window.iconbitmap(lib_dir + "SiliXcon.ico")
+    #window.iconbitmap(lib_dir + "SiliXcon.ico")
+    window.iconbitmap()
+    window.iconphoto(False, tkinter.PhotoImage(file=lib_dir + "SiliXcon.png"))
 
     icon = Image.open(
         lib_dir + "flux.png"
