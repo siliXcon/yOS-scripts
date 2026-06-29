@@ -286,6 +286,8 @@ class param_edit:
         self.valueBox.configure(corner_radius=0)
 
     def on_set(self, *args):
+        if not my_node:
+            return
         variable = my_node.variable(self.path)
 
         if self.scale:
@@ -297,6 +299,10 @@ class param_edit:
         self.get()
 
     def get(self, *args):
+        if not my_node:
+            self.entry_var.set("-")
+            self.valueBox.configure(state='disabled')
+            return
         self.valueBox.configure(corner_radius=8, state='normal')
         try:
             variable = my_node.variable(self.path)
